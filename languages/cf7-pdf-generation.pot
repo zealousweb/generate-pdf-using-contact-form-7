@@ -1,0 +1,134 @@
+# Copyright (C) 2020 Zealousweb
+# This file is distributed under the same license as the Generate PDF using Contact Form 7 plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Generate PDF using Contact Form 7 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cf7-pdf-generation\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2020-04-17T11:26:59+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: cf7-pdf-generation\n"
+
+#. Plugin Name of the plugin
+msgid "Generate PDF using Contact Form 7"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "#"
+msgstr ""
+
+#. Description of the plugin
+msgid "Generate PDF using Contact Form 7 Plugin provides an easier way to download document files, open the document file or send as an attachment after the successful form submit."
+msgstr ""
+
+#. Author of the plugin
+msgid "Zealousweb"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://www.zealousweb.com/"
+msgstr ""
+
+#: inc/admin/class.cf7-pdf-generation.admin.action.php:58
+#: inc/admin/class.cf7-pdf-generation.admin.action.php:59
+msgid "PDF with CF7"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:3
+msgid "Contact Form 7 - PDF Operation Settings"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:11
+msgid "Create your first form here."
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:19
+msgid "Select the contact form"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:26
+msgid "-- Select a Contact Form --"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:97
+msgid "Setting saved successfully!"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:101
+msgid "There has been an error with uploading PDF."
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:117
+msgid "Enable PDF file operation ?"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:125
+#: inc/admin/wp-cf7-send-pdf-admin.php:145
+msgid "Yes"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:128
+#: inc/admin/wp-cf7-send-pdf-admin.php:147
+msgid "No"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:136
+msgid "Want to attach your own PDF in email ?"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:156
+msgid "Do you want to customize header logo in PDF?"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:168
+msgid "Select or Upload header logo"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:183
+msgid "Field tags"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:200
+msgid "Message body"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:227
+msgid "Attach PDF"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:243
+msgid "Attached PDF file"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:295
+msgid "<h3>Select the contact form </h3><p>Select the form that you want to amend before sending as a PDF attachment</p>"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:308
+msgid "<h3>Enable PDF file operation ?</h3><p>You can disable / enable PDF attachment functionality for each form.</p>"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:321
+msgid "<h3>Want to attached own PDF in mail ?</h3><p>You can also attach any predefined PDF file from your system, e.g. brochure.</p>"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:334
+msgid "<h3>PDF header logo</h3><p>Customize header logo, upload logo of approx 160px X 85px the logo will automatically reflect on the top-left side of the PDF document.</p>"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:348
+msgid "<h3>Message body</h3><p>You can manage body content of the message which will automatically reflect in the PDF attachement.</p>"
+msgstr ""
+
+#: inc/admin/wp-cf7-send-pdf-admin.php:361
+msgid "<h3>Attach PDF</h3><p>Exceed limit of PDF file is 25MB.</p>"
+msgstr ""
+
+#: inc/class.cf7-pdf-generation.php:104
+msgid "<b>Generate PDF using Contact Form 7 :</b> Contact Form 7 is not active! Please install <a target=\"_blank\" href=\"https://wordpress.org/plugins/contact-form-7/\">Contact Form 7</a>."
+msgstr ""

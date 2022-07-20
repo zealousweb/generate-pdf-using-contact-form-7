@@ -1,0 +1,143 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+.form-table th {
+	width: 360px;
+}
+
+.cf7pap-tooltip {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	vertical-align: middle;
+	border-radius: 100%;
+	margin-left: 10px;
+	background-image: url(data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgZGF0YS1wcmVmaXg9ImZhcyIgZGF0YS1pY29uPSJpbmZvLWNpcmNsZSIgY2xhc3M9InN2Zy1pbmxpbmUtLWZhIGZhLWluZm8tY2lyY2xlIGZhLXctMTYiIHJvbGU9ImltZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMjU2IDhDMTE5LjA0MyA4IDggMTE5LjA4MyA4IDI1NmMwIDEzNi45OTcgMTExLjA0MyAyNDggMjQ4IDI0OHMyNDgtMTExLjAwMyAyNDgtMjQ4QzUwNCAxMTkuMDgzIDM5Mi45NTcgOCAyNTYgOHptMCAxMTBjMjMuMTk2IDAgNDIgMTguODA0IDQyIDQycy0xOC44MDQgNDItNDIgNDItNDItMTguODA0LTQyLTQyIDE4LjgwNC00MiA0Mi00MnptNTYgMjU0YzAgNi42MjctNS4zNzMgMTItMTIgMTJoLTg4Yy02LjYyNyAwLTEyLTUuMzczLTEyLTEydi0yNGMwLTYuNjI3IDUuMzczLTEyIDEyLTEyaDEydi02NGgtMTJjLTYuNjI3IDAtMTItNS4zNzMtMTItMTJ2LTI0YzAtNi42MjcgNS4zNzMtMTIgMTItMTJoNjRjNi42MjcgMCAxMiA1LjM3MyAxMiAxMnYxMDBoMTJjNi42MjcgMCAxMiA1LjM3MyAxMiAxMnYyNHoiPjwvcGF0aD48L3N2Zz4=);
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.cf7pap-pointer .wp-pointer-content h3:before {
+	content: '\f348';
+}
+
+/* 20-2-2020 */
+.cf7-pdf-operation-wrapper table {
+	border-spacing: 0;
+}
+
+.cf7-pdf-operation-wrapper .upload-header-logo-row #cf7_opt_dis_img {
+	display: inline-block;
+	margin: 10px 0px;
+	position: relative;
+}
+.cf7-pdf-operation-wrapper .upload-header-logo-row .close {
+	position: absolute;
+    font-size: 0;
+    top: -10px;
+    right: -10px;
+    background: #FFF;
+    color: transparent;
+    border-radius: 50%;
+    border: none;
+}
+
+.cf7-pdf-operation-wrapper #cf7_opt_dis_img img {
+	display: block;
+}
+
+.cf7-pdf-operation-wrapper .close::before {
+	background: 0 0;
+    color: #72777c;
+    content: "\f153";
+    display: block !important;
+    font: normal 25px/1 dashicons;
+    speak: none;
+    text-align: center;
+    -webkit-font-smoothing: antialiased !important;
+	height: 100%;
+	overflow: hidden;
+}
+.cf7-pdf-operation-wrapper .close:hover::before {
+	color: #c00;
+}
+
+.cf7-pdf-operation-wrapper .form-table input.tog, 
+.cf7-pdf-operation-wrapper .form-table input[type=radio] {
+	margin-top: 0;
+    margin-right: 2px;
+}
+
+.cf7-pdf-operation-wrapper label+a, 
+.cf7-pdf-operation-wrapper label {
+    margin-right: 10px;
+}
+
+.cf7-pdf-operation-wrapper .upload-header-logo-file {
+	margin-bottom: 10px;
+}
+
+.upload-pdf-file-block {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.upload-pdf-file-block .pdf-logo-icon {
+	max-width: 50px;
+}
+
+.upload-pdf-file-block .remove-upload-pdf {
+	overflow: hidden;
+	position: absolute;
+    font-size: 0;
+    top: -7px;
+    right: -7px;
+    background: #FFF;
+    color: transparent;
+    border-radius: 50%;
+	border: none;
+}
+
+.upload-pdf-file-row .upload-pdf-file-input {
+	margin-bottom: 10px;
+}
+
+.upload-pdf-file-block .pdf-remove-wrapper {
+	position: relative;
+	font-size: 0;
+	margin-top: 20px;
+}
+
+.upload-pdf-file-block .pdf-title-wrapper {
+	display: flex;
+	align-items: center;
+	margin-top: 15px;
+}
+
+.upload-pdf-file-block .pdf-title-wrapper h4 {
+	margin: 0;
+}
+
+.upload-pdf-file-block .pdf-title-wrapper a{
+	color: #000;
+}
+
+.upload-pdf-file-block .pdf-title-wrapper img {
+	width: 100%;
+    max-width: 16px;
+    margin-left: 7px;
+}
+
+.err-msg{
+	display: block;
+    color: #f15642;
+    font-weight: 600;
+    margin-top: 10px;
+}
+.cf7-pdf-operation-wrapper #cf7_opt_dis_img img{max-width: 200px;
+    max-height: 150px;
+    width: auto;
+    height: auto;}
