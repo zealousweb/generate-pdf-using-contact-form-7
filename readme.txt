@@ -4,7 +4,7 @@ Donate link: http://www.zealousweb.com/payment/
 Tags: contact corm 7, contact form, contact, PDF, email, form, PDF mail
 Requires at least: 3.0.1
 Requires PHP: 5.6
-Tested up to: 5.8.3
+Tested up to: 6.0.1
 Stable tag: 3.4
 Version: 3.4
 License: GPLv2 or later
