@@ -55,17 +55,18 @@
 		var pdf_value = getCookie('wp-pdf_path');
 		var enable_pdf_link = getCookie('wp-enable_pdf_link');
 		var pdf_download_link_txt = getCookie('wp-pdf_download_link_txt');
+		var unit_tag = getCookie('wp-unit_tag');
 		if(enable_pdf_link == 'true')
 		{
 			if( pdf_value ){ 
 				setTimeout(function(){ 
 					if ($(".wpcf7").hasClass("wpcf7-mail-sent-ok")) {
-						$('.wpcf7-mail-sent-ok').append( '<br><a class="download-lnk-pdf" href="'+pdf_value+'" target="_blank">'+pdf_download_link_txt+'</a>' );	    
+						$('#'+unit_tag+' .wpcf7-response-output').append( '<br><a class="download-lnk-pdf" href="'+pdf_value+'" target="_blank">'+pdf_download_link_txt+'</a>' );	    
 						setCookie("pdf_path", '');
 					}
 					else
 					{
-						$('.wpcf7-response-output').append( '<br><a class="download-lnk-pdf" href="'+pdf_value+'" target="_blank">'+pdf_download_link_txt+'</a>' );	    
+						$('#'+unit_tag+' .wpcf7-response-output').append( '<br><a class="download-lnk-pdf" href="'+pdf_value+'" target="_blank">'+pdf_download_link_txt+'</a>' );	    
 						setCookie("pdf_path", '');
 					}
 	

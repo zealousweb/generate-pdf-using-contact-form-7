@@ -75,6 +75,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			$wpcf = WPCF7_ContactForm::get_current();
 
 		    $submission = WPCF7_Submission :: get_instance();
+			$unit_tag = $submission->get_meta('unit_tag');
 			$posted_data = $submission->get_posted_data();
 
 			$uploaded_files = $submission->uploaded_files();
@@ -129,6 +130,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 						setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); // 86400 = 1 day
 						setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/"); // 86400 = 1 day
 						setcookie( 'wp-pdf_download_link_txt', $cf7_pdf_download_link_txt, time() + (86400 * 1), "/"); // 86400 = 1 day
+						setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/"); // 86400 = 1 day
 
 						$mail = $wpcf7->prop('mail');
 						$attachments_main = array();
@@ -341,7 +343,8 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 					setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); // 86400 = 1 day
 					setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/"); // 86400 = 1 day
 					setcookie( 'wp-pdf_download_link_txt', $cf7_pdf_download_link_txt, time() + (86400 * 1), "/"); // 86400 = 1 day
-
+					setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/"); // 86400 = 1 day
+					
 					$attachments_main = array();
 					$mail = $wpcf7->prop('mail');
 					if( $mail['attachments'] ){
