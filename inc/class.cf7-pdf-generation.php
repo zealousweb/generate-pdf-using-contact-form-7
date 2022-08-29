@@ -69,15 +69,15 @@ class Cf7_Pdf_Generation {
 			$get_locale = get_user_locale();
 		}
 
-		$locale = apply_filters( 'plugin_locale',  $get_locale, 'cf7-pdf-generation' );
-		$mofile = sprintf( '%1$s-%2$s.mo', 'cf7-pdf-generation', $locale );
+		$locale = apply_filters( 'plugin_locale',  $get_locale, 'generate-pdf-using-contact-form-7' );
+		$mofile = sprintf( '%1$s-%2$s.mo', 'generate-pdf-using-contact-form-7', $locale );
 
 		$mofile_global = WP_LANG_DIR . '/plugins/' . basename( WP_CF7_PDF_DIR ) . '/' . $mofile;
 
 		if ( file_exists( $mofile_global ) ) {
-			load_textdomain( 'cf7-pdf-generation', $mofile_global );
+			load_textdomain( 'generate-pdf-using-contact-form-7', $mofile_global );
 		} else {
-			load_plugin_textdomain( 'cf7-pdf-generation', false, $cf7pdf_lang_dir );
+			load_plugin_textdomain( 'generate-pdf-using-contact-form-7', false, $cf7pdf_lang_dir );
 		}
 	}
 
@@ -87,7 +87,7 @@ class Cf7_Pdf_Generation {
 	function activate_notice_Cf7_Pdf_Generation() {
 	?>
 		<div class="error">
-			<p><?php esc_html(__( '<b>Generate PDF using Contact Form 7 :</b> Contact Form 7 is not active! Please install <a target="_blank" href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>.', 'cf7-pdf-generation' )); ?></p>
+			<p><?php esc_html(__( '<b>Generate PDF using Contact Form 7 :</b> Contact Form 7 is not active! Please install <a target="_blank" href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>.', 'generate-pdf-using-contact-form-7' )); ?></p>
 		</div>
 	<?php
 	}

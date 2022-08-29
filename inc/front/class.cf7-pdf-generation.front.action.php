@@ -94,9 +94,9 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 				$cf7_remove_pdf = '';
 			}
             if( isset($setting_data['cf7_pdf_download_link_txt']) ){
-		        $cf7_pdf_download_link_txt = trim($setting_data['cf7_pdf_download_link_txt']) ? $setting_data['cf7_pdf_download_link_txt'] : __('Click here to download PDF','cf7-pdf-generation');
+		        $cf7_pdf_download_link_txt = trim($setting_data['cf7_pdf_download_link_txt']) ? $setting_data['cf7_pdf_download_link_txt'] : __('Click here to download PDF','generate-pdf-using-contact-form-7');
             } else {
-				$cf7_pdf_download_link_txt = __('Click here to download PDF','cf7-pdf-generation');
+				$cf7_pdf_download_link_txt = __('Click here to download PDF','generate-pdf-using-contact-form-7');
 			}
 			$attdata = array();
 		    $date = date_i18n( get_option('date_format') );
@@ -182,7 +182,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 						if(!$cf7_opt_margin_left){$cf7_opt_margin_left = '15';}
 						if(!$cf7_opt_margin_right){$cf7_opt_margin_right = '15';}
 						
-						$cf7_pdf_download_fp_text = isset($setting_data['cf7_pdf_download_fp_text']) ? $setting_data['cf7_pdf_download_fp_text'] : __('Page','cf7-pdf-generation');
+						$cf7_pdf_download_fp_text = isset($setting_data['cf7_pdf_download_fp_text']) ? $setting_data['cf7_pdf_download_fp_text'] : __('Page','generate-pdf-using-contact-form-7');
 						$cf7_pdf_download_fp_pagenumSuffix = isset($setting_data['cf7_pdf_download_fp_pagenumSuffix']) ? $setting_data['cf7_pdf_download_fp_pagenumSuffix'] : '';
 						$cf7_pdf_download_fp_nbpgPrefix = isset($setting_data['cf7_pdf_download_fp_nbpgPrefix']) ? $setting_data['cf7_pdf_download_fp_nbpgPrefix'] : '';
 						$cf7_pdf_download_fp_nbpgSuffix = isset($setting_data['cf7_pdf_download_fp_nbpgSuffix']) ? $setting_data['cf7_pdf_download_fp_nbpgSuffix'] : '';
@@ -226,8 +226,8 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 								$value = htmlspecialchars($value);
 							}
 							if (strpos($key, 'acceptance') !== false) {
-								if( $value == 1 ) $acceptance_value =  __('accepted','cf7-pdf-generation');
-								if( $value == 0 ) $acceptance_value = __('not accepted','cf7-pdf-generation');
+								if( $value == 1 ) $acceptance_value =  __('accepted','generate-pdf-using-contact-form-7');
+								if( $value == 0 ) $acceptance_value = __('not accepted','generate-pdf-using-contact-form-7');
 								$value = $acceptance_value;
 							}
 							if (strpos($msg_body, '[date]') !== false) {
