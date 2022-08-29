@@ -28,7 +28,6 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 			add_action( 'admin_menu',array( $this, 'wp_cf7_pdf_add_admin' ));
 			add_action( 'admin_print_styles',array( $this, 'wpcf7_pdf_admin_styles' ));
 			add_action( 'admin_print_scripts',array( $this, 'wpcf7_pdf_admin_scripts' ));
-			add_action( 'admin_init', array( $this, 'wpcf7_pdf_review_notice' ) );
 		}
 
 		/**
@@ -92,98 +91,6 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 			wp_enqueue_style('thickbox');
 		}
 
-		/**
-		 *	Check and Dismiss review message.
-		 *
-		 *	@since 2.0
-		 */
-		private function wpcf7_pdf_review_dismissal() {
-
-
-			//delete_site_option( 'wp_wpcf7_pdf_review_dismiss' );
-			if ( ! is_admin() || ! current_user_can( 'manage_options' )  || ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), 'wpcf7_pdf-review-nonce' ) || ! isset( $_GET['wp_wpcf7_pdf_review_dismiss'] )) {
-				return;
-			}
-			//echo 'Hey There In wpcf7_pdf_review_dismissal Function';
-			add_site_option( 'wp_wpcf7_pdf_review_dismiss_opt', 'yes' );
-		}
-
-		/**
-		 * Ask users to review our plugin on .org
-		 *
-		 * @since 2.0
-		 * @return boolean false
-		 */
-		public function wpcf7_pdf_review_notice() {
-
-			$this->wpcf7_pdf_review_dismissal();
-			$this->wpcf7_pdf_review_prending();
-
-			$activation_time 	= get_site_option( 'wp_wpcf7_pdf_active_time' );
-			$review_dismissal	= get_site_option( 'wp_wpcf7_pdf_review_dismiss_opt' );
-
-			if ( 'yes' == $review_dismissal ) {
-				return;
-			}
-
-			if ( ! $activation_time ) {
-
-				$activation_time = time();
-				add_site_option( 'wp_wpcf7_pdf_active_time', $activation_time );
-			}
-			// 1296000 = 15 Days in seconds.
-			if ( time() - $activation_time > 648000 ) {
-				add_action( 'admin_notices' , array( $this, 'wpcf7_pdf_review_notice_message' ) );
-			}
-		}
-		/**
-		 * Set time to current so review notice will popup after 14 days
-		 *
-		 * @since 2.0
-		 */
-		function wpcf7_pdf_review_prending() {
-
-			// delete_site_option( 'wp_wpcf7_pdf_review_dismiss' );
-			if ( ! is_admin() ||
-				! current_user_can( 'manage_options' ) || ! isset( $_GET['_wpnonce'] ) ||
-				! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), 'wpcf7_pdf-review-nonce' ) ||
-				! isset( $_GET['wp_wpcf7_pdf_review_later'] )  ) {
-
-				return;
-			}
-			// Reset Time to current time.
-			update_site_option( 'wp_wpcf7_pdf_active_time', time() );
-		}
-
-		/**
-		 * Review notice message
-		 *
-		 * @since  1.3
-		 */
-		public function wpcf7_pdf_review_notice_message() {
-
-			$scheme      = (parse_url( $_SERVER['REQUEST_URI'], PHP_URL_QUERY )) ? '&' : '?';
-			$url         = esc_url($_SERVER['REQUEST_URI']) . esc_html( $scheme ) . 'wp_wpcf7_pdf_review_dismiss=yes';
-			$dismiss_url = wp_nonce_url( $url, 'wpcf7_pdf-review-nonce' );
-
-			$_later_link = esc_url($_SERVER['REQUEST_URI']) .esc_html( $scheme ). 'wp_wpcf7_pdf_review_later=yes';
-			$later_url   = wp_nonce_url( $_later_link, 'wpcf7_pdf-review-nonce' );
-		?>
-			<div class="wpcf7_pdf-review-notice">
-				<div class="wpcf7_pdf-review-thumbnail">
-					<img src="<?php echo WP_CF7_PDF_URL . 'assets/images/pdf-logo.png' ?>" alt="">
-				</div>
-				<div class="wpcf7_pdf-review-text">
-					<h3><?php _e( 'Leave A Review?', 'generate-pdf-using-contact-form-7' ) ?></h3>
-					<p><?php _e( 'We hope you\'ve enjoyed <strong>Generate PDF using Contact Form 7 Plugin!</strong>! Would you consider leaving us a review on WordPress.org?', 'generate-pdf-using-contact-form-7' ) ?></p>
-					<ul class="wpcf7_pdf-review-ul"><li><a href="https://wordpress.org/support/plugin/generate-pdf-using-contact-form-7/reviews/" target="_blank"><span class="dashicons dashicons-external"></span><?php _e( 'Sure! I\'d love to!', 'generate-pdf-using-contact-form-7' ) ?></a></li>
-		             <li><a href="<?php echo esc_url($dismiss_url); ?>"><span class="dashicons dashicons-smiley"></span><?php _e( 'I\'ve already left a review', 'generate-pdf-using-contact-form-7' ) ?></a></li>
-		             <li><a href="<?php echo esc_url($later_url); ?>"><span class="dashicons dashicons-calendar-alt"></span><?php _e( 'Maybe Later', 'generate-pdf-using-contact-form-7' ) ?></a></li>
-		             <li><a href="<?php echo esc_url($dismiss_url); ?>"><span class="dashicons dashicons-dismiss"></span><?php _e( 'Never show again', 'generate-pdf-using-contact-form-7' ) ?></a></li></ul>
-				</div>
-			</div>
-		<?php
-		}
 	}
 
 	/**
