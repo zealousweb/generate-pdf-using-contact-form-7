@@ -1,8 +1,3 @@
-<style>
-.align{
-	display:none;
-}
-</style>
 <?php
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;

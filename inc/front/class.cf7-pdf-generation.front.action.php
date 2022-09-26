@@ -281,6 +281,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 					}
 
 					$html = $msg_body;
+					$html = apply_filters( 'cf7_pdf_message_body', $html, $wpcf, $submission );
 					$html = nl2br($html);
 
 					/*
