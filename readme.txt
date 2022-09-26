@@ -83,6 +83,9 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 
 == Changelog ==
 
+= 3.7 =
+* Fix - Solved issue and add filter for output content on PDF.
+
 = 3.6 =
 * Fix - Solved XSS script issue.
 
