@@ -260,7 +260,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 							if($uploaded_files){
 								foreach ( (array) $uploaded_files as $name => $path ) {
 									if (! empty( $path ) ) {
-										$file_name = basename($path);
+										$file_name = basename($path[0]);
 										$msg_body = str_replace('['.$name.']',$file_name,$msg_body);
 									}
 								}
@@ -309,7 +309,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 					foreach ( (array) $uploaded_files as $name => $path ) {
 
 						if (! empty( $path ) ) {
-							$xmlFile = pathinfo($path);
+							$xmlFile = pathinfo($path[0]);
 							$path_dir_cf7 =  $xmlFile['dirname'];
 						}
 					}
