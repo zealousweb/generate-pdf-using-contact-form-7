@@ -4,9 +4,9 @@ Donate link: http://www.zealousweb.com/payment/
 Tags: contact corm 7, contact form, contact, PDF, email, form, PDF mail
 Requires at least: 3.0.1
 Requires PHP: 5.6
-Tested up to: 6.0.1
-Stable tag: 3.6
-Version: 3.6
+Tested up to: 6.1.0
+Stable tag: 3.8
+Version: 3.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,7 +20,7 @@ Here, a user can set the document file (PDF) from the ‘Form Setting’ Page of
 
 When the user fills the form and submits it, the same document will get open in a new tab. Once it gets opened, the user would be able to download it to the local system.
 
-Also, in case an admin does not want any user to open it in-browser, admin can adjust settings and send that particular PDF as an email attachment. 
+Also, in case an admin does not want any user to open it in-browser, admin can adjust settings and send that particular PDF as an email attachment.
 
 **Note**
 For PDF we have used MPDF library so in admin side it's support Below HTML and CSS with editor to generate PDF.
@@ -42,21 +42,23 @@ https://mpdf.github.io/html-support/html-tags.html
 * Add Page number options in admin so you can add Text with PDF page number.
 * Ability to set font size of PDF content.
 
-<strong>[Demo for Generate PDF using Contact Form 7](http://demo.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7/)</strong>
+== Release Generate PDF using Contact Form 7 Pro ==
+
+<strong>[Get more information of Pro version here](https://www.zealousweb.com/store/generate-pdf-using-contact-form-7-pro)</strong>
+
+<strong>[Demo for Generate PDF using Contact Form 7 Pro](https://demo.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7-pro/)</strong>
 
 == OUR OTHER PLUGINS ==
 
-* <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-paypal-payments-using-contact-form-7-pro/)</strong>
-* <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-stripe-payments-using-contact-form-7/)</strong>
-* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-authorize-net-payments-using-contact-form-7/)</strong>
-* <strong>[Accept Worldpay Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-worldpay-payments-using-contact-form-7-pro/)</strong>
-* <strong>[Accept Elavon Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-elavon-payments-using-contact-form-7-pro/)</strong>
-* <strong>[Accept Qpay payments Using Contact form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-qpay-payments-using-contact-form-7-pro/)</strong>
-* <strong>[Accept 2Checkout Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-2checkout-payments-using-contact-form-7-pro/)</strong>
-* <strong>[Accept Sage Pay Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-sagepay-payments-using-contact-form-7-pro/)</strong>
-* <strong>[User Registration Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/user-registration-using-contact-form-7-pro/)</strong>
-* <strong>[Abandoned Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/abandoned-contact-form-7-pro/)</strong>
-* <strong>[Custom Product Options WooCommerce Pro](https://www.zealousweb.com/wordpress-plugins/custom-product-options-woocommerce-pro/)</strong>
+* <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-paypal-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-stripe-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Elavon Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-elavon-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept 2Checkout Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-2checkout-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept SagePay(opayo) Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-sage-pay-payments-using-contact-form-7-pro)</strong>
+* <strong>[User Registration Using Contact Form 7 Pro](https://www.zealousweb.com/store/user-registration-using-contact-form-7-pro)</strong>
+* <strong>[Abandoned Contact Form 7 Pro](https://www.zealousweb.com/store/abandoned-contact-form-7-pro/)</strong>
+* <strong>[Custom Product Options WooCommerce Pro](https://www.zealousweb.com/store/custom-product-options-woocommerce-pro)</strong>
 
 = Getting Help With Wordpress =
 
@@ -82,6 +84,9 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 3. Screenshot 'screenshot-3.png' New options of Page number and file name settings.
 
 == Changelog ==
+
+= 3.8 =
+* Fix - Solved issue of uploaded Path file Input.
 
 = 3.7 =
 * Fix - Solved issue and add filter for output content on PDF.
@@ -173,13 +178,13 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 * Add - Add New Feature of setting margin of Create PDF with Data.
 
 = 1.9 =
-* Add - Add Date format features and match with WP general settings. 
+* Add - Add Date format features and match with WP general settings.
 
 = 1.8 =
-* Add - Fixed Issue. 
+* Add - Fixed Issue.
 
 = 1.7 =
-* Add - Now plugin support with Contact Form 7 file option with our PDF attachment. 
+* Add - Now plugin support with Contact Form 7 file option with our PDF attachment.
 
 = 1.6 =
 * Fix - Issue fixed regarding tooltip with latest version of WordPress 5.5.
