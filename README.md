@@ -1,6 +1,13 @@
 # generate-pdf-using-contact-form-7
 Generate PDF using Contact Form 7 plugin provides an easier way to download PDF documents, open the PDF document file after the successful form submission.
 
+# Installation
+1. Download the plugin zip file from WordPress.org plugin site to your desktop / PC
+2. If the file is downloaded as a zip archive, extract the plugin folder to your desktop.
+3. With your FTP program, upload the plugin folder to the wp-content/plugins folder in your WordPress directory online
+4. Go to the Plugin screen and find the newly uploaded Plugin in the list.
+5. Click ‘Activate Plugin’ to activate it.
+
 ![Screenshot](resources/img/pdf_7_1.jpg)
 
 
