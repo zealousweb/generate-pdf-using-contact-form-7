@@ -47,7 +47,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Filter' ) ){
 			);
 			array_unshift( $links, $settings_link );
 
-			$documentlink = '<a target="_blank" href="https://www.zealousweb.com/documentation/wordpress-plugins/generate-pdf-using-contact-form-7/"> '. __( 'Document Link', 'cf7-pdf-generation') .'</a>';
+			$documentlink = '<a target="_blank" href="https://www.zealousweb.com/documentation/wordpress-plugins/generate-pdf-using-contact-form-7/"> '. __( 'Document Link', 'generate-pdf-using-contact-form-7') .'</a>';
 			array_unshift( $links, $documentlink );
 		
 			return $links;

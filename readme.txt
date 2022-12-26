@@ -5,8 +5,8 @@ Tags: contact corm 7, contact form, contact, PDF, email, form, PDF mail
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 6.0.1
-Stable tag: 3.5
-Version: 3.5
+Stable tag: 3.6
+Version: 3.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,12 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 3. Screenshot 'screenshot-3.png' New options of Page number and file name settings.
 
 == Changelog ==
+
+= 3.7 =
+* Fix - Solved issue and add filter for output content on PDF.
+
+= 3.6 =
+* Fix - Solved XSS script issue.
 
 = 3.5 =
 * Fix - Solved Success Message if multiple form on same page.
