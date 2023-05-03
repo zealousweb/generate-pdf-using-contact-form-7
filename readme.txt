@@ -4,9 +4,9 @@ Donate link: http://www.zealousweb.com/payment/
 Tags: contact corm 7, contact form, contact, PDF, email, form, PDF mail
 Requires at least: 3.0.1
 Requires PHP: 5.6
-Tested up to: 6.0.1
-Stable tag: 3.6
-Version: 3.6
+Tested up to: 6.2
+Stable tag: 4.0.2
+Version: 4.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,16 +42,18 @@ https://mpdf.github.io/html-support/html-tags.html
 * Add Page number options in admin so you can add Text with PDF page number.
 * Ability to set font size of PDF content.
 
-<strong>[Demo for Generate PDF using Contact Form 7](http://demo.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7/)</strong>
+== Release Generate PDF using Contact Form 7 Pro ==
+
+<strong>[Get more information of Pro version here](https://www.zealousweb.com/store/generate-pdf-using-contact-form-7-pro)</strong>
+
+<strong>[Demo for Generate PDF using Contact Form 7 Pro](https://demo.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7-pro/)</strong>
 
 == OUR OTHER PLUGINS ==
 
 * <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-paypal-payments-using-contact-form-7-pro/)</strong>
 * <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-stripe-payments-using-contact-form-7/)</strong>
-* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-authorize-net-payments-using-contact-form-7/)</strong>
-* <strong>[Accept Worldpay Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-worldpay-payments-using-contact-form-7-pro/)</strong>
-* <strong>[Accept Elavon Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-elavon-payments-using-contact-form-7-pro/)</strong>
-* <strong>[Accept Qpay payments Using Contact form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-qpay-payments-using-contact-form-7-pro/)</strong>
+* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Elavon Payments Using Contact Form 7 Pro](https://www.zealousweb.com/store/accept-elavon-payments-using-contact-form-7-pro)</strong>
 * <strong>[Accept 2Checkout Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-2checkout-payments-using-contact-form-7-pro/)</strong>
 * <strong>[Accept Sage Pay Payments Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/accept-sagepay-payments-using-contact-form-7-pro/)</strong>
 * <strong>[User Registration Using Contact Form 7 Pro](https://www.zealousweb.com/wordpress-plugins/user-registration-using-contact-form-7-pro/)</strong>
@@ -81,7 +83,53 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 2. Screenshot 'screenshot-2.png' PDF settings of Customize PDF in the Contact form.
 3. Screenshot 'screenshot-3.png' New options of Page number and file name settings.
 
+
+== Frequently Asked Questions ==
+
+= How to upload mpdf TTf Fonts in library =
+
+To prevent the plugin from becoming too large, we have opted to utilize common TTF fonts and have included them in the plugin.
+
+However, if you encounter a fatal error that states “Cannot find TTF TrueType font file ‘XB Riyaz.ttf’ in configured font directories” 
+because you are using a different font, you will need to upload the necessary font to the designated plugin path.
+
+/wp-content/plugins/generate-pdf-using-contact-form-7/inc/lib/mpdf/vendor/mpdf/mpdf/ttfonts
+
+1. You can obtain the required font by downloading it from the GitHub directory provided below.
+Visit Github link https://github.com/mpdf/mpdf/tree/development/ttfonts
+Download the fonts that’s missing and throwing error
+
+How to Video: https://www.awesomescreenshot.com/video/17025362?key=99cbec8974ee85fdad75e8cea60a97d6
+
+Review Screenshots :
+https://prnt.sc/ZKde74y12q3N
+https://prnt.sc/PsXaTarHTx4m
+
+2: Upload this files to this plugin path
+/wp-content/plugins/generate-pdf-using-contact-form-7/inc/lib/mpdf/vendor/mpdf/mpdf/ttfonts
+
+S.S https://prnt.sc/-TLx40Qup76r
+
 == Changelog ==
+
+= 4.0.2 =
+* Uplaod ttf fonts : XB Riyaz , 13Apr2023#@!
+
+
+= 4.0.1 =
+* Fixed Bug
+
+= 4.0 =
+* Display option to add style to pdf uniquely in setting.
+
+= 3.10 =
+* Added New Feature to select: Attach pdf in mail or not.
+
+= 3.9 =
+* Fix - Solved issue of attaching pdf in mail.
+
+= 3.8 =
+* Fix - Solved issue of uploaded Path file Input.
 
 = 3.7 =
 * Fix - Solved issue and add filter for output content on PDF.

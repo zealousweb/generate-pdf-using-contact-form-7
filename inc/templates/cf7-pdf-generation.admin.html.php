@@ -158,7 +158,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 						</tr>
 						<tr valign="top" id="onsent_mail_pdfopt">
 		        			<th scope="row">
-							<?php echo esc_html(__( 'Remove PDF after mail sent ?', 'generate-pdf-using-contact-form-7')); ?>
+							<?php echo esc_html(__( 'Do you want to remove PDF attachment after mail sent?', 'generate-pdf-using-contact-form-7')); ?>
 							</th>
 							<td>
 								<?php
@@ -174,12 +174,36 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 					</table>
 				</td>
 	        </tr>
+	        <tr valign="top">
+		        <td style="padding: 0" colspan="2">
+		        	<table class="disable-pdf-link">
+		        		
+						<tr valign="top" id="dettach_pdf_in_mail">
+		        			<th scope="row">
+							<?php echo esc_html(__( 'Do you want to attach pdf in mail ?', 'generate-pdf-using-contact-form-7')); ?>
+							<span class="cf7pap-tooltip hide-if-no-js " id="cf7_pdf_link_disable_pdf_tooltip_id"></span>
+							</th>
+							<td>
+								<?php
+								$cf7_dettach_pdf = isset( $meta_values['cf7_dettach_pdf'] ) ? $meta_values['cf7_dettach_pdf'] : 'false';
+								?>
+								<input type="radio" id="cf7_dettach_pdf_yes" name="wp_cf7_pdf_settings[cf7_dettach_pdf]" class="remove_attach_pdf_k" value="true" <?php if( $cf7_dettach_pdf == 'true' ) { echo esc_html(' checked'); } ?> />
+								<label for="cf7_dettach_pdf_yes"><?php echo esc_html(__( 'Yes', 'generate-pdf-using-contact-form-7')); ?></label>
+								
+								<input type="radio" id="cf7_dettach_pdf_no" name="wp_cf7_pdf_settings[cf7_dettach_pdf]" class="remove_attach_pdf_k" value="false" <?php if( $cf7_dettach_pdf == 'false' ) { echo esc_html(' checked'); } ?> />
+								<label for="cf7_dettach_pdf_no"><?php echo esc_html(__( 'No', 'generate-pdf-using-contact-form-7')); ?></label>
+							</td>
+						</tr>
+
+					</table>
+				</td>
+	        </tr>
 	        <tr>
 	        	<td style="padding: 0" colspan="2">
-	        		<table class="enable-pdf">
+	        		<table class="enable-pdf" id="hsenablepdf">
 				    	<tr valign="top">
 				    		<th scope="row">
-							<?php echo esc_html(__( 'Want to attach your own PDF in email ?', 'generate-pdf-using-contact-form-7')); ?>
+							<?php echo esc_html(__( 'Do you want to upload pdf or customize pdf?', 'generate-pdf-using-contact-form-7')); ?>
 							<span class="cf7pap-tooltip hide-if-no-js " id="cf7_opt_is_attach_enable_tooltip_id"></span>
 							</th>
 							
@@ -534,6 +558,19 @@ add_action('admin_print_footer_scripts', function() {
 					content: '<?php
 					_e( '<h3> Enable PDF Link with Form Success Message ? </h3>' .
 						'<p>You can disable / enable PDF Link with Form Success Message for each form.</p>',
+						'generate-pdf-using-contact-form-7'
+					); ?>',
+					position: 'left center',
+				} ).pointer('open');
+			} );
+
+			jQuery( '#cf7_pdf_link_disable_pdf_tooltip_id' ).on( 'mouseenter click', function() {
+				jQuery( 'body .wp-pointer-buttons .close' ).trigger( 'click' );
+				jQuery( '#cf7_pdf_link_disable_pdf_tooltip_id' ).pointer({
+					pointerClass: 'wp-pointer cf7pap-pointer',
+					content: '<?php
+					_e( '<h3> Enable pdf attachment in mail ? </h3>' .
+						'<p>You can disable / enable PDF attachment in mail</p>',
 						'generate-pdf-using-contact-form-7'
 					); ?>',
 					position: 'left center',
