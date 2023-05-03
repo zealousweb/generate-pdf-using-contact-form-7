@@ -113,7 +113,7 @@ S.S https://prnt.sc/-TLx40Qup76r
 == Changelog ==
 
 = 4.0.2 =
-* Uplaod ttf fonts : XB Riyaz , 13Apr2023#@!
+* Uplaod ttf fonts : XB Riyaz
 
 
 = 4.0.1 =
