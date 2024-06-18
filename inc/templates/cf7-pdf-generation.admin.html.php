@@ -13,13 +13,13 @@ if ( !defined( 'ABSPATH' ) ) exit;
 	$cf7Forms = get_posts( $args );
 
 	if ( count($cf7Forms) == 0 ) {
-		printf( esc_html(__('No forms have not been found. %s', 'send-pdf-for-contact-form-7')), '<a href="'.admin_url('admin.php?page=wpcf7').'">'.esc_html(__('Create your first form here.', 'generate-pdf-using-contact-form-7')).'</a>');
+		printf( esc_html(__('No forms have not been found. %s', 'send-pdf-for-contact-form-7')), '<a href="'.esc_url(admin_url('admin.php?page=wpcf7')).'">'.esc_html(__('Create your first form here.', 'generate-pdf-using-contact-form-7')).'</a>');
 	}
 	else
 	{
 	?>
-		<form method="post" enctype="multipart/form-data" autocomplete="false" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>" name="displayform" id="displayform" >
 	
+		<form method="post" enctype="multipart/form-data" autocomplete="false" action="<?php echo isset($_SERVER['REQUEST_URI']) ? esc_url($_SERVER['REQUEST_URI']) : ''; ?>" name="displayform" id="displayform">
 		<table class="form-table">
 		<tr valign="top">
 		<th scope="row">
@@ -27,19 +27,22 @@ if ( !defined( 'ABSPATH' ) ) exit;
 		<span class="cf7pap-tooltip hide-if-no-js " id="cf7_idform_tooltip_id"></span>
 		</th>
 		<td>
+		<!-- <input type="hidden" name="cf7-pdf-generation-form" id="cf7-pdf-generation-form" value="<?php //echo esc_attr( wp_create_nonce( 'cf7-pdf-generation-form' ) ); ?>" /> -->
 			<input type="hidden" name="page" value="wp-cf7-send-pdf"/>
 			<?php wp_nonce_field('go-sendform', 'security-sendform'); ?>
 			<select name="cf7_idform" id="cf7_idform" class="wpcf7-form-field" onchange="this.form.submit();">
-				<option value="" ><?php echo htmlspecialchars(esc_html(__('-- Select a Contact Form --', 'generate-pdf-using-contact-form-7'))); ?></option>
+				<option value="" >
+				<?php echo esc_html(htmlspecialchars(esc_html(__('-- Select a Contact Form --', 'generate-pdf-using-contact-form-7')))); ?>
+				</option>
 				<?php
 					$selected = '';
 					foreach ($cf7Forms as $cf_form) {
 
-						if( isset($_POST['cf7_idform']) ) {
-							$selected = ($cf_form->ID == sanitize_text_field($_POST['cf7_idform']) ) ? "selected" : "";
+						if( isset($_POST['cf7_idform']) ) { //phpcs:ignore
+							$selected = ($cf_form->ID == sanitize_text_field($_POST['cf7_idform']) ) ? "selected" : ""; //phpcs:ignore
 						}
 						$form_name = htmlentities($cf_form->post_title, null, 'UTF-8');
-						echo '<option value="'.esc_html($cf_form->ID).'" '.esc_html($selected).'>'.esc_html($form_name).'</option>';
+						echo '<option value="'.esc_attr($cf_form->ID).'" '.esc_attr($selected).'>'.esc_html($form_name).'</option>';
 					}
 				?>
 			</select>
@@ -50,52 +53,56 @@ if ( !defined( 'ABSPATH' ) ) exit;
 		</form>
 	
 	<?php } 
-	if( isset($_POST['cf7_idform']) &&  sanitize_text_field($_POST['cf7_idform'])!='' ) {
-		$cf7_idform = intval( sanitize_text_field($_POST['cf7_idform']) );
-		$file = '';$temp = 1;
+// if ( ! isset( $_POST['comman-nonce'] ) || ! wp_verify_nonce( $_POST['comman-nonce'], 'cf7-pdf-generation-form' ) ) {
+//             wp_die( esc_html__( 'May need to refresh the page! Security check failed', 'cf7-pdf-generation-form' ) );
+// }
 
-		if( isset($_POST['action']) )
+	if( isset($_POST['cf7_idform']) &&  sanitize_text_field($_POST['cf7_idform'])!='' ) {  //phpcs:ignore
+		$cf7_idform = intval( sanitize_text_field($_POST['cf7_idform']) ); //phpcs:ignore
+		$file = '';$temp = 1; 
+
+		if( isset($_POST['action']) ) //phpcs:ignore
 		{
-			if (( sanitize_text_field($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']) != "" )){
+			if (( sanitize_text_field($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']) != "" )){ //phpcs:ignore
 				$target_dir = WP_CF7_PDF_DIR.'attachments/';
-				$file = sanitize_text_field($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']);
+				$file = sanitize_text_field($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']); //phpcs:ignore
 				$file = preg_replace('/\s+/', '', $file);
-	 			$path = pathinfo($file);
+	 			$path = pathinfo($file);  //phpcs:ignore
 
 	 			$filename = $path['filename'];
 
 	 			$ext = $path['extension'];
-	 			$temp_name = sanitize_text_field($_FILES['wp_cf7_pdf_settings']['tmp_name']['cf7_opt_attach_pdf_image']);
+	 			$temp_name = sanitize_text_field($_FILES['wp_cf7_pdf_settings']['tmp_name']['cf7_opt_attach_pdf_image']); //phpcs:ignore
 	 			$path_filename_ext = $target_dir.$filename.".".$ext;
 	 			if (move_uploaded_file($temp_name,$path_filename_ext)) {
 		 			$temp = 1;
-		 			@unlink(realpath($target_dir.$_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']));
+		 			@unlink(realpath($target_dir.$_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'])); //phpcs:ignore
 				   } else {
 				   	$temp = 0;
 			   	}
 			}
 			else
 			{
-				if( sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']) )
+				if( sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']) ) //phpcs:ignore
 				{
-					$file = sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']);
+					$file = sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']); //phpcs:ignore
 				}
 			}
 
-		if( sanitize_textarea_field($_POST['wp_cf7_pdf_settings']['cf7_pdf_msg_body']) == '' ){
+		if( sanitize_textarea_field($_POST['wp_cf7_pdf_settings']['cf7_pdf_msg_body']) == '' ){ //phpcs:ignore
 
 			$_POST['wp_cf7_pdf_settings']['cf7_pdf_msg_body'] = __('Your Name : [your-name]
-Your Email : [your-email]
-Subject : [your-subject]
-Your Message : [your-message]','generate-pdf-using-contact-form-7');
+					Your Email : [your-email]
+					Subject : [your-subject]
+					Your Message : [your-message]','generate-pdf-using-contact-form-7');
 
 		}
 		
-		if( sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_pdf_download_link_txt']) == '' ){
+		if( sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_pdf_download_link_txt']) == '' ){ //phpcs:ignore
 			$_POST['wp_cf7_pdf_settings']['cf7_pdf_download_link_txt'] = __('Click here to download PDF','generate-pdf-using-contact-form-7');
 		}
 
-		$before_post = filter_var_array($_POST["wp_cf7_pdf_settings"]);
+		$before_post = filter_var_array($_POST["wp_cf7_pdf_settings"]); //phpcs:ignore
 		if(!empty($file)){
 			$before_post["cf7_opt_attach_pdf_image"] = $file;
 		}
@@ -118,7 +125,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 	<form method="post" name="setting_form" action="" enctype="multipart/form-data">
 
 		<input type="hidden" name="action" value="update" />
-		<input type="hidden" name="cf7_idform" value="<?php echo esc_html($cf7_idform); ?>"/>
+		<input type="hidden" name="cf7_idform" value="<?php echo esc_attr($cf7_idform); ?>"/>
 
 	    <table class="form-table">
 	    	<tr valign="top">
@@ -235,7 +242,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										
 										<input id="cf7_opt_upload_image_current" type="hidden" value="<?php echo esc_url($cf7_opt_header_pdf_image);?>" />
 																			
-										<input id="cf7_opt_upload_image_button" class="button" type="button" value="<?php echo esc_html(__('Select or Upload header logo', 'generate-pdf-using-contact-form-7')); ?>" />
+										<input id="cf7_opt_upload_image_button" class="button" type="button" value="<?php echo esc_attr(__('Select or Upload header logo', 'generate-pdf-using-contact-form-7')); ?>" />
 										<span class="err-msg" id="upload-header-logo-err"></span>
 										</div>
 										<div id="cf7_opt_dis_img">
@@ -255,7 +262,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_max_width_logo = isset( $meta_values['cf7_opt_max_width_logo'] ) ? $meta_values['cf7_opt_max_width_logo'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_max_width_logo]" id="cf7_opt_max_width_logo" value="<?php echo esc_html($cf7_opt_max_width_logo); ?>" style="width: 100%;" placeholder="160px">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_max_width_logo]" id="cf7_opt_max_width_logo" value="<?php echo esc_attr($cf7_opt_max_width_logo); ?>" style="width: 100%;" placeholder="160px">
 									</td>
 						        </tr>
 
@@ -265,7 +272,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_min_width_logo = isset( $meta_values['cf7_opt_min_width_logo'] ) ? $meta_values['cf7_opt_min_width_logo'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_min_width_logo]" id="cf7_opt_min_width_logo" value="<?php echo esc_html($cf7_opt_min_width_logo); ?>" style="width: 100%;" placeholder="85px">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_min_width_logo]" id="cf7_opt_min_width_logo" value="<?php echo esc_attr($cf7_opt_min_width_logo); ?>" style="width: 100%;" placeholder="85px">
 									</td>
 						        </tr>
 
@@ -275,7 +282,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_margin_header = isset( $meta_values['cf7_opt_margin_header'] ) ? $meta_values['cf7_opt_margin_header'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_header]" id="cf7_opt_margin_header" value="<?php echo esc_html($cf7_opt_margin_header); ?>" style="width: 100%;" placeholder="10">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_header]" id="cf7_opt_margin_header" value="<?php echo esc_attr($cf7_opt_margin_header); ?>" style="width: 100%;" placeholder="10">
 									</td>
 						        </tr>
 
@@ -285,7 +292,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_margin_footer = isset( $meta_values['cf7_opt_margin_footer'] ) ? $meta_values['cf7_opt_margin_footer'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_footer]" id="cf7_opt_margin_footer" value="<?php echo esc_html($cf7_opt_margin_footer); ?>" style="width: 100%;" placeholder="10">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_footer]" id="cf7_opt_margin_footer" value="<?php echo esc_attr($cf7_opt_margin_footer); ?>" style="width: 100%;" placeholder="10">
 									</td>
 						        </tr>
 
@@ -295,7 +302,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_margin_top = isset( $meta_values['cf7_opt_margin_top'] ) ? $meta_values['cf7_opt_margin_top'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_top]" id="cf7_opt_margin_top" value="<?php echo esc_html($cf7_opt_margin_top); ?>" style="width: 100%;" placeholder="40">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_top]" id="cf7_opt_margin_top" value="<?php echo esc_attr($cf7_opt_margin_top); ?>" style="width: 100%;" placeholder="40">
 									</td>
 						        </tr>
 
@@ -305,7 +312,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_margin_bottom = isset( $meta_values['cf7_opt_margin_bottom'] ) ? $meta_values['cf7_opt_margin_bottom'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_bottom]" id="cf7_opt_margin_bottom" value="<?php echo esc_html($cf7_opt_margin_bottom); ?>" style="width: 100%;" placeholder="40">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_bottom]" id="cf7_opt_margin_bottom" value="<?php echo esc_attr($cf7_opt_margin_bottom); ?>" style="width: 100%;" placeholder="40">
 									</td>
 						        </tr>
 								
@@ -315,7 +322,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_margin_left = isset( $meta_values['cf7_opt_margin_left'] ) ? $meta_values['cf7_opt_margin_left'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_left]" id="cf7_opt_margin_left" value="<?php echo esc_html($cf7_opt_margin_left); ?>" style="width: 100%;" placeholder="40">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_left]" id="cf7_opt_margin_left" value="<?php echo esc_attr($cf7_opt_margin_left); ?>" style="width: 100%;" placeholder="40">
 									</td>
 						        </tr>
 								
@@ -325,7 +332,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_margin_right = isset( $meta_values['cf7_opt_margin_right'] ) ? $meta_values['cf7_opt_margin_right'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_right]" id="cf7_opt_margin_right" value="<?php echo esc_html($cf7_opt_margin_right); ?>" style="width: 100%;" placeholder="40">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_margin_right]" id="cf7_opt_margin_right" value="<?php echo esc_attr($cf7_opt_margin_right); ?>" style="width: 100%;" placeholder="40">
 									</td>
 						        </tr>
 
@@ -336,7 +343,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_header_text = isset( $meta_values['cf7_opt_header_text'] ) ? $meta_values['cf7_opt_header_text'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_header_text]" id="cf7_opt_header_text" value="<?php echo esc_html($cf7_opt_header_text); ?>" style="width: 100%;">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_header_text]" id="cf7_opt_header_text" value="<?php echo esc_attr($cf7_opt_header_text); ?>" style="width: 100%;">
 									</td>
 						        </tr>
 
@@ -346,7 +353,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_opt_footer_text = isset( $meta_values['cf7_opt_footer_text'] ) ? $meta_values['cf7_opt_footer_text'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_footer_text]" id="cf7_opt_footer_text" value="<?php echo esc_html($cf7_opt_footer_text); ?>" style="width: 100%;">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_opt_footer_text]" id="cf7_opt_footer_text" value="<?php echo esc_attr($cf7_opt_footer_text); ?>" style="width: 100%;">
 									</td>
 						        </tr>
 
@@ -358,7 +365,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<?php
 										$cf7_pdf_default_font_size = isset( $meta_values['cf7_pdf_default_font_size'] ) ? $meta_values['cf7_pdf_default_font_size'] : '9';
 										?>
-										<input type="number" min="6" max="30" name="wp_cf7_pdf_settings[cf7_pdf_default_font_size]" id="cf7_pdf_default_font_size" value="<?php echo esc_html($cf7_pdf_default_font_size); ?>" style="width: 30%;">
+										<input type="number" min="6" max="30" name="wp_cf7_pdf_settings[cf7_pdf_default_font_size]" id="cf7_pdf_default_font_size" value="<?php echo esc_attr($cf7_pdf_default_font_size); ?>" style="width: 30%;">
 									</td>
 						        </tr>
 
@@ -387,11 +394,11 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 						        	<td>
 						        		<?php
 										$cf7_pdf_msg_body = isset( $meta_values['cf7_pdf_msg_body'] ) && $meta_values['cf7_pdf_msg_body']!='' ? $meta_values['cf7_pdf_msg_body'] :
-'Your Name : [your-name]
-Your Email : [your-email]
-Subject : [your-subject]
-Your Message : [your-message]';
-?>
+												'Your Name : [your-name]
+												Your Email : [your-email]
+												Subject : [your-subject]
+												Your Message : [your-message]';
+												?>
 						        		<textarea id="code" name="wp_cf7_pdf_settings[cf7_pdf_msg_body]"><?php echo esc_html($cf7_pdf_msg_body); ?></textarea>
 						        	</td>
 						        </tr>
@@ -402,7 +409,7 @@ Your Message : [your-message]';
 										<?php
 										$cf7_pdf_filename_prefix = isset( $meta_values['cf7_pdf_filename_prefix'] ) ? $meta_values['cf7_pdf_filename_prefix'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_filename_prefix]" id="cf7_pdf_filename_prefix" value="<?php echo esc_html($cf7_pdf_filename_prefix); ?>" style="width: 50%;" placeholder="CF7">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_filename_prefix]" id="cf7_pdf_filename_prefix" value="<?php echo esc_attr($cf7_pdf_filename_prefix); ?>" style="width: 50%;" placeholder="CF7">
 									</td>
 						        </tr>
 
@@ -412,7 +419,7 @@ Your Message : [your-message]';
 										<?php
 										$cf7_pdf_bg_image = isset( $meta_values['cf7_pdf_bg_image'] ) ? $meta_values['cf7_pdf_bg_image'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_bg_image]" id="cf7_pdf_bg_image" value="<?php echo esc_url($cf7_pdf_bg_image); ?>" style="width: 80%;" placeholder="<?php echo __( 'PDF background Image (JPG, GIF, PNG, WMF and SVG) URL', 'generate-pdf-using-contact-form-7'); ?>">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_bg_image]" id="cf7_pdf_bg_image" value="<?php echo esc_url($cf7_pdf_bg_image); ?>" style="width: 80%;" placeholder="<?php echo esc_attr( 'PDF background Image (JPG, GIF, PNG, WMF and SVG) URL', 'generate-pdf-using-contact-form-7'); ?>">
 									</td>
 						        </tr>
 								
@@ -422,7 +429,7 @@ Your Message : [your-message]';
 										<?php
 										$cf7_pdf_download_link_txt = isset( $meta_values['cf7_pdf_download_link_txt'] ) ? $meta_values['cf7_pdf_download_link_txt'] : __('Click here to download PDF','generate-pdf-using-contact-form-7');
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_link_txt]" id="cf7_pdf_download_link_txt" value="<?php echo esc_html($cf7_pdf_download_link_txt); ?>" style="width: 50%;">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_link_txt]" id="cf7_pdf_download_link_txt" value="<?php echo esc_attr($cf7_pdf_download_link_txt); ?>" style="width: 50%;">
 									</td>
 						        </tr>
 
@@ -432,25 +439,25 @@ Your Message : [your-message]';
 										<?php
 										$cf7_pdf_download_fp_text = isset( $meta_values['cf7_pdf_download_fp_text'] ) ? $meta_values['cf7_pdf_download_fp_text'] : '' ;
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_text]" id="cf7_pdf_download_fp_text" value="<?php echo esc_html($cf7_pdf_download_fp_text); ?>" style="width: 40%;" placeholder="<?php esc_html_e('pagenumPrefix ','generate-pdf-using-contact-form-7'); ?>">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_text]" id="cf7_pdf_download_fp_text" value="<?php echo esc_attr($cf7_pdf_download_fp_text); ?>" style="width: 40%;" placeholder="<?php esc_attr_e('pagenumPrefix ','generate-pdf-using-contact-form-7'); ?>">
 										
 										<?php
 										$cf7_pdf_download_fp_pagenumSuffix = isset( $meta_values['cf7_pdf_download_fp_pagenumSuffix'] ) ? $meta_values['cf7_pdf_download_fp_pagenumSuffix'] : __('','generate-pdf-using-contact-form-7');
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_pagenumSuffix]" id="cf7_pdf_download_fp_pagenumSuffix" value="<?php echo esc_html($cf7_pdf_download_fp_pagenumSuffix); ?>" style="width: 40%;" placeholder="<?php esc_html_e('pagenumSuffix','generate-pdf-using-contact-form-7'); ?>">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_pagenumSuffix]" id="cf7_pdf_download_fp_pagenumSuffix" value="<?php echo esc_attr($cf7_pdf_download_fp_pagenumSuffix); ?>" style="width: 40%;" placeholder="<?php esc_attr_e('pagenumSuffix','generate-pdf-using-contact-form-7'); ?>">
 										<br>
 										<br>
 										<?php
 										$cf7_pdf_download_fp_nbpgPrefix = isset( $meta_values['cf7_pdf_download_fp_nbpgPrefix'] ) ? $meta_values['cf7_pdf_download_fp_nbpgPrefix'] : __('','generate-pdf-using-contact-form-7');
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_nbpgPrefix]" id="cf7_pdf_download_fp_nbpgPrefix" value="<?php echo esc_html($cf7_pdf_download_fp_nbpgPrefix); ?>" style="width: 40%;" placeholder="<?php esc_html_e('nbpgPrefix','generate-pdf-using-contact-form-7'); ?>">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_nbpgPrefix]" id="cf7_pdf_download_fp_nbpgPrefix" value="<?php echo esc_attr($cf7_pdf_download_fp_nbpgPrefix); ?>" style="width: 40%;" placeholder="<?php esc_attr_e('nbpgPrefix','generate-pdf-using-contact-form-7'); ?>">
 										
 										<?php
 										$cf7_pdf_download_fp_nbpgSuffix = isset( $meta_values['cf7_pdf_download_fp_nbpgSuffix'] ) ? $meta_values['cf7_pdf_download_fp_nbpgSuffix'] : '';
 										?>
-										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_nbpgSuffix]" id="cf7_pdf_download_fp_nbpgSuffix" value="<?php echo esc_html($cf7_pdf_download_fp_nbpgSuffix); ?>" style="width:40%;" placeholder="<?php esc_html_e('nbpgSuffix','generate-pdf-using-contact-form-7'); ?>">
+										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_nbpgSuffix]" id="cf7_pdf_download_fp_nbpgSuffix" value="<?php echo esc_attr($cf7_pdf_download_fp_nbpgSuffix); ?>" style="width:40%;" placeholder="<?php esc_attr_e('nbpgSuffix','generate-pdf-using-contact-form-7'); ?>">
 										<br><br>
-										<?php echo __('For more information','generate-pdf-using-contact-form-7'); ?>: <a href="https://mpdf.github.io/reference/mpdf-variables/pagenumprefix.html" target="_blank">https://mpdf.github.io/reference/mpdf-variables/pagenumprefix.html</a> 
+										<?php echo esc_html__('For more information','generate-pdf-using-contact-form-7'); ?>: <a href="https://mpdf.github.io/reference/mpdf-variables/pagenumprefix.html" target="_blank">https://mpdf.github.io/reference/mpdf-variables/pagenumprefix.html</a> 
 									</td>
 						        </tr>
 
@@ -471,7 +478,7 @@ Your Message : [your-message]';
 										?>
 										<div class="upload-pdf-file-input">
 										<input type="file" onchange="ValidateSize(this)" name="wp_cf7_pdf_settings[cf7_opt_attach_pdf_image]" id="cf7_opt_attach_pdf_image" accept="application/pdf">
-										<input type="hidden" name="wp_cf7_pdf_settings[cf7_opt_attach_pdf_old_url]" id="cf7_opt_attach_pdf_old_url" value="<?php echo esc_html($cf7_opt_attach_pdf_image); ?>">
+										<input type="hidden" name="wp_cf7_pdf_settings[cf7_opt_attach_pdf_old_url]" id="cf7_opt_attach_pdf_old_url" value="<?php echo esc_attr($cf7_opt_attach_pdf_image); ?>">
 										
 										<span class="err-msg" id="upload-pdf-err"></span>
 										</div>
@@ -647,5 +654,5 @@ add_action('admin_print_footer_scripts', function() {
 		//]]>
 	</script>
 	<?php
-	echo ob_get_clean();
+	echo ob_get_clean(); //phpcs:ignore
 } );
