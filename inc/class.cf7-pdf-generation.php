@@ -85,11 +85,15 @@ class Cf7_Pdf_Generation {
 	* Admin notice of activate pugin.
 	*/
 	function activate_notice_Cf7_Pdf_Generation() {
-	?>
-		<div class="error">
-			<p><?php esc_html(__( '<b>Generate PDF using Contact Form 7 :</b> Contact Form 7 is not active! Please install <a target="_blank" href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>.', 'generate-pdf-using-contact-form-7' )); ?></p>
-		</div>
-	<?php
+		echo '<div class="error">' .
+			'<p>' .
+				sprintf(
+					/* translators: Generate PDF using Contact Form 7 */
+					__( '<b>Generate PDF using Contact Form 7 :</b> Contact Form 7 is not active! Please install <a target="_blank" href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>.', 'generate-pdf-using-contact-form-7' ),
+					'Contact Form 7 - Stripe Add-on'
+				) .
+			'</p>' .
+		'</div>';
 	}
 }
 

@@ -72,6 +72,8 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 		*/
 		function wpcf7_pdf_attachment_script( $wpcf7 ){
 
+			$cf7_pdf_link_is_enable = '';
+
 			$wpcf = WPCF7_ContactForm::get_current();
 
 		    $submission = WPCF7_Submission :: get_instance();
@@ -80,7 +82,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 
 			$uploaded_files = $submission->uploaded_files();
 
-            $contact_id = $wpcf->id;
+            $contact_id = $wpcf->id();
 		    $setting_data = get_post_meta( $contact_id, 'cf7_pdf', true );
             if(isset($setting_data['cf7_opt_attach_pdf_image'])){
 		        $attach_image = $setting_data['cf7_opt_attach_pdf_image'] ? $setting_data['cf7_opt_attach_pdf_image'] : "";
@@ -102,7 +104,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 		    $date = date_i18n( get_option('date_format') );
 			$time = date_i18n( get_option('time_format') );
 
-			if($setting_data['cf7_pdf_link_is_enable'] == 'false') {
+			if(isset($setting_data['cf7_pdf_link_is_enable']) && $setting_data['cf7_pdf_link_is_enable'] == 'false') {
 				$cookie_name = "wp-pdf_path";
 				$cookie_value = $attdataurl;
 				setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); // 86400 = 1 day
@@ -235,7 +237,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 	                    foreach ($posted_data as $key => $value) {
 							if ( strstr( $msg_body, $key ) ) {
 								if(is_array($value)) {
-									$value = implode(',', $value);
+									$value = implode('<br/>', $value);
 								} else {
 									$value = htmlspecialchars($value);
 								}
@@ -296,7 +298,9 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 
 						$html = $msg_body;
 						$html = apply_filters( 'cf7_pdf_message_body', $html, $wpcf, $submission );
-						$html = nl2br($html);
+						if (strpos($html, '<table') === false) {
+							$html = nl2br($html);
+						}
 
 						/*
 						* Require PDF HTML file.
