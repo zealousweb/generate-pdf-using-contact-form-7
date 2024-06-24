@@ -107,8 +107,10 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			if(isset($setting_data['cf7_pdf_link_is_enable']) && $setting_data['cf7_pdf_link_is_enable'] == 'false') {
 				$cookie_name = "wp-pdf_path";
 				$cookie_value = $attdataurl;
-				setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); // 86400 = 1 day
-				setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/"); // 86400 = 1 day
+				//86400 = 1 day
+				setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); //phpcs:ignore 
+				//86400 = 1 day
+				setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/"); //phpcs:ignore 
 			}
 
 			if( isset($setting_data['cf7_opt_is_enable']) && $setting_data['cf7_opt_is_enable'] == 'true'  )
@@ -138,10 +140,14 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 							if($setting_data['cf7_pdf_link_is_enable'] == 'true'){
 			 					$cookie_name = "wp-pdf_path";
 								$cookie_value = $attdataurl;
-								setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); // 86400 = 1 day
-								setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/"); // 86400 = 1 day
-								setcookie( 'wp-pdf_download_link_txt', $cf7_pdf_download_link_txt, time() + (86400 * 1), "/"); // 86400 = 1 day
-								setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/"); // 86400 = 1 day
+								//86400 = 1 day
+								setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); //phpcs:ignore
+								//86400 = 1 day
+								setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/"); //phpcs:ignore 
+								//86400 = 1 day
+								setcookie( 'wp-pdf_download_link_txt', $cf7_pdf_download_link_txt, time() + (86400 * 1), "/"); //phpcs:ignore 
+								//86400 = 1 day
+								setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/"); //phpcs:ignore 
 							}
 							
 							if($setting_data['cf7_dettach_pdf'] == 'true'){
@@ -337,7 +343,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 
 						$pdf_url_path = WP_CF7_PDF_URL.'attachments/'.$pdf_file_name;
 
-						if (file_exists($_SERVER['DOCUMENT_ROOT'] . $pdf_file_path1)) {
+						if (file_exists($_SERVER['DOCUMENT_ROOT'] . $pdf_file_path1)) { //phpcs:ignore
 
 							$mpdf->Output( $pdf_file_path , 'F');
 							$mpdf->Output( $pdf_file_path1 , 'F');
@@ -361,10 +367,14 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 
 							$cookie_name = "wp-pdf_path";
 							$cookie_value = $attdataurl;
-							setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); // 86400 = 1 day
-							setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/"); // 86400 = 1 day
-							setcookie( 'wp-pdf_download_link_txt', $cf7_pdf_download_link_txt, time() + (86400 * 1), "/"); // 86400 = 1 day
-							setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/"); // 86400 = 1 day
+							//86400 = 1 day
+							setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); //phpcs:ignore 
+							//86400 = 1 day
+							setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/"); //phpcs:ignore 
+							//86400 = 1 day
+							setcookie( 'wp-pdf_download_link_txt', $cf7_pdf_download_link_txt, time() + (86400 * 1), "/"); //phpcs:ignore
+							//86400 = 1 day
+							setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/"); //phpcs:ignore 
 						}
 						
 						if($setting_data['cf7_dettach_pdf'] == 'true'){

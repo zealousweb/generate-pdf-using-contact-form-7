@@ -150,7 +150,7 @@ if($cf7_opt_footer_text)
 }
 else
 {
-	$footerContent .= '<td width="600" align="left" style="padding:0px;font-weight: 600;" width="40%">Copyright © '.date('Y').' <a href="'.site_url().'" target="_blank">'.get_bloginfo( 'name' ).'</a></td>';	
+	$footerContent .= '<td width="600" align="left" style="padding:0px;font-weight: 600;" width="40%">Copyright © '.gmdate('Y').' <a href="'.site_url().'" target="_blank">'.get_bloginfo( 'name' ).'</a></td>';	
 }
 if($cf7_pdf_download_fp_nbpgPrefix || $cf7_pdf_download_fp_nbpgSuffix )
 {
