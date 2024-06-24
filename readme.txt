@@ -113,6 +113,9 @@ S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
 
+= 4.0.6 =
+* Improved compatibility with WordPress VIP platform by refactoring code to adhere to VIP coding standards.
+
 = 4.0.5 =
 * The problem with the formatting of the Table tag has been resolved.
 
