@@ -5,8 +5,8 @@ Tags: contact form, contact, PDF, email
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 6.5
-Stable tag: 4.0.5
-Version: 4.0.5
+Stable tag: 4.0.6
+Version: 4.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,7 @@ https://mpdf.github.io/html-support/html-tags.html
 * You can set file name from admin also use any form tag instead of file name.
 * Add Page number options in admin so you can add Text with PDF page number.
 * Ability to set font size of PDF content.
+* Compatibility of WordPress VIP.
 
 == Release Generate PDF using Contact Form 7 Pro ==
 
