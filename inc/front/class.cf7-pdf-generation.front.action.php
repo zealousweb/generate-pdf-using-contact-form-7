@@ -272,7 +272,11 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 								} if (strpos($msg_body, '[remote_ip]') !== false) {
 								    $msg_body = str_replace('[remote_ip]',$submission->get_meta('remote_ip'),$msg_body);
 								    $cf7_pdf_filename_prefix = str_replace('[remote_ip]',$submission->get_meta('remote_ip'),$cf7_pdf_filename_prefix);
-						 		}
+						 		} if (strpos($msg_body, '[_post_title]') !== false) {
+									$post_id = $submission->get_meta('container_post_id');
+									$post_title = get_the_title($post_id);
+									$msg_body = str_replace('[_post_title]', $post_title, $msg_body);
+								}
 								if( $value == '' ) {
 									$msg_body = str_replace('['.$key.']','[noreplace]',$msg_body);
 								} else {

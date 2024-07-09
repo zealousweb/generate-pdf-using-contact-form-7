@@ -389,10 +389,10 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 						        	<td>
 						        		<?php
 										$cf7_pdf_msg_body = isset( $meta_values['cf7_pdf_msg_body'] ) && $meta_values['cf7_pdf_msg_body']!='' ? $meta_values['cf7_pdf_msg_body'] :
-											'Your Name : [your-name]
-											Your Email : [your-email]
-											Subject : [your-subject]
-											Your Message : [your-message]';
+'Your Name : [your-name]
+Your Email : [your-email]
+Subject : [your-subject]
+Your Message : [your-message]';
 											?>
 						        		<textarea id="code" name="wp_cf7_pdf_settings[cf7_pdf_msg_body]"><?php echo esc_html($cf7_pdf_msg_body); ?></textarea>
 						        	</td>

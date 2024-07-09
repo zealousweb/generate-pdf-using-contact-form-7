@@ -5,8 +5,8 @@ Tags: contact form, contact, PDF, email
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 6.5
-Stable tag: 4.0.6
-Version: 4.0.6
+Stable tag: 4.0.7
+Version: 4.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,9 @@ https://prnt.sc/PsXaTarHTx4m
 S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
+
+= 4.0.7 =
+* Add - 'Post Title' or Current page title using the [_post_title] Shortcode in the PDF message body settings."
 
 = 4.0.6 =
 * Improved compatibility with WordPress VIP platform by refactoring code to adhere to VIP coding standards.
