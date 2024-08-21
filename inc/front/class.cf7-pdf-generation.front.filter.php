@@ -54,6 +54,6 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Filter' ) ) {
 	*  Load public filter.
 	*/
 	add_action( 'plugins_loaded' , function() {
-		Cf7_Pdf_Generation()->front->filter = new Cf7_Pdf_Generation_Front_Filter;
+		new Cf7_Pdf_Generation_Front_Filter;
 	} );
 }

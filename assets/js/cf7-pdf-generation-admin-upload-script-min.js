@@ -44,7 +44,7 @@ jQuery(document).ready(function () {
     }),
         jQuery(".cf7_pdf_link_enable")
             .change(function () {
-                "true" == jQuery("input[type=radio].cf7_pdf_link_enable:checked").val() ? jQuery("#onsent_mail_pdfopt").hide() : jQuery("#onsent_mail_pdfopt").show();
+                "true" == jQuery("input[type=radio].cf7_pdf_link_enable:checked").val() ? jQuery("#onsent_mail_pdfopt").show() : jQuery("#onsent_mail_pdfopt").show();
             })
             .change(),
         jQuery(".cf7_opt_attach_enable")
@@ -73,7 +73,7 @@ jQuery(document).ready(function () {
             })
             .change(),
         jQuery(".cf7_opt_enable").change(function () {
-            "true" == this.value ? (jQuery(".enable-pdf").show(), jQuery(".enable-pdf-link").show()) : "false" == this.value && (jQuery(".enable-pdf").hide(), jQuery(".enable-pdf-link").hide());
+            "true" == this.value ? (jQuery(".enable-pdf").show(), jQuery(".enable-pdf-link").show(),jQuery(".disable-pdf-link").show()) : "false" == this.value && (jQuery(".enable-pdf").hide(), jQuery(".enable-pdf-link").hide(), jQuery(".disable-pdf-link").hide());
         }),
         jQuery(document).on("click", ".remove-upload-header-logo", function () {
             if (1 != confirm("Are you sure want to delete the header logo ?")) return !1;

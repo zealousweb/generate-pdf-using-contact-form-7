@@ -4,11 +4,11 @@ Donate link: http://www.zealousweb.com/payment/
 Tags: contact form, contact, PDF, email
 Requires at least: 3.0.1
 Requires PHP: 5.6
-Tested up to: 6.5
-Stable tag: 4.0.7
-Version: 4.0.7
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tested up to: 6.6
+Stable tag: 4.1.1
+Version: 4.1.1
+License: GPLv3 or later
+License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
 Generate PDF using Contact Form 7 Plugin makes it simple to create PDFs for downloads, viewing, or sending as attachments after form submissions.
 
@@ -112,6 +112,21 @@ https://prnt.sc/PsXaTarHTx4m
 S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
+
+= 4.1.1 =
+* Sanitize code
+* Secure plugin 
+
+= 4.1.0 =
+* The backend warning issue has been resolved.
+* Secure plugin 
+
+= 4.0.9 =
+* Sanitize and verify_nonce and file security issues resolved.
+* Secure plugin 
+
+= 4.0.8 =
+* Bug and security issues resolved.
 
 = 4.0.7 =
 * Add - 'Post Title' or Current page title using the [_post_title] Shortcode in the PDF message body settings."

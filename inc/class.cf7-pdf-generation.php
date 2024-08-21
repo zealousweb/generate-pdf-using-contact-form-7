@@ -45,8 +45,10 @@ class Cf7_Pdf_Generation {
 	function check_plugin_state()
 	{
 		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		if (! is_plugin_active( 'contact-form-7/wp-contact-form-7.php' ) )
-		{
+		if(isset($_POST['cf7_send_form']) && wp_verify_nonce(sanitize_file_name(wp_unslash($_POST['cf7_send_form'])), 'security-cf7-send-pdf')){
+			return '';
+		}
+		if (! is_plugin_active( 'contact-form-7/wp-contact-form-7.php' )){
 			add_action( 'admin_notices', array( $this, 'activate_notice_Cf7_Pdf_Generation' ) );
 			deactivate_plugins(WP_CF7_PDF_PLUGIN_BASENAME );
 			if ( isset( $_GET['activate'] ) ) { 
@@ -86,12 +88,8 @@ class Cf7_Pdf_Generation {
 	*/
 	function activate_notice_Cf7_Pdf_Generation() {
 		echo '<div class="error">' .
-			'<p>' .
-				sprintf(
-					/* translators: Generate PDF using Contact Form 7 */
-					__( '<b>Generate PDF using Contact Form 7 :</b> Contact Form 7 is not active! Please install <a target="_blank" href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>.', 'generate-pdf-using-contact-form-7' ), //phpcs:ignore
-					'Contact Form 7 - Stripe Add-on'
-				) .
+			'<p><b>' .
+				esc_html( 'Generate PDF using Contact Form 7 : ','generate-pdf-using-contact-form-7') .'</b>'. esc_html(' Contact Form 7 is not active! Please install ', 'generate-pdf-using-contact-form-7' ).' <a target="_blank" href="' . esc_url( 'https://wordpress.org/plugins/contact-form-7/', 'generate-pdf-using-contact-form-7' ).'">Contact Form 7</a>'.
 			'</p>' .
 		'</div>';
 	}

@@ -50,7 +50,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front' ) ) {
 	*  Load public file.
 	*/
 	add_action( 'plugins_loaded', function() {
-		Cf7_Pdf_Generation()->front = new Cf7_Pdf_Generation_Front;
+		new Cf7_Pdf_Generation_Front;
 	} );
 	
 }

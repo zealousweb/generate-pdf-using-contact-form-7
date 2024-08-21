@@ -50,7 +50,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin' ) ) {
 	*  Load public file.
 	*/
 	add_action( 'plugins_loaded', function() {
-		Cf7_Pdf_Generation()->admin = new Cf7_Pdf_Generation_Admin;
+		new Cf7_Pdf_Generation_Admin;
 	} );
 	
 }

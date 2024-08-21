@@ -7,14 +7,14 @@ if ( !defined( 'ABSPATH' ) ) exit;
 ?>
 
 <div class="wrap cf7-pdf-generation-wrapper">
-<h1><?php echo esc_html(__('Generate PDF using Contact Form 7 Settings', 'generate-pdf-using-contact-form-7')); ?></h1>
+<h1><?php echo esc_html('Generate PDF using Contact Form 7 Settings', 'generate-pdf-using-contact-form-7'); ?></h1>
 	<?php
 	$args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
 	$cf7Forms = get_posts( $args );
 
 	if ( count($cf7Forms) == 0 ) {
 		printf(
-			esc_html(__('No forms have not been found. %s', 'send-pdf-for-contact-form-7')),'<a href="' . esc_url(admin_url('admin.php?page=wpcf7')) . '">' . esc_html(__('Create your first form here.', 'generate-pdf-using-contact-form-7')) . '</a>'
+			esc_html('No forms have not been found. %s', 'send-pdf-for-contact-form-7'),'<a href="' . esc_url(admin_url('admin.php?page=wpcf7')) . '">' . esc_html('Create your first form here.', 'generate-pdf-using-contact-form-7') . '</a>'
 		);
 	}	
 	else
@@ -25,22 +25,24 @@ if ( !defined( 'ABSPATH' ) ) exit;
 		<table class="form-table">
 		<tr valign="top">
 		<th scope="row">
-		<?php echo esc_html(__( 'Select the contact form', 'generate-pdf-using-contact-form-7')); ?>
+		<?php echo esc_html('Select the contact form', 'generate-pdf-using-contact-form-7'); ?>
 		<span class="cf7pap-tooltip hide-if-no-js " id="cf7_idform_tooltip_id"></span>
 		</th>
 		<td>
 			<input type="hidden" name="page" value="wp-cf7-send-pdf"/>
-			<?php wp_nonce_field('go-sendform', 'security-sendform'); ?>
+			<?php wp_nonce_field('cf7_send_form', 'security-cf7-send-pdf'); ?>
 			<select name="cf7_idform" id="cf7_idform" class="wpcf7-form-field" onchange="this.form.submit();">
-				<option value="" ><?php echo (esc_html(__('-- Select a Contact Form --', 'generate-pdf-using-contact-form-7'))); ?></option> <!-- phpcs:ignore -->
+				<option value="" ><?php echo (esc_html('-- Select a Contact Form --', 'generate-pdf-using-contact-form-7')); ?></option> 
 				<?php
 					$selected = '';
 					foreach ($cf7Forms as $cf_form) {
-
-						if( isset($_POST['cf7_idform']) ) { //phpcs:ignore
-							$selected = ($cf_form->ID == sanitize_text_field($_POST['cf7_idform']) ) ? "selected" : "";  //phpcs:ignore
+						if(isset($_POST['cf7_send_form']) && wp_verify_nonce(sanitize_file_name(wp_unslash($_POST['cf7_send_form'])), 'security-cf7-send-pdf')){
+							return '';
 						}
-						$form_name = htmlentities($cf_form->post_title, null, 'UTF-8');
+						if( isset($_POST['cf7_idform']) && sanitize_file_name($_POST['cf7_idform'])!='') { 
+							$selected = ($cf_form->ID == sanitize_file_name($_POST['cf7_idform']) ) ? "selected" : "";  
+						}
+						$form_name = htmlentities($cf_form->post_title, ENT_QUOTES, 'UTF-8');
 						echo '<option value="'.esc_attr($cf_form->ID).'" '.esc_attr($selected).'>'.esc_html($form_name).'</option>';
 					}
 				?>
@@ -52,39 +54,60 @@ if ( !defined( 'ABSPATH' ) ) exit;
 		</form>
 	
 	<?php } 
-	if( isset($_POST['cf7_idform']) &&  sanitize_text_field($_POST['cf7_idform'])!='' ) { //phpcs:ignore
-		$cf7_idform = intval( sanitize_text_field($_POST['cf7_idform']) ); //phpcs:ignore
+	if( isset($_POST['cf7_idform']) &&  sanitize_file_name($_POST['cf7_idform'])!='' ) { 
+		$cf7_idform = intval( sanitize_file_name($_POST['cf7_idform']) ); 
 		$file = '';$temp = 1;
 
-		if( isset($_POST['action']) ) //phpcs:ignore
-		{
-			if (( sanitize_text_field($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']) != "" )){ //phpcs:ignore
-				$target_dir = WP_CF7_PDF_DIR.'attachments/';
-				$file = sanitize_text_field($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']); //phpcs:ignore
+		if( isset($_POST['action']) && sanitize_file_name($_POST['action'])!='') 
+		{	
+			if ( isset($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']) && sanitize_file_name($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']) != "" ) {
+				$target_dir = WP_CF7_PDF_DIR . 'attachments/';
+				$file = sanitize_file_name($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']);
 				$file = preg_replace('/\s+/', '', $file);
-	 			$path = pathinfo($file); //phpcs:ignore
+				$path = pathinfo($file);
+				$filename = $path['filename'];
+				
+				// Check file type
+				$file_type = wp_check_filetype($file);
+			
+				// Check if the file is a PDF
+				if ($file_type['ext'] !== 'pdf' && $file_type['type'] !== 'application/pdf') {
+					$temp = 0; // Set temp variable to indicate failure
+					wp_die(esc_html__("File type is not allowed.", "generate-pdf-using-contact-form-7"));
+				}
+				else {
+					// Load WordPress filesystem
+					require_once ABSPATH . '/wp-admin/includes/file.php';
+					WP_Filesystem();
 
-	 			$filename = $path['filename'];
-
-	 			$ext = $path['extension'];
-	 			$temp_name = sanitize_text_field($_FILES['wp_cf7_pdf_settings']['tmp_name']['cf7_opt_attach_pdf_image']);  //phpcs:ignore
-	 			$path_filename_ext = $target_dir.$filename.".".$ext;
-	 			if (move_uploaded_file($temp_name,$path_filename_ext)) {
-		 			$temp = 1;
-		 			@unlink(realpath($target_dir.$_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'])); //phpcs:ignore
-				   } else {
-				   	$temp = 0;
-			   	}
-			}
-			else
-			{
-				if( sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']) ) //phpcs:ignore
-				{
-					$file = sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']); //phpcs:ignore
+					global $wp_filesystem;
+					$ext = $path['extension'];
+					$temp_name = $_FILES['wp_cf7_pdf_settings']['tmp_name']['cf7_opt_attach_pdf_image'];
+					$path_filename_ext = $target_dir . $filename . "." . $ext;
+					// Get uploaded file details
+					if ( $wp_filesystem->move( $temp_name, $path_filename_ext, true ) ) {
+						// File successfully uploaded
+						$temp = 1;
+						// Delete the old file if it exists
+						if (isset($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'])) {
+							$old_file_path = $target_dir . sanitize_file_name( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] );
+							if (file_exists($old_file_path)) {
+								wp_delete_file($old_file_path);
+							}
+						}
+					} else {
+						$temp = 0;
+					}
+					
+				}
+			} else {
+				if ( sanitize_file_name($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']) ) {
+					$file = sanitize_file_name($_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url']); 
 				}
 			}
+			
 
-		if( sanitize_textarea_field($_POST['wp_cf7_pdf_settings']['cf7_pdf_msg_body']) == '' ){ //phpcs:ignore
+		if( sanitize_file_name($_POST['wp_cf7_pdf_settings']['cf7_pdf_msg_body']) == '' ){ 
  
 			$_POST['wp_cf7_pdf_settings']['cf7_pdf_msg_body'] = __('Your Name : [your-name]
 Your Email : [your-email]
@@ -93,11 +116,11 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 
 		}
 		
-		if( sanitize_text_field($_POST['wp_cf7_pdf_settings']['cf7_pdf_download_link_txt']) == '' ){  //phpcs:ignore
-			$_POST['wp_cf7_pdf_settings']['cf7_pdf_download_link_txt'] = __('Click here to download PDF','generate-pdf-using-contact-form-7'); //phpcs:ignore
+		if( sanitize_file_name($_POST['wp_cf7_pdf_settings']['cf7_pdf_download_link_txt']) == '' ){  
+			$_POST['wp_cf7_pdf_settings']['cf7_pdf_download_link_txt'] = __('Click here to download PDF','generate-pdf-using-contact-form-7'); 
 		}
 
-		$before_post = filter_var_array($_POST["wp_cf7_pdf_settings"]); //phpcs:ignore
+		$before_post = filter_var_array($_POST["wp_cf7_pdf_settings"]); 
 		if(!empty($file)){
 			$before_post["cf7_opt_attach_pdf_image"] = $file;
 		}
@@ -152,25 +175,25 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 								$cf7_pdf_link_is_enable = isset( $meta_values['cf7_pdf_link_is_enable'] ) ? $meta_values['cf7_pdf_link_is_enable'] : 'true';
 								?>
 								<input type="radio" id="cf7_pdf_link_enable_yes" name="wp_cf7_pdf_settings[cf7_pdf_link_is_enable]" class="cf7_pdf_link_enable" value="true" <?php if( $cf7_pdf_link_is_enable == 'true' ) { echo esc_html(' checked'); } ?> />
-								<label for="cf7_pdf_link_enable_yes"><?php echo esc_html(__( 'Yes', 'generate-pdf-using-contact-form-7')); ?></label>
+								<label for="cf7_pdf_link_enable_yes"><?php echo esc_html('Yes', 'generate-pdf-using-contact-form-7'); ?></label>
 								
 								<input type="radio" id="cf7_pdf_link_enable_no" name="wp_cf7_pdf_settings[cf7_pdf_link_is_enable]" class="cf7_pdf_link_enable" value="false" <?php if( $cf7_pdf_link_is_enable == 'false' ) { echo esc_html(' checked'); } ?> />
-								<label for="cf7_pdf_link_enable_no"><?php echo esc_html(__( 'No', 'generate-pdf-using-contact-form-7')); ?></label>
+								<label for="cf7_pdf_link_enable_no"><?php echo esc_html('No', 'generate-pdf-using-contact-form-7'); ?></label>
 							</td>
 						</tr>
 						<tr valign="top" id="onsent_mail_pdfopt">
 		        			<th scope="row">
-							<?php echo esc_html(__( 'Do you want to remove PDF attachment after mail sent?', 'generate-pdf-using-contact-form-7')); ?>
+							<?php echo esc_html('Do you want to remove PDF attachment after mail sent?', 'generate-pdf-using-contact-form-7'); ?>
 							</th>
 							<td>
 								<?php
 								$cf7_remove_pdf = isset( $meta_values['cf7_remove_pdf'] ) ? $meta_values['cf7_remove_pdf'] : 'false';
 								?>
 								<input type="radio" id="cf7_remove_pdf_yes" name="wp_cf7_pdf_settings[cf7_remove_pdf]" class="" value="true" <?php if( $cf7_remove_pdf == 'true' ) { echo esc_html(' checked'); } ?> />
-								<label for="cf7_remove_pdf_yes"><?php echo esc_html(__( 'Yes', 'generate-pdf-using-contact-form-7')); ?></label>
+								<label for="cf7_remove_pdf_yes"><?php echo esc_html('Yes', 'generate-pdf-using-contact-form-7'); ?></label>
 								
 								<input type="radio" id="cf7_remove_pdf_no" name="wp_cf7_pdf_settings[cf7_remove_pdf]" class="" value="false" <?php if( $cf7_remove_pdf == 'false' ) { echo esc_html(' checked'); } ?> />
-								<label for="cf7_remove_pdf_no"><?php echo esc_html(__( 'No', 'generate-pdf-using-contact-form-7')); ?></label>
+								<label for="cf7_remove_pdf_no"><?php echo esc_html('No', 'generate-pdf-using-contact-form-7'); ?></label>
 							</td>
 						</tr>
 					</table>
@@ -182,7 +205,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 		        		
 						<tr valign="top" id="dettach_pdf_in_mail">
 		        			<th scope="row">
-							<?php echo esc_html(__( 'Do you want to attach pdf in mail ?', 'generate-pdf-using-contact-form-7')); ?>
+							<?php echo esc_html('Do you want to attach pdf in mail ?', 'generate-pdf-using-contact-form-7'); ?>
 							<span class="cf7pap-tooltip hide-if-no-js " id="cf7_pdf_link_disable_pdf_tooltip_id"></span>
 							</th>
 							<td>
@@ -190,10 +213,10 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 								$cf7_dettach_pdf = isset( $meta_values['cf7_dettach_pdf'] ) ? $meta_values['cf7_dettach_pdf'] : 'false';
 								?>
 								<input type="radio" id="cf7_dettach_pdf_yes" name="wp_cf7_pdf_settings[cf7_dettach_pdf]" class="remove_attach_pdf_k" value="true" <?php if( $cf7_dettach_pdf == 'true' ) { echo esc_html(' checked'); } ?> />
-								<label for="cf7_dettach_pdf_yes"><?php echo esc_html(__( 'Yes', 'generate-pdf-using-contact-form-7')); ?></label>
+								<label for="cf7_dettach_pdf_yes"><?php echo esc_html('Yes', 'generate-pdf-using-contact-form-7'); ?></label>
 								
 								<input type="radio" id="cf7_dettach_pdf_no" name="wp_cf7_pdf_settings[cf7_dettach_pdf]" class="remove_attach_pdf_k" value="false" <?php if( $cf7_dettach_pdf == 'false' ) { echo esc_html(' checked'); } ?> />
-								<label for="cf7_dettach_pdf_no"><?php echo esc_html(__( 'No', 'generate-pdf-using-contact-form-7')); ?></label>
+								<label for="cf7_dettach_pdf_no"><?php echo esc_html('No', 'generate-pdf-using-contact-form-7'); ?></label>
 							</td>
 						</tr>
 
@@ -214,9 +237,9 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 								$cf7_opt_is_attach_enable = isset( $meta_values['cf7_opt_is_attach_enable'] ) ? $meta_values['cf7_opt_is_attach_enable'] : 'false';
 								?>
 								<input type="radio" class="cf7_opt_attach_enable" id="cf7_opt_attach_enable_yes" name="wp_cf7_pdf_settings[cf7_opt_is_attach_enable]" value="true" <?php if( $cf7_opt_is_attach_enable == 'true' ) { echo esc_html(' checked'); } ?> />
-								<label for="cf7_opt_attach_enable_yes"><?php echo esc_html(__( 'Yes', 'generate-pdf-using-contact-form-7')); ?></label>
+								<label for="cf7_opt_attach_enable_yes"><?php echo esc_html('Yes', 'generate-pdf-using-contact-form-7'); ?></label>
 								<input type="radio" class="cf7_opt_attach_enable" id="cf7_opt_attach_enable_no" name="wp_cf7_pdf_settings[cf7_opt_is_attach_enable]" value="false" <?php if( $cf7_opt_is_attach_enable == 'false' ) { echo esc_html(' checked'); } ?> />
-								<label for="cf7_opt_attach_enable_no"><?php echo esc_html(__( 'No', 'generate-pdf-using-contact-form-7')); ?></label>
+								<label for="cf7_opt_attach_enable_no"><?php echo esc_html('No', 'generate-pdf-using-contact-form-7'); ?></label>
 				    		</td>
 				    	</tr>
 				    	<tr>
@@ -225,7 +248,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 
 								<tr valign="top">
 									<th scope="row">
-									<?php echo esc_html(__( 'Do you want to customize header logo in PDF?', 'generate-pdf-using-contact-form-7')); ?>
+									<?php echo esc_html('Do you want to customize header logo in PDF?', 'generate-pdf-using-contact-form-7'); ?>
 									<span class="cf7pap-tooltip hide-if-no-js " id="cf7_opt_header_pdf_image_tooltip_id"></span>
 									</th>
 									<td class="upload-header-logo-row">
@@ -237,7 +260,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										
 										<input id="cf7_opt_upload_image_current" type="hidden" value="<?php echo esc_url($cf7_opt_header_pdf_image);?>" />
 																			
-										<input id="cf7_opt_upload_image_button" class="button" type="button" value="<?php echo esc_attr(__('Select or Upload header logo', 'generate-pdf-using-contact-form-7')); ?>" />
+										<input id="cf7_opt_upload_image_button" class="button" type="button" value="<?php echo esc_attr('Select or Upload header logo', 'generate-pdf-using-contact-form-7'); ?>" />
 										<span class="err-msg" id="upload-header-logo-err"></span>
 										</div>
 										<div id="cf7_opt_dis_img">
@@ -252,7 +275,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 							    </tr>
 
 								<tr valign="top">
-									<th scope="row"><?php echo esc_html(__( 'Max Width for logo', 'generate-pdf-using-contact-form-7')); ?></th>
+									<th scope="row"><?php echo esc_html('Max Width for logo', 'generate-pdf-using-contact-form-7'); ?></th>
 									<td>
 										<?php
 										$cf7_opt_max_width_logo = isset( $meta_values['cf7_opt_max_width_logo'] ) ? $meta_values['cf7_opt_max_width_logo'] : '';
@@ -437,13 +460,13 @@ Your Message : [your-message]';
 										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_text]" id="cf7_pdf_download_fp_text" value="<?php echo esc_attr($cf7_pdf_download_fp_text); ?>" style="width: 40%;" placeholder="<?php esc_attr('pagenumPrefix ','generate-pdf-using-contact-form-7'); ?>">
 										
 										<?php
-										$cf7_pdf_download_fp_pagenumSuffix = isset( $meta_values['cf7_pdf_download_fp_pagenumSuffix'] ) ? $meta_values['cf7_pdf_download_fp_pagenumSuffix'] : __('','generate-pdf-using-contact-form-7');
+										$cf7_pdf_download_fp_pagenumSuffix = isset( $meta_values['cf7_pdf_download_fp_pagenumSuffix'] ) ? $meta_values['cf7_pdf_download_fp_pagenumSuffix'] : '';
 										?>
 										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_pagenumSuffix]" id="cf7_pdf_download_fp_pagenumSuffix" value="<?php echo esc_attr($cf7_pdf_download_fp_pagenumSuffix); ?>" style="width: 40%;" placeholder="<?php esc_attr('pagenumSuffix','generate-pdf-using-contact-form-7'); ?>">
 										<br>
 										<br>
 										<?php
-										$cf7_pdf_download_fp_nbpgPrefix = isset( $meta_values['cf7_pdf_download_fp_nbpgPrefix'] ) ? $meta_values['cf7_pdf_download_fp_nbpgPrefix'] : __('','generate-pdf-using-contact-form-7');
+										$cf7_pdf_download_fp_nbpgPrefix = isset( $meta_values['cf7_pdf_download_fp_nbpgPrefix'] ) ? $meta_values['cf7_pdf_download_fp_nbpgPrefix'] : '';
 										?>
 										<input type="text" name="wp_cf7_pdf_settings[cf7_pdf_download_fp_nbpgPrefix]" id="cf7_pdf_download_fp_nbpgPrefix" value="<?php echo esc_attr($cf7_pdf_download_fp_nbpgPrefix); ?>" style="width: 40%;" placeholder="<?php esc_attr('nbpgPrefix','generate-pdf-using-contact-form-7'); ?>">
 										
@@ -519,8 +542,7 @@ Your Message : [your-message]';
 
 <?php
 
-add_action('admin_print_footer_scripts', function() {
-	ob_start();
+add_action('admin_print_footer_scripts', function() { 
 	?>
 	<script type="text/javascript">
 		//<![CDATA[
@@ -532,10 +554,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_idform_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					_e( '<h3>Select the contact form </h3>' .
-						'<p>Select the form that you want to amend before sending as a PDF attachment</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					 echo '<h3>' . esc_html__( 'Select the contact form', 'generate-pdf-using-contact-form-7' ) . '</h3>' . 
+                     '<p>' . esc_html__( 'Select the form that you want to amend before sending as a PDF attachment', 'generate-pdf-using-contact-form-7' ) . '</p>'; ?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -545,10 +565,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_opt_enable_yes_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					_e( '<h3>Enable PDF file operation ?</h3>' .
-						'<p>You can disable / enable PDF attachment functionality for each form.</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					echo '<h3>'. esc_html__('Enable PDF file operation?', 'generate-pdf-using-contact-form-7' ).'</h3>'.
+						'<p>' . esc_html__('You can disable / enable PDF attachment functionality for each form.','generate-pdf-using-contact-form-7'). '</p>';?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -558,10 +576,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_pdf_link_enable_yes_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					_e( '<h3> Enable PDF Link with Form Success Message ? </h3>' .
-						'<p>You can disable / enable PDF Link with Form Success Message for each form.</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					echo '<h3>'. esc_html__('Enable PDF Link with Form Success Message ?','generate-pdf-using-contact-form-7').'</h3>' .
+						'<p>'. esc_html__('You can disable / enable PDF Link with Form Success Message for each form.', 'generate-pdf-using-contact-form-7'). '</p>';?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -571,10 +587,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_pdf_link_disable_pdf_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					_e( '<h3> Enable pdf attachment in mail ? </h3>' .
-						'<p>You can disable / enable PDF attachment in mail</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					echo '<h3>'. esc_html__( 'Enable pdf attachment in mail ? ','generate-pdf-using-contact-form-7').'</h3>' .
+						'<p>'. esc_html__('You can disable / enable PDF attachment in mail','generate-pdf-using-contact-form-7').'</p>'; ?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -585,10 +599,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_opt_is_attach_enable_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					_e( '<h3>Want to attach own PDF in mail ?</h3>' .
-						'<p>You can also attach any predefined PDF file from your system, e.g. brochure.</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					echo '<h3>'. esc_html__('Want to attach own PDF in mail ?','generate-pdf-using-contact-form-7').'</h3>'.
+						'<p>'. esc_html__('You can also attach any predefined PDF file from your system, e.g. brochure.','generate-pdf-using-contact-form-7').'</p>';?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -598,10 +610,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_opt_header_pdf_image_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					_e( '<h3>PDF header logo</h3>' .
-						'<p>Customize header logo, upload logo of approx 160px X 85px the logo will automatically reflect on the top-left side of the PDF document.Only allow JPEG/PNG file format.</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					echo '<h3>'. esc_html__('PDF header logo','generate-pdf-using-contact-form-7').'</h3>'.
+						'<p>'. esc_html__('Customize header logo, upload logo of approx 160px X 85px the logo will automatically reflect on the top-left side of the PDF document.Only allow JPEG/PNG file format.','generate-pdf-using-contact-form-7').'</p>'; ?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -612,10 +622,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_pdf_msg_body_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					_e( '<h3>Message body</h3>' .
-				'<p>You can manage body content of the message which will automatically reflect in the PDF attachement.</p><p>For the new page you can use &lt;pagebreak&gt; tag</p><p>For acceptance checkbox cf7 tag prefix should be like [acceptance-123]</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					echo '<h3>'. esc_html__('Message body','generate-pdf-using-contact-form-7').'</h3>'.
+						'<p>'. esc_html__('You can manage body content of the message which will automatically reflect in the PDF attachement. For the new page you can use tag For acceptance checkbox cf7 tag prefix should be like [acceptance-123]','generate-pdf-using-contact-form-7') .'</p>';?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -625,10 +633,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_pdf_font_body_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					_e( '<h3>PDF Text Font Size</h3>' .
-				'<p>You can set PDF font size from this option. For Proper outpup we have set Min - 6px and Max - 30px do not exceed from that. Default Font size is 9px.</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					echo '<h3>'. esc_html__('PDF Text Font Size','generate-pdf-using-contact-form-7') .'</h3>' .
+						'<p>'. esc_html__('You can set PDF font size from this option. For Proper outpup we have set Min - 6px and Max - 30px do not exceed from that. Default Font size is 9px.','generate-pdf-using-contact-form-7').'</p>'; ?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -638,10 +644,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_opt_attach_pdf_image_tooltip_id' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					esc_html_e( '<h3>Attach PDF</h3>' .
-						'<p>Exceed limit of PDF file is 25MB.</p>',
-						'generate-pdf-using-contact-form-7'
-					); ?>',
+					echo '<h3>'. esc_html__('Attach PDF','generate-pdf-using-contact-form-7').'</h3>' .
+						'<p>'. esc_html__('Exceed limit of PDF file is 25MB.','generate-pdf-using-contact-form-7').'</p>'; ?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
@@ -649,5 +653,4 @@ add_action('admin_print_footer_scripts', function() {
 		//]]>
 	</script>
 	<?php
-	echo ob_get_clean(); //phpcs:ignore
 } );
