@@ -26,7 +26,7 @@ https://mpdf.github.io/html-support/html-tags.html
 - Add Page number options in admin so you can add Text with PDF page number.
 - Ability to set font size of PDF content.
 - Compatibility of WordPress VIP.
-
+[Learn more about the Pro version](https://store.zealousweb.com/generate-pdf-using-contact-form-7-pro)
 # Installation
 1. Download the plugin zip file from WordPress.org plugin site to your desktop / PC
 2. If the file is downloaded as a zip archive, extract the plugin folder to your desktop.
