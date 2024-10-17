@@ -14,18 +14,18 @@ https://mpdf.github.io/html-support/html-tags.html
 
 **Features of Generate PDF using Contact Form 7**
 - Attach PDF file to the Form Notifications Emails that are sent to the user and/or administrator, from the Admin side.
-In the message, the link of the attached PDF file is displayed, along with Thank You Message of the Form Submission
-Admin can add different PDFs with different Contact Forms and can create multiple forms.
-Admin can create their own PDF with submitted Data in the Form
-Admin can customize your PDF form by adding a logo on the Header and other relevant Form * Fields while sending a Thank You Message to the user.
-Ablity to Update PDF Header/Footer Text.
-Ability to add file option with our PDF attachement in mail.
-We can use Page Break and new content will be move on next pages in PDF.
-For Acceptance Field use particular tag in PDF editor then only it’s showing proper value. Ex. [acceptance-] Start tag as example then you can use any word for tags like [acceptance-terms-condition] OR [acceptance-policy] etc.
-You can set file name from admin also use any form tag instead of file name.
-Add Page number options in admin so you can add Text with PDF page number.
-Ability to set font size of PDF content.
-Compatibility of WordPress VIP.
+- In the message, the link of the attached PDF file is displayed, along with Thank You Message of the Form Submission
+- Admin can add different PDFs with different Contact Forms and can create multiple forms.
+- Admin can create their own PDF with submitted Data in the Form
+- Admin can customize your PDF form by adding a logo on the Header and other relevant Form * Fields while sending a Thank You Message to the user.
+- Ablity to Update PDF Header/Footer Text.
+- Ability to add file option with our PDF attachement in mail.
+- We can use Page Break and new content will be move on next pages in PDF.
+- For Acceptance Field use particular tag in PDF editor then only it’s showing proper value. Ex. [acceptance-] Start tag as example then you can use any word for tags like [acceptance-terms-condition] OR [acceptance-policy] etc.
+- You can set file name from admin also use any form tag instead of file name.
+- Add Page number options in admin so you can add Text with PDF page number.
+- Ability to set font size of PDF content.
+- Compatibility of WordPress VIP.
 
 # Installation
 1. Download the plugin zip file from WordPress.org plugin site to your desktop / PC
