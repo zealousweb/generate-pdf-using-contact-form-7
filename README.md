@@ -13,7 +13,7 @@ https://mpdf.github.io/css-stylesheets/supported-css.html
 https://mpdf.github.io/html-support/html-tags.html
 
 **Features of Generate PDF using Contact Form 7**
-Attach PDF file to the Form Notifications Emails that are sent to the user and/or administrator, from the Admin side.
+- Attach PDF file to the Form Notifications Emails that are sent to the user and/or administrator, from the Admin side.
 In the message, the link of the attached PDF file is displayed, along with Thank You Message of the Form Submission
 Admin can add different PDFs with different Contact Forms and can create multiple forms.
 Admin can create their own PDF with submitted Data in the Form
