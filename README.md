@@ -29,7 +29,7 @@ https://mpdf.github.io/html-support/html-tags.html
 
 [Learn more about the Pro version](https://store.zealousweb.com/generate-pdf-using-contact-form-7-pro)
 
-<strong>[Demo for Abandoned Contact Form 7 Pro](https://demo.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7-pro/)</strong>
+<strong>[Demo for Generate PDF using Contact Form 7 Pro](https://demo.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7-pro/)</strong>
 
 **OUR OTHER PLUGINS**
 
