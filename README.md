@@ -43,6 +43,15 @@ https://mpdf.github.io/html-support/html-tags.html
 * <strong>[Abandoned Contact Form 7 Pro](https://store.zealousweb.com/abandoned-contact-form-7-pro)</strong>
 * <strong>[Custom Product Options WooCommerce Pro](https://store.zealousweb.com/wordpress-plugins/custom-product-options-woocommerce-pro)</strong>
 
+**Getting Help With WordPress**
+If you have any questions about this plugin, you can post a thread in our WordPress.org forum. Please search existing threads before opening a new one or feel free to contact us at support@zealousweb.com
+
+We also offer custom WordPress extension development and WordPress theme design services to fulfill your e-commerce objectives.
+
+Our professional impassioned WordPress experts provide profound and customer oriented development of your project within short timeframes.
+
+Thank you for choosing a Plugin developed by ZealousWeb!
+
 # Installation
 1. Download the plugin zip file from WordPress.org plugin site to your desktop / PC
 2. If the file is downloaded as a zip archive, extract the plugin folder to your desktop.
