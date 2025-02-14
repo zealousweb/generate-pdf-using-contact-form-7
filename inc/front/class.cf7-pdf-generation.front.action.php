@@ -132,7 +132,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 							$attdataurl_array = $this->wpcf7_pdf_create_attachment($pdf_url_path);
 
 							$returnexist = file_exists( $attdataurl_array['absolute_path'] );
-							if( $returnexist ) {
+							if( $returnexist && ($cf7_pdf_link_is_enable =='false' || $cf7_remove_pdf =='false') ) {
 								$attdataurl = $attdataurl_array['attach_url'];
 							} else {
 								$attdataurl = $pdf_url_path;
@@ -361,7 +361,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 
 						$attdataurl_array = $this->wpcf7_pdf_create_attachment($pdf_url_path);
 						$returnexist = file_exists( $attdataurl_array['absolute_path'] );
-						if( $returnexist ) {
+						if( $returnexist && ($cf7_pdf_link_is_enable =='false' || $cf7_remove_pdf =='false')) {
 							$attdataurl = $attdataurl_array['attach_url'];
 						} else {
 							$attdataurl = $pdf_url_path;
@@ -412,13 +412,13 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 				}
 			}
 
-			if( $cf7_pdf_link_is_enable =='false' ) {
-				if( $cf7_remove_pdf =='true' ) {
-					if( isset( $attdataurl_array['attach_id'] ) ){
-						wp_delete_attachment( $attdataurl_array['attach_id'], true );
-					}
+			
+			if( $cf7_remove_pdf =='true' ) {
+				if( isset( $attdataurl_array['attach_id'] ) ){
+					wp_delete_attachment( $attdataurl_array['attach_id'], true );
 				}
 			}
+			
 
 			return $wpcf;
 

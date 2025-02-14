@@ -58,7 +58,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 		$cf7_idform = intval( sanitize_file_name($_POST['cf7_idform']) ); 
 		$file = '';$temp = 1;
 
-		if( isset($_POST['action']) && sanitize_file_name($_POST['action'])!='') 
+		if(isset($_POST['action']) && sanitize_file_name($_POST['action'])!='' && isset($_POST['security-cf7-send-pdf']) && wp_verify_nonce(sanitize_file_name(wp_unslash($_POST['security-cf7-send-pdf'])), 'cf7_send_form')) 
 		{	
 			if ( isset($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']) && sanitize_file_name($_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image']) != "" ) {
 				$target_dir = WP_CF7_PDF_DIR . 'attachments/';
@@ -141,7 +141,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 
 ?>
 	<form method="post" name="setting_form" action="" enctype="multipart/form-data">
-
+		<?php wp_nonce_field('cf7_send_form', 'security-cf7-send-pdf'); ?>
 		<input type="hidden" name="action" value="update" />
 		<input type="hidden" name="cf7_idform" value="<?php echo esc_attr($cf7_idform); ?>"/>
 

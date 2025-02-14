@@ -5,8 +5,8 @@ Tags: contact form, contact, PDF, email
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 6.6
-Stable tag: 4.1.1
-Version: 4.1.1
+Stable tag: 4.1.3
+Version: 4.1.3
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
@@ -53,7 +53,7 @@ https://mpdf.github.io/html-support/html-tags.html
 
 * <strong>[Accept PayPal Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-paypal-payments-using-contact-form-7-pro)</strong>
 * <strong>[Accept Stripe Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-stripe-payments-using-contact-form-7-pro)</strong>
-* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://store.zealousweb.com/store/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
+* <strong>[Accept Authorize.NET Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-authorize-net-payments-using-contact-form-7-pro)</strong>
 * <strong>[Accept Elavon Payments Using Contact Form 7 Pro](https://store.zealousweb.com/accept-elavon-payments-using-contact-form-7-pro)</strong>
 * <strong>[Accept 2Checkout Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-2checkout-payments-using-contact-form-7-pro)</strong>
 * <strong>[Accept Sage Pay Payments Using Contact Form 7 Pro](https://store.zealousweb.com/wordpress-plugins/accept-sage-pay-payments-using-contact-form-7-pro)</strong>
@@ -112,6 +112,14 @@ https://prnt.sc/PsXaTarHTx4m
 S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
+
+= 4.1.3 =
+* Backed side issue fixed.
+* Secure plugin 
+
+= 4.1.2 =
+* The issue with removing PDF attachments has been fixed.
+* Secure plugin 
 
 = 4.1.1 =
 * Sanitize code
