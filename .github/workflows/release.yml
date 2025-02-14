@@ -1,0 +1,33 @@
+name: Deploy to WordPress.org
+
+on:
+  release:
+    types: [ released ]
+
+jobs:
+  tag:
+    name: New release
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: WordPress Plugin Deploy
+        id: deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        with:
+          generate-zip: true
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: generate-pdf-using-contact-form-7
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{github.workspace}}/generate-pdf-using-contact-form-7.zip
+          asset_name: ${{ github.event.repository.name }}.zip
+          asset_content_type: application/zip
