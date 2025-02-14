@@ -1,0 +1,10 @@
+LICENSE
+resource/
+README.md
+.git/
+.github/
+/.wordpress-org
+/.git
+/.github
+.distignore
+.gitignore

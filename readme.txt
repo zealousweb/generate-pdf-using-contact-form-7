@@ -5,8 +5,8 @@ Tags: contact form, contact, PDF, email
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 6.6
-Stable tag: 4.1.3
-Version: 4.1.3
+Stable tag: 4.1.4
+Version: 4.1.4
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
@@ -112,6 +112,9 @@ https://prnt.sc/PsXaTarHTx4m
 S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
+
+= 4.1.4 =
+* Minor workflow adjustments
 
 = 4.1.3 =
 * Backed side issue fixed.
