@@ -43,7 +43,7 @@ https://mpdf.github.io/html-support/html-tags.html
 * Ability to set font size of PDF content.
 * Compatibility of WordPress VIP.
 
-<strong>[Demo for Generate PDF using Contact Form 7](https://demo.zealousweb.com/wordpress-plugins/generate-pdf-contact-form-7/)</strong>
+<strong>[Demo for Generate PDF using Contact Form 7](https://demo.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7/)</strong>
 
 == Release Generate PDF using Contact Form 7 Pro ==
 
