@@ -386,6 +386,22 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 										<input type="number" min="6" max="30" name="wp_cf7_pdf_settings[cf7_pdf_default_font_size]" id="cf7_pdf_default_font_size" value="<?php echo esc_attr($cf7_pdf_default_font_size); ?>" style="width: 30%;">
 									</td>
 						        </tr>
+								
+								<tr valign="top">
+									<th scope="row"><?php echo esc_html(__( 'Show / Hide Label Field tags Value', 'generate-pdf-using-contact-form-7')); ?>
+									<span class="cf7pap-tooltip hide-if-no-js " id="cf7_pdf_show_hide_label"></span>
+									</th>
+									<td>
+										<?php
+										$cf7_pdf_show_hide_label = isset( $meta_values['cf7_pdf_show_hide_label'] ) ? $meta_values['cf7_pdf_show_hide_label'] : 'true';
+										?>
+										<input type="radio" id="cf7_showhide_label_enable_yes" name="wp_cf7_pdf_settings[cf7_pdf_show_hide_label]" class="cf7_pdf_show_hide_label" value="true" <?php if( $cf7_pdf_show_hide_label == 'true' ) { echo esc_html(' checked'); } ?> />
+										<label for="cf7_showhide_label_enable_yes"><?php echo esc_html__( 'Yes', 'generate-pdf-using-contact-form-7'); ?></label>
+										
+										<input type="radio" id="cf7_showhide_label_enable_no" name="wp_cf7_pdf_settings[cf7_pdf_show_hide_label]" class="cf7_pdf_show_hide_label" value="false" <?php if( $cf7_pdf_show_hide_label == 'false' ) { echo esc_html(' checked'); } ?> />
+										<label for="cf7_showhide_label_enable_no"><?php echo esc_html__( 'No', 'generate-pdf-using-contact-form-7'); ?></label>
+									</td>
+						        </tr>
 
 								<tr valign="top">
 									<th scope="row"><?php echo esc_html(__( 'Field tags', 'generate-pdf-using-contact-form-7')); ?></th>
@@ -616,7 +632,17 @@ add_action('admin_print_footer_scripts', function() {
 				} ).pointer('open');
 			} );
 			
-			
+			jQuery( '#cf7_pdf_show_hide_label' ).on( 'mouseenter click', function() {
+				jQuery( 'body .wp-pointer-buttons .close' ).trigger( 'click' );
+				jQuery( '#cf7_pdf_show_hide_label' ).pointer({
+					pointerClass: 'wp-pointer cf7pap-pointer',
+					content: '<?php
+					echo '<h3>'. esc_html__('Show / Hide Label Field tags Value','generate-pdf-using-contact-form-7').'</h3>'.
+						'<p>'. esc_html__('You can show hide label option field tags value.','generate-pdf-using-contact-form-7') .'</p>';?>',
+					position: 'left center',
+				} ).pointer('open');
+			} );
+
 			jQuery( '#cf7_pdf_msg_body_tooltip_id' ).on( 'mouseenter click', function() {
 				jQuery( 'body .wp-pointer-buttons .close' ).trigger( 'click' );
 				jQuery( '#cf7_pdf_msg_body_tooltip_id' ).pointer({
