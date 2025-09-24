@@ -388,12 +388,12 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 						        </tr>
 								
 								<tr valign="top">
-									<th scope="row"><?php echo esc_html(__( 'Show / Hide Label Field tags Value', 'generate-pdf-using-contact-form-7')); ?>
+									<th scope="row"><?php echo esc_html(__( 'Display or Hide Label Field Tags', 'generate-pdf-using-contact-form-7')); ?>
 									<span class="cf7pap-tooltip hide-if-no-js " id="cf7_pdf_show_hide_label"></span>
 									</th>
 									<td>
 										<?php
-										$cf7_pdf_show_hide_label = isset( $meta_values['cf7_pdf_show_hide_label'] ) ? $meta_values['cf7_pdf_show_hide_label'] : 'true';
+										$cf7_pdf_show_hide_label = isset( $meta_values['cf7_pdf_show_hide_label'] ) ? $meta_values['cf7_pdf_show_hide_label'] : 'false';
 										?>
 										<input type="radio" id="cf7_showhide_label_enable_yes" name="wp_cf7_pdf_settings[cf7_pdf_show_hide_label]" class="cf7_pdf_show_hide_label" value="true" <?php if( $cf7_pdf_show_hide_label == 'true' ) { echo esc_html(' checked'); } ?> />
 										<label for="cf7_showhide_label_enable_yes"><?php echo esc_html__( 'Yes', 'generate-pdf-using-contact-form-7'); ?></label>
@@ -637,8 +637,8 @@ add_action('admin_print_footer_scripts', function() {
 				jQuery( '#cf7_pdf_show_hide_label' ).pointer({
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
-					echo '<h3>'. esc_html__('Show / Hide Label Field tags Value','generate-pdf-using-contact-form-7').'</h3>'.
-						'<p>'. esc_html__('You can show hide label option field tags value.','generate-pdf-using-contact-form-7') .'</p>';?>',
+					echo '<h3>'. esc_html__('Display or Hide Label Field Tags','generate-pdf-using-contact-form-7').'</h3>'.
+						'<p>'. esc_html__('Allows you to show or hide label field option values.','generate-pdf-using-contact-form-7') .'</p>';?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
