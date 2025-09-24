@@ -5,8 +5,8 @@ Tags: contact form, contact, PDF, email
 Requires at least: 3.0.1
 Requires PHP: 5.6
 Tested up to: 6.8
-Stable tag: 4.1.5
-Version: 4.1.5
+Stable tag: 4.1.6
+Version: 4.1.6
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
@@ -117,6 +117,9 @@ S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
 
+= 4.1.6 =
+* Added a new option to Show or Hide Label Field Tags
+
 = 4.1.5 =
 * Minor changes - Doc update
 
@@ -163,7 +166,6 @@ S.S https://prnt.sc/-TLx40Qup76r
 
 = 4.0.2 =
 * Uplaod ttf fonts : XB Riyaz , DejaVuSansCondensed.ttf
-
 
 = 4.0.1 =
 * Fixed Bug
@@ -300,6 +302,181 @@ S.S https://prnt.sc/-TLx40Qup76r
 * Release version.
 
 == Upgrade Notice ==
+
+= 4.1.6 =
+* Added a new option to Show or Hide Label Field Tags
+
+= 4.1.5 =
+* Minor changes - Doc update
+
+= 4.1.4 =
+* Minor workflow adjustments
+
+= 4.1.3 =
+* Backed side issue fixed.
+* Secure plugin 
+
+= 4.1.2 =
+* The issue with removing PDF attachments has been fixed.
+* Secure plugin 
+
+= 4.1.1 =
+* Sanitize code
+* Secure plugin 
+
+= 4.1.0 =
+* The backend warning issue has been resolved.
+* Secure plugin 
+
+= 4.0.9 =
+* Sanitize and verify_nonce and file security issues resolved.
+* Secure plugin 
+
+= 4.0.8 =
+* Bug and security issues resolved.
+
+= 4.0.7 =
+* Add - 'Post Title' or Current page title using the [_post_title] Shortcode in the PDF message body settings."
+
+= 4.0.6 =
+* Improved compatibility with WordPress VIP platform by refactoring code to adhere to VIP coding standards.
+
+= 4.0.5 =
+* The problem with the formatting of the Table tag has been resolved.
+
+= 4.0.4 =
+* The issue on the front end has been resolved.
+
+= 4.0.3 =
+* Comma separated Removed From Checkbox,Select Box, and radion button.
+
+= 4.0.2 =
+* Uplaod ttf fonts : XB Riyaz , DejaVuSansCondensed.ttf
+
+= 4.0.1 =
+* Fixed Bug
+
+= 4.0 =
+* Display option to add style to pdf uniquely in setting.
+
+= 3.10 =
+* Added New Feature to select: Attach pdf in mail or not.
+
+= 3.9 =
+* Fix - Solved issue of attaching pdf in mail.
+
+= 3.8 =
+* Fix - Solved issue of uploaded Path file Input.
+
+= 3.7 =
+* Fix - Solved issue and add filter for output content on PDF.
+
+= 3.6 =
+* Fix - Solved XSS script issue.
+
+= 3.5 =
+* Fix - Solved Success Message if multiple form on same page.
+
+= 3.4 =
+* Add - Update MPDF library support in PHP 8.0.x
+
+= 3.3 =
+* Add - Add New option of Font size if PDF Content.
+
+= 3.2 =
+* Fix - Remove Static Text from code and make it dynamic from Header option.
+
+= 3.1 =
+* Add - Add Background Image option in admin side for PDF.
+
+= 3.0 =
+* Fix - We have update PDF generate code and ignore blank Form tag from PDF.
+* Add - Add Page number option with admin settings, so you can add Text with Number prefix and suffix in PDF.
+* Add - Set file name options like if you want to use Form Tag instead PDF file name.
+
+= 2.11 =
+* Add - Add new Options for Page number settings in PDF Fotter.
+
+= 2.10 =
+* Add - Set Acceotance tag show proper values in PDF. For this Use Proper Tag in PDF editors.
+
+= 2.9 =
+* Add - Add Option of Remove PDF file from Media Library after mail sent. You can ON / OFF it from admin Options.
+
+= 2.8 =
+* Add - Set PDF message body editor resizable.
+
+= 2.7 =
+* Add - Option of Page number and Text.
+
+= 2.6 =
+* Add - Add Option for Changes Text for PDF link with Success Message.
+
+= 2.5 =
+* Fix - Solved Mail 2 attachement issue.
+
+= 2.4 =
+* Add - Add Option for PDF margin Left/Right side.
+
+= 2.3 =
+* Fix - Fix some minor bug and update.
+
+= 2.2 =
+* Addon - Add some more shortcode for send basic values of site into PDF.
+
+= 2.1 =
+* Addon - Add Notification for asking review from all customer from admin.
+
+= 2.0 =
+* Fix - Fix issue of Multiple Upload file attachement with Latest CF7 and Code Optimization.
+
+= 1.9.9 =
+* Fix - Fix issue of Upload file and make compitible with Latest Contact form 7 5.4.
+
+= 1.9.8 =
+* Add - Add option for PDF file name in admin side.
+
+= 1.9.7 =
+* Fix - Solved issue of Attachement conflict of Default CF7 and our PDF with emails.
+
+= 1.9.6 =
+* Add - Add Pages Break Feature for move content to the next Pages.
+
+= 1.9.5 =
+* Fix - Fixed Attachment issue with save attachment into Database.
+
+= 1.9.4 =
+* Fix - Fixed Attachment issue.
+
+= 1.9.3 =
+* Add - Add New option to Set Logo Size in Generated PDF.
+
+= 1.9.2 =
+* Fix - Fixed MPDF library Errro with update latest one.
+
+= 1.9.1 =
+* Add - Add New Feature of setting margin of Create PDF with Data.
+
+= 1.9 =
+* Add - Add Date format features and match with WP general settings. 
+
+= 1.8 =
+* Add - Fixed Issue. 
+
+= 1.7 =
+* Add - Now plugin support with Contact Form 7 file option with our PDF attachment. 
+
+= 1.6 =
+* Fix - Issue fixed regarding tooltip with latest version of WordPress 5.5.
+
+= 1.5 =
+* Fix - Now plugin support in version 5.2 and less then 5.2 of Contact Form 7.
+
+= 1.4 =
+* Add - Set Default Font to FreeSans for PDF file.
+
+= 1.3 =
+* Fix - We have fixed for support Dropdown and Radio button in PDF generate.
 
 = 1.2 =
 Add New Feature to edit PDF Header/Footer Text.
