@@ -43,7 +43,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Filter' ) ){
 			
 			$settings_link = wpcf7_link(
 				menu_page_url( 'wp-cf7-send-pdf', false ),
-				esc_html(__( 'Settings', 'Contact-Form-7-PDF-Generation' ))
+				esc_html(__( 'Settings', 'generate-pdf-using-contact-form-7' ))
 			);
 			array_unshift( $links, $settings_link );
 

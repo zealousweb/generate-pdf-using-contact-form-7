@@ -23,11 +23,11 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 		* Construction
 		*/
 		function __construct()  {
-			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_styles' ));
-			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_scripts' ));
-			add_action( 'admin_menu',array( $this, 'wp_cf7_pdf_add_admin' ));
-			add_action( 'admin_print_styles',array( $this, 'wpcf7_pdf_admin_styles' ));
-			add_action( 'admin_print_scripts',array( $this, 'wpcf7_pdf_admin_scripts' ));
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ));
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ));
+			add_action( 'admin_menu', array( $this, 'wp_cf7_pdf_add_admin' ));
+			add_action( 'admin_print_styles', array( $this, 'wpcf7_pdf_admin_styles' ));
+			add_action( 'admin_print_scripts', array( $this, 'wpcf7_pdf_admin_scripts' ));
 		}
 
 		/**
@@ -47,7 +47,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 		*/
 		function enqueue_scripts() {
 			
-			if (isset($_GET['page']) && $_GET['page'] === 'wp-cf7-send-pdf' ||isset($_POST['cf7_send_form']) && wp_verify_nonce(sanitize_file_name(wp_unslash($_POST['cf7_send_form'])), 'security-cf7-send-pdf')) {
+			if (isset($_GET['page']) && $_GET['page'] === 'wp-cf7-send-pdf' || isset($_POST['cf7_send_form']) && wp_verify_nonce(sanitize_file_name(wp_unslash($_POST['cf7_send_form'])), 'security-cf7-send-pdf')) {
 				wp_enqueue_script( 'codemirror', WP_CF7_PDF_URL . 'assets/js/cf7-pdf-generation-codemirror-min.js', array( 'jquery' ), 1.1, false );
 				wp_enqueue_script( 'codemirror-javascript',WP_CF7_PDF_URL . 'assets/js/cf7-pdf-generation-codemirror-javascript-min.js', array( 'jquery' ), 1.1, false );
 				wp_enqueue_script( 'admin-js', WP_CF7_PDF_URL . 'assets/js/cf7-pdf-generation-admin-min.js', array( 'jquery' ), 1.2, false );

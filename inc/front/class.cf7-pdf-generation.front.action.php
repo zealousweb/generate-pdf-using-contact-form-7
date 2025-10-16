@@ -377,13 +377,16 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 
 						$pdf_url_path = WP_CF7_PDF_URL.'attachments/'.$pdf_file_name;
 
-						if (file_exists($_SERVER['DOCUMENT_ROOT'] . $pdf_file_path1)) {
+						$document_root = isset( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '';
+
+						if ( $document_root && file_exists( $document_root . $pdf_file_path1 ) ) {
+
+						// if (file_exists($_SERVER['DOCUMENT_ROOT'] . $pdf_file_path1)) {
 
 							$mpdf->Output( $pdf_file_path , 'F');
 							$mpdf->Output( $pdf_file_path1 , 'F');
 
-						}
-						else{
+						} else {
 							$mpdf->Output( $pdf_file_path , 'F');
 						}
 
