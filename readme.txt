@@ -4,9 +4,9 @@ Donate link: http://www.zealousweb.com/payment/
 Tags: contact form, contact, PDF, email
 Requires at least: 3.0.1
 Requires PHP: 5.6
-Tested up to: 6.8
-Stable tag: 4.1.6
-Version: 4.1.6
+Tested up to: 6.9
+Stable tag: 4.1.7
+Version: 4.1.7
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
@@ -116,6 +116,9 @@ https://prnt.sc/PsXaTarHTx4m
 S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
+
+= 4.1.7 =
+* Tested with the latest version of WordPress (6.9).
 
 = 4.1.6 =
 * Added a new option to Show or Hide Label Field Tags
