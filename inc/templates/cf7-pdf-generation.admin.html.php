@@ -7,7 +7,15 @@ if ( !defined( 'ABSPATH' ) ) exit;
 ?>
 
 <div class="wrap cf7-pdf-generation-wrapper">
-<h1><?php echo esc_html('Generate PDF using Contact Form 7 Settings', 'generate-pdf-using-contact-form-7'); ?></h1>
+	<div class="cf7-pdf-generation-help-card">
+		<h1><?php echo esc_html('Generate PDF using Contact Form 7 Settings', 'generate-pdf-using-contact-form-7'); ?></h1>
+		<div class="cf7-pdf-generation-help-card-footer">
+			<a class="cf7-pdf-generation-primary-btn" href="https://support.zealousweb.com/portal/en/home" target="_blank" rel="noopener noreferrer">
+				<?php esc_html_e( 'Open Support Ticket', 'generate-pdf-using-contact-form-7' ); ?>
+			</a>
+		</div>
+	</div>
+
 	<?php
 	$args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
 	$cf7Forms = get_posts( $args );
