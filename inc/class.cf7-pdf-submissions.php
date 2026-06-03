@@ -198,6 +198,10 @@ if ( ! class_exists( 'Cf7_Pdf_Submissions' ) ) {
 				return false;
 			}
 
+			if ( class_exists( 'Cf7_Pdf_Pdf_Builder' ) && ! Cf7_Pdf_Pdf_Builder::is_pdf_operation_enabled_for_form( $form_id ) ) {
+				return false;
+			}
+
 			if ( ! empty( $pdf_path ) && ! file_exists( $pdf_path ) ) {
 				return false;
 			}

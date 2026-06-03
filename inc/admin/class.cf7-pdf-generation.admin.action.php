@@ -169,6 +169,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 							'previewNonce' => wp_create_nonce( 'cf7_pdf_live_preview' ),
 							'i18n'         => array(
 								'selectForm'           => __( 'Select a contact form first.', 'generate-pdf-using-contact-form-7' ),
+								'pdfDisabled'          => __( 'PDF file operation is disabled. Set "Enable PDF file operation?" to Yes and save settings.', 'generate-pdf-using-contact-form-7' ),
 								'error'                => __( 'Preview failed. Please try again.', 'generate-pdf-using-contact-form-7' ),
 								'showPassword'         => __( 'Show password', 'generate-pdf-using-contact-form-7' ),
 								'hidePassword'         => __( 'Hide password', 'generate-pdf-using-contact-form-7' ),
@@ -197,8 +198,11 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 								'previewReady'         => __( 'Preview ready', 'generate-pdf-using-contact-form-7' ),
 								'previewEmptyTitle'    => __( 'No preview yet', 'generate-pdf-using-contact-form-7' ),
 								'previewEmptyText'     => __( 'Click “Generate Preview” to see how your PDF will look using the current settings.', 'generate-pdf-using-contact-form-7' ),
+								'showPreview'          => __( 'Show preview', 'generate-pdf-using-contact-form-7' ),
+								'hidePreview'          => __( 'Hide preview', 'generate-pdf-using-contact-form-7' ),
 								'generatePreview'      => __( 'Generate Preview', 'generate-pdf-using-contact-form-7' ),
 								'refreshPreview'       => __( 'Refresh', 'generate-pdf-using-contact-form-7' ),
+								'openLivePreview'      => __( 'Open Live PDF Preview', 'generate-pdf-using-contact-form-7' ),
 								'openInNewTab'         => __( 'Open in new tab', 'generate-pdf-using-contact-form-7' ),
 								'downloadPreview'      => __( 'Download', 'generate-pdf-using-contact-form-7' ),
 								'viewSubmissions'      => __( 'View submissions', 'generate-pdf-using-contact-form-7' ),
@@ -241,6 +245,10 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 
 			$saved_meta = get_post_meta( $form_id, 'cf7_pdf', true );
 			$merged     = wp_parse_args( $settings, is_array( $saved_meta ) ? $saved_meta : array() );
+
+			if ( ! Cf7_Pdf_Pdf_Builder::is_pdf_operation_enabled( $merged ) ) {
+				wp_send_json_error( array( 'message' => Cf7_Pdf_Pdf_Builder::pdf_operation_disabled_error()->get_error_message() ) );
+			}
 
 			$password_enabled = isset( $merged['cf7_opt_is_password_enable'] ) && 'true' === $merged['cf7_opt_is_password_enable'];
 

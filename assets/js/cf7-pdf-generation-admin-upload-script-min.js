@@ -36,7 +36,7 @@ jQuery(document).ready(function () {
             });
     });
     var r = jQuery("input[type=radio].cf7_opt_enable:checked").val();
-    "true" == r ? (jQuery(".enable-pdf").show(), jQuery(".enable-pdf-link").show(), jQuery(".pdf-genrate").show()) : "false" == r && (jQuery(".disable-pdf-link").hide(), jQuery(".pdf-genrate").hide(), jQuery(".enable-pdf").hide(), jQuery(".enable-pdf-link").hide());
+    "true" == r ? (jQuery(".enable-pdf").show(), jQuery(".enable-pdf-link").show(), jQuery(".pdf-genrate").show(), jQuery("#cf7pdf-feature-panels").show()) : "false" == r && (jQuery(".disable-pdf-link").hide(), jQuery(".pdf-genrate").hide(), jQuery(".enable-pdf").hide(), jQuery(".enable-pdf-link").hide(), jQuery("#cf7pdf-feature-panels").hide());
     var a = jQuery("input[type=radio].cf7_opt_attach_enable:checked");
     jQuery(a).each(function (e) {
         var r = jQuery(this).val();
@@ -73,7 +73,7 @@ jQuery(document).ready(function () {
             })
             .change(),
         jQuery(".cf7_opt_enable").change(function () {
-            "true" == this.value ? (jQuery(".enable-pdf").show(), jQuery(".enable-pdf-link").show(),jQuery(".disable-pdf-link").show()) : "false" == this.value && (jQuery(".enable-pdf").hide(), jQuery(".enable-pdf-link").hide(), jQuery(".disable-pdf-link").hide());
+            "true" == this.value ? (jQuery(".enable-pdf").show(), jQuery(".enable-pdf-link").show(), jQuery(".disable-pdf-link").show(), jQuery("#cf7pdf-feature-panels").show()) : "false" == this.value && (jQuery(".enable-pdf").hide(), jQuery(".enable-pdf-link").hide(), jQuery(".disable-pdf-link").hide(), jQuery("#cf7pdf-feature-panels").hide());
         }),
         jQuery(document).on("click", ".remove-upload-header-logo", function () {
             if (1 != confirm("Are you sure want to delete the header logo ?")) return !1;

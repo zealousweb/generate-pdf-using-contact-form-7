@@ -125,41 +125,62 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 			$before_post["cf7_opt_attach_pdf_image"] = $file;
 		}
 
+		$enable_raw = 'false';
+		if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_is_enable'] ) ) {
+			$enable_raw = sanitize_text_field( wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_is_enable'] ) );
+		}
+		$before_post['cf7_opt_is_enable'] = ( 'true' === $enable_raw ) ? 'true' : 'false';
+
 		$password_error   = '';
 		$password_save_ok = true;
-		$new_pass         = '';
-		$confirm          = '';
+		$existing_meta    = get_post_meta( $cf7_idform, 'cf7_pdf', true );
+		$existing_meta    = is_array( $existing_meta ) ? $existing_meta : array();
 
-		if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_password_pdf'] ) ) {
-			$new_pass = (string) wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_password_pdf'] );
-		}
-		if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_password_pdf_confirm'] ) ) {
-			$confirm = (string) wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_password_pdf_confirm'] );
-		}
-
-		$remove_password = ! empty( $_POST['cf7_opt_remove_password'] );
-		$enabled_flag    = isset( $before_post['cf7_opt_is_password_enable'] ) ? $before_post['cf7_opt_is_password_enable'] : 'false';
-		$existing_meta   = get_post_meta( $cf7_idform, 'cf7_pdf', true );
-
-		$password_result = Cf7_Pdf_Submissions::process_password_save(
-			$enabled_flag,
-			$new_pass,
-			$confirm,
-			is_array( $existing_meta ) ? $existing_meta : array(),
-			$remove_password
-		);
-
-		if ( ! $password_result['ok'] ) {
-			$password_save_ok = false;
-			$password_error   = $password_result['error'];
+		if ( 'false' === $before_post['cf7_opt_is_enable'] ) {
+			$before_post['cf7_opt_is_password_enable'] = 'false';
+			$before_post['cf7_opt_password_pdf']       = isset( $existing_meta['cf7_opt_password_pdf'] ) ? $existing_meta['cf7_opt_password_pdf'] : '';
 		} else {
-			$before_post['cf7_opt_is_password_enable'] = $password_result['enabled'];
-			$before_post['cf7_opt_password_pdf']       = $password_result['encrypted'];
+			$new_pass  = '';
+			$confirm   = '';
+
+			if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_password_pdf'] ) ) {
+				$new_pass = (string) wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_password_pdf'] );
+			}
+			if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_password_pdf_confirm'] ) ) {
+				$confirm = (string) wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_password_pdf_confirm'] );
+			}
+
+			$remove_password = ! empty( $_POST['cf7_opt_remove_password'] );
+			$enabled_flag    = isset( $before_post['cf7_opt_is_password_enable'] ) ? $before_post['cf7_opt_is_password_enable'] : 'false';
+
+			$password_result = Cf7_Pdf_Submissions::process_password_save(
+				$enabled_flag,
+				$new_pass,
+				$confirm,
+				$existing_meta,
+				$remove_password
+			);
+
+			if ( ! $password_result['ok'] ) {
+				$password_save_ok = false;
+				$password_error   = $password_result['error'];
+			} else {
+				$before_post['cf7_opt_is_password_enable'] = $password_result['enabled'];
+				$before_post['cf7_opt_password_pdf']       = $password_result['encrypted'];
+			}
 		}
 
 		if ( $password_save_ok ) {
 			update_post_meta( $cf7_idform, '_wp_cf7_pdf', $before_post );
 			update_post_meta( $cf7_idform, 'cf7_pdf', $before_post );
+		} else {
+			$meta_to_keep = is_array( $existing_meta ) ? $existing_meta : array();
+			$meta_to_keep['cf7_opt_is_enable'] = $before_post['cf7_opt_is_enable'];
+			if ( 'false' === $before_post['cf7_opt_is_enable'] ) {
+				$meta_to_keep['cf7_opt_is_password_enable'] = 'false';
+			}
+			update_post_meta( $cf7_idform, '_wp_cf7_pdf', $meta_to_keep );
+			update_post_meta( $cf7_idform, 'cf7_pdf', $meta_to_keep );
 		}
 
 		if ( ! $password_save_ok ) {
@@ -583,7 +604,10 @@ Your Message : [your-message]';
 	    </table>
 
 		<?php
-		$preview_data_info = class_exists( 'Cf7_Pdf_Pdf_Builder' )
+		$cf7_opt_is_password_enable = isset( $meta_values['cf7_opt_is_password_enable'] ) ? $meta_values['cf7_opt_is_password_enable'] : 'false';
+		$has_stored_password        = class_exists( 'Cf7_Pdf_Submissions' ) && Cf7_Pdf_Submissions::has_stored_password( $meta_values );
+		$password_is_active         = ( 'true' === $cf7_opt_is_password_enable && $has_stored_password );
+		$preview_data_info          = class_exists( 'Cf7_Pdf_Pdf_Builder' )
 			? Cf7_Pdf_Pdf_Builder::get_preview_data_info( $cf7_idform, is_array( $meta_values ) ? $meta_values : array() )
 			: array(
 				'source'  => 'sample',
@@ -592,35 +616,55 @@ Your Message : [your-message]';
 			);
 		?>
 		<div
-			class="cf7pdf-settings-panel cf7pdf-settings-panel--preview"
+			class="cf7pdf-feature-panels"
+			id="cf7pdf-feature-panels"
+			<?php echo ( 'true' !== $cf7_opt_is_enable ) ? ' style="display:none;"' : ''; ?>
+		>
+		<div
+			class="cf7pdf-settings-panel cf7pdf-settings-panel--preview cf7pdf-preview-panel cf7pdf-preview-panel--collapsed"
 			id="cf7pdf-preview-panel"
 			data-source="<?php echo esc_attr( isset( $preview_data_info['source'] ) ? $preview_data_info['source'] : 'sample' ); ?>"
 			data-label="<?php echo esc_attr( isset( $preview_data_info['label'] ) ? $preview_data_info['label'] : '' ); ?>"
 			data-message="<?php echo esc_attr( isset( $preview_data_info['message'] ) ? $preview_data_info['message'] : '' ); ?>"
 		>
-			<div class="cf7pdf-panel-heading">
-				<h2><?php esc_html_e( 'Live PDF Preview', 'generate-pdf-using-contact-form-7' ); ?></h2>
+			<div class="cf7pdf-preview-header">
+				<button
+					type="button"
+					class="cf7pdf-preview-header-btn"
+					id="cf7pdf-preview-toggle"
+					aria-expanded="false"
+					aria-controls="cf7pdf-preview-body"
+				>
+					<span class="cf7pdf-preview-header-btn__chevron dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+					<span class="cf7pdf-preview-header-btn__content">
+						<span class="cf7pdf-preview-header-btn__title"><?php esc_html_e( 'Live PDF Preview', 'generate-pdf-using-contact-form-7' ); ?></span>
+						<span class="cf7pdf-preview-header-btn__desc"><?php esc_html_e( 'Preview how the generated PDF will look before saving or sending.', 'generate-pdf-using-contact-form-7' ); ?></span>
+					</span>
+					<span class="cf7pdf-preview-header-btn__state"><?php esc_html_e( 'Show preview', 'generate-pdf-using-contact-form-7' ); ?></span>
+				</button>
 			</div>
-			<p class="cf7pdf-preview-lead"><?php esc_html_e( 'See exactly how the PDF will look on the frontend—same template, styling, and generation logic.', 'generate-pdf-using-contact-form-7' ); ?></p>
 
-			<div class="cf7pdf-preview-toolbar">
-				<button type="button" class="button button-primary" id="cf7-pdf-preview-btn">
-					<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-					<?php esc_html_e( 'Generate Preview', 'generate-pdf-using-contact-form-7' ); ?>
-				</button>
-				<button type="button" class="button button-secondary" id="cf7-pdf-preview-refresh" hidden>
-					<span class="dashicons dashicons-update" aria-hidden="true"></span>
-					<?php esc_html_e( 'Refresh', 'generate-pdf-using-contact-form-7' ); ?>
-				</button>
-				<button type="button" class="button button-secondary" id="cf7-pdf-preview-open" hidden>
-					<span class="dashicons dashicons-external" aria-hidden="true"></span>
-					<?php esc_html_e( 'Open in new tab', 'generate-pdf-using-contact-form-7' ); ?>
-				</button>
-				<a href="#" class="button button-secondary" id="cf7-pdf-preview-download" hidden download="cf7-pdf-preview.pdf">
-					<span class="dashicons dashicons-download" aria-hidden="true"></span>
-					<?php esc_html_e( 'Download', 'generate-pdf-using-contact-form-7' ); ?>
-				</a>
-				<span class="spinner cf7-pdf-preview-spinner"></span>
+			<div
+				class="cf7pdf-preview-body"
+				id="cf7pdf-preview-body"
+				aria-hidden="true"
+			>
+			<div class="cf7pdf-preview-actions">
+				<div class="cf7pdf-preview-toolbar">
+					<button type="button" class="button button-primary" id="cf7-pdf-preview-btn">
+						<?php esc_html_e( 'Generate Preview', 'generate-pdf-using-contact-form-7' ); ?>
+					</button>
+					<button type="button" class="button" id="cf7-pdf-preview-refresh" hidden>
+						<?php esc_html_e( 'Refresh', 'generate-pdf-using-contact-form-7' ); ?>
+					</button>
+					<button type="button" class="button" id="cf7-pdf-preview-open" hidden>
+						<?php esc_html_e( 'Open in new tab', 'generate-pdf-using-contact-form-7' ); ?>
+					</button>
+					<a href="#" class="button" id="cf7-pdf-preview-download" hidden download="cf7-pdf-preview.pdf">
+						<?php esc_html_e( 'Download', 'generate-pdf-using-contact-form-7' ); ?>
+					</a>
+					<span class="spinner cf7-pdf-preview-spinner"></span>
+				</div>
 			</div>
 
 			<div class="cf7pdf-preview-status" id="cf7pdf-preview-status" role="status">
@@ -648,13 +692,9 @@ Your Message : [your-message]';
 				</div>
 				<iframe id="cf7-pdf-preview-frame" class="cf7-pdf-preview-frame" hidden title="<?php esc_attr_e( 'PDF Preview', 'generate-pdf-using-contact-form-7' ); ?>"></iframe>
 			</div>
+			</div><!-- .cf7pdf-preview-body -->
 		</div>
 
-		<?php
-		$cf7_opt_is_password_enable = isset( $meta_values['cf7_opt_is_password_enable'] ) ? $meta_values['cf7_opt_is_password_enable'] : 'false';
-		$has_stored_password        = class_exists( 'Cf7_Pdf_Submissions' ) && Cf7_Pdf_Submissions::has_stored_password( $meta_values );
-		$password_is_active         = ( 'true' === $cf7_opt_is_password_enable && $has_stored_password );
-		?>
 		<div
 			class="cf7pdf-settings-panel cf7pdf-settings-panel--password"
 			id="cf7pdf-password-panel"
@@ -677,15 +717,6 @@ Your Message : [your-message]';
 			</div>
 
 			<p class="cf7pdf-password-lead"><?php esc_html_e( 'Require a password to open PDFs sent from this form.', 'generate-pdf-using-contact-form-7' ); ?></p>
-
-			<details class="cf7pdf-password-tips">
-				<summary><?php esc_html_e( 'Tips for sharing passwords', 'generate-pdf-using-contact-form-7' ); ?></summary>
-				<ul>
-					<li><?php esc_html_e( 'Recipients need the password in Adobe Reader, browsers, and mobile PDF apps.', 'generate-pdf-using-contact-form-7' ); ?></li>
-					<li><?php esc_html_e( 'Share it separately (email or SMS)—it is not stored in the file name.', 'generate-pdf-using-contact-form-7' ); ?></li>
-					<li><?php esc_html_e( 'Use Live PDF Preview above to verify the password works.', 'generate-pdf-using-contact-form-7' ); ?></li>
-				</ul>
-			</details>
 
 			<div class="cf7pdf-password-enable-bar">
 				<input type="hidden" name="wp_cf7_pdf_settings[cf7_opt_is_password_enable]" id="cf7_opt_is_password_enable" value="<?php echo esc_attr( $cf7_opt_is_password_enable ); ?>" />
@@ -717,13 +748,28 @@ Your Message : [your-message]';
 							</button>
 						</div>
 						<div class="cf7pdf-password-actions">
-							<button type="button" class="button button-secondary" id="cf7pdf-generate-password">
-								<span class="dashicons dashicons-randomize" aria-hidden="true"></span>
-								<?php esc_html_e( 'Generate', 'generate-pdf-using-contact-form-7' ); ?>
+							<button
+								type="button"
+								class="cf7pdf-action-btn"
+								id="cf7pdf-generate-password"
+								aria-label="<?php esc_attr_e( 'Generate a secure random password', 'generate-pdf-using-contact-form-7' ); ?>"
+							>
+								<span class="cf7pdf-action-btn__icon" aria-hidden="true">
+									<span class="dashicons dashicons-update-alt"></span>
+								</span>
+								<span class="cf7pdf-action-btn__label"><?php esc_html_e( 'Generate password', 'generate-pdf-using-contact-form-7' ); ?></span>
 							</button>
-							<button type="button" class="button button-secondary" id="cf7pdf-copy-password" hidden>
-								<span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
-								<?php esc_html_e( 'Copy', 'generate-pdf-using-contact-form-7' ); ?>
+							<button
+								type="button"
+								class="cf7pdf-action-btn"
+								id="cf7pdf-copy-password"
+								hidden
+								aria-label="<?php esc_attr_e( 'Copy password to clipboard', 'generate-pdf-using-contact-form-7' ); ?>"
+							>
+								<span class="cf7pdf-action-btn__icon" aria-hidden="true">
+									<span class="dashicons dashicons-clipboard"></span>
+								</span>
+								<span class="cf7pdf-action-btn__label"><?php esc_html_e( 'Copy password', 'generate-pdf-using-contact-form-7' ); ?></span>
 							</button>
 						</div>
 						<div id="cf7pdf-password-strength" class="cf7pdf-password-strength" aria-live="polite" hidden>
@@ -753,7 +799,27 @@ Your Message : [your-message]';
 					</div>
 				<?php endif; ?>
 			</div>
+
+			<details class="cf7pdf-password-tips">
+				<summary class="cf7pdf-password-tips__summary">
+					<span class="cf7pdf-password-tips__chevron dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+					<span class="cf7pdf-password-tips__title"><?php esc_html_e( 'Tips for sharing passwords', 'generate-pdf-using-contact-form-7' ); ?></span>
+				</summary>
+				<div class="cf7pdf-password-tips__body">
+					<ul>
+						<li><?php esc_html_e( 'Recipients need the password in Adobe Reader, browsers, and mobile PDF apps.', 'generate-pdf-using-contact-form-7' ); ?></li>
+						<li><?php esc_html_e( 'Share it separately (for example by email or SMS). It is not included in the PDF file name.', 'generate-pdf-using-contact-form-7' ); ?></li>
+						<li><?php esc_html_e( 'After saving a password, use Live PDF Preview (section above) and click Generate Preview to test opening the file.', 'generate-pdf-using-contact-form-7' ); ?></li>
+					</ul>
+					<p class="cf7pdf-password-tips__action">
+						<button type="button" class="button button-secondary" id="cf7pdf-goto-preview">
+							<?php esc_html_e( 'Open Live PDF Preview', 'generate-pdf-using-contact-form-7' ); ?>
+						</button>
+					</p>
+				</div>
+			</details>
 		</div>
+		</div><!-- .cf7pdf-feature-panels -->
 
 	    <?php submit_button('', ' button-primary cf7-pdf-submit'); ?>
 

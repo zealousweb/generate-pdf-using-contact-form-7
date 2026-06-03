@@ -24,6 +24,10 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 		 * @param string     $plain_password Optional plain password (preview).
 		 */
 		public static function apply_password_protection( $mpdf, $setting_data, $plain_password = '' ) {
+			if ( ! self::is_pdf_operation_enabled( $setting_data ) ) {
+				return;
+			}
+
 			$enabled = isset( $setting_data['cf7_opt_is_password_enable'] ) && 'true' === $setting_data['cf7_opt_is_password_enable'];
 
 			if ( ! $enabled ) {
@@ -56,6 +60,59 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 		}
 
 		/**
+		 * Whether PDF generation is enabled for a form ("Enable PDF file operation?" = Yes).
+		 *
+		 * @param array $settings Form PDF settings from post meta.
+		 * @return bool
+		 */
+		public static function is_pdf_operation_enabled( $settings ) {
+			if ( ! is_array( $settings ) || ! isset( $settings['cf7_opt_is_enable'] ) ) {
+				return false;
+			}
+
+			$flag = $settings['cf7_opt_is_enable'];
+
+			if ( true === $flag || 1 === $flag || '1' === $flag ) {
+				return true;
+			}
+
+			return ( 'true' === $flag );
+		}
+
+		/**
+		 * Load PDF settings for a CF7 form.
+		 *
+		 * @param int $form_id CF7 form post ID.
+		 * @return array
+		 */
+		public static function get_form_pdf_settings( $form_id ) {
+			$form_id  = absint( $form_id );
+			$settings = $form_id ? get_post_meta( $form_id, 'cf7_pdf', true ) : array();
+
+			return is_array( $settings ) ? $settings : array();
+		}
+
+		/**
+		 * Whether PDF file operation is enabled for a form ID.
+		 *
+		 * @param int $form_id CF7 form post ID.
+		 * @return bool
+		 */
+		public static function is_pdf_operation_enabled_for_form( $form_id ) {
+			return self::is_pdf_operation_enabled( self::get_form_pdf_settings( $form_id ) );
+		}
+
+		/**
+		 * @return WP_Error
+		 */
+		public static function pdf_operation_disabled_error() {
+			return new WP_Error(
+				'pdf_disabled',
+				__( 'PDF file operation is disabled for this form. Set "Enable PDF file operation?" to Yes and save settings.', 'generate-pdf-using-contact-form-7' )
+			);
+		}
+
+		/**
 		 * Prepare HTML body using the same logic as the frontend PDF generator.
 		 *
 		 * @param array $settings    Form PDF settings.
@@ -64,6 +121,10 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 		 * @return array{html:string,filename_prefix:string}
 		 */
 		public static function prepare_pdf_html( $settings, $posted_data, $context = array() ) {
+			if ( ! self::is_pdf_operation_enabled( $settings ) ) {
+				return self::pdf_operation_disabled_error();
+			}
+
 			$settings = self::normalize_settings( $settings );
 
 			$wpcf7          = isset( $context['wpcf7'] ) ? $context['wpcf7'] : null;
@@ -214,6 +275,10 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 		 * @return true|WP_Error
 		 */
 		public static function render_pdf_to_file( $settings, $html, $output_path, $plain_password = '' ) {
+			if ( ! self::is_pdf_operation_enabled( $settings ) ) {
+				return self::pdf_operation_disabled_error();
+			}
+
 			try {
 				if ( ! class_exists( '\Mpdf\Mpdf' ) ) {
 					require_once WP_CF7_PDF_DIR . 'inc/lib/mpdf/vendor/autoload.php';
@@ -296,6 +361,10 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 			$override = self::filter_settings_override( is_array( $settings_override ) ? $settings_override : array() );
 			$settings = wp_parse_args( $override, is_array( $saved ) ? $saved : array() );
 
+			if ( ! self::is_pdf_operation_enabled( $settings ) ) {
+				return self::pdf_operation_disabled_error();
+			}
+
 			if ( isset( $settings['cf7_opt_is_attach_enable'] ) && 'true' === $settings['cf7_opt_is_attach_enable'] ) {
 				$result = self::preview_attached_pdf( $settings );
 				if ( ! is_wp_error( $result ) ) {
@@ -317,6 +386,10 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 					'form_id'        => $form_id,
 				)
 			);
+
+			if ( is_wp_error( $prepared ) ) {
+				return $prepared;
+			}
 
 			$upload_dir = wp_upload_dir();
 			$subdir     = '/cf7-pdf-previews';

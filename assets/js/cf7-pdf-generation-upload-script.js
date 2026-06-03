@@ -39,14 +39,24 @@ jQuery(document).ready(function() {
 	}
     });
 
+	function cf7pdfToggleFeaturePanels( enableValue ) {
+		if ( enableValue === 'true' ) {
+			jQuery( '#cf7pdf-feature-panels' ).show();
+		} else {
+			jQuery( '#cf7pdf-feature-panels' ).hide();
+		}
+	}
+
 	var enable_value = jQuery('input[type=radio].cf7_opt_enable:checked').val();
 	if (enable_value == 'true') {
 		jQuery('.enable-pdf').show();
 		jQuery('.enable-pdf-link').show();
+		cf7pdfToggleFeaturePanels( 'true' );
 	}
 	else if (enable_value == 'false') {
 		jQuery('.enable-pdf').hide();
 		jQuery('.enable-pdf-link').hide();
+		cf7pdfToggleFeaturePanels( 'false' );
 	}
 
   var radio_option = jQuery('input[type=radio].cf7_opt_attach_enable:checked');
@@ -119,11 +129,12 @@ jQuery(document).ready(function() {
 	if (this.value == 'true') {
 		jQuery('.enable-pdf').show();
 		jQuery('.enable-pdf-link').show();
+		cf7pdfToggleFeaturePanels( 'true' );
 	}
 	else if (this.value == 'false') {
 		jQuery('.enable-pdf').hide();
 		jQuery('.enable-pdf-link').hide();
-
+		cf7pdfToggleFeaturePanels( 'false' );
 	}
 
   });

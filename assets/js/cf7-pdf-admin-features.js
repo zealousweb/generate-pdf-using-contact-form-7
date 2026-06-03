@@ -13,7 +13,14 @@
 		return '1' === getPanel().attr( 'data-has-stored' );
 	}
 
+	function isPdfOperationEnabled() {
+		return $( 'input[type=radio].cf7_opt_enable:checked' ).val() === 'true';
+	}
+
 	function isPasswordEnabled() {
+		if ( ! isPdfOperationEnabled() ) {
+			return false;
+		}
 		return $( '#cf7_opt_is_password_enable' ).val() === 'true';
 	}
 
@@ -146,11 +153,57 @@
 			settings.cf7_pdf_msg_body = document.getElementById( 'code' ).value;
 		}
 
+		if ( ! isPdfOperationEnabled() ) {
+			settings.cf7_opt_is_enable = 'false';
+			settings.cf7_opt_is_password_enable = 'false';
+		}
+
 		return settings;
 	}
 
 	var lastPreviewUrl = '';
 	var lastDownloadUrl = '';
+
+	function isPreviewCollapsed() {
+		return $( '#cf7pdf-preview-panel' ).hasClass( 'cf7pdf-preview-panel--collapsed' );
+	}
+
+	function setPreviewExpanded( expanded ) {
+		var $panel = $( '#cf7pdf-preview-panel' );
+		var $toggle = $( '#cf7pdf-preview-toggle' );
+		var $body = $( '#cf7pdf-preview-body' );
+		var $state = $toggle.find( '.cf7pdf-preview-header-btn__state' );
+
+		if ( ! $panel.length || ! $toggle.length ) {
+			return;
+		}
+
+		if ( expanded ) {
+			$panel.removeClass( 'cf7pdf-preview-panel--collapsed' );
+			$toggle.attr( 'aria-expanded', 'true' );
+			$body.attr( 'aria-hidden', 'false' );
+			if ( $state.length ) {
+				$state.text( i18n.hidePreview || 'Hide preview' );
+			}
+		} else {
+			$panel.addClass( 'cf7pdf-preview-panel--collapsed' );
+			$toggle.attr( 'aria-expanded', 'false' );
+			$body.attr( 'aria-hidden', 'true' );
+			if ( $state.length ) {
+				$state.text( i18n.showPreview || 'Show preview' );
+			}
+		}
+	}
+
+	function togglePreviewPanel() {
+		setPreviewExpanded( isPreviewCollapsed() );
+	}
+
+	function ensurePreviewExpanded() {
+		if ( isPreviewCollapsed() ) {
+			setPreviewExpanded( true );
+		}
+	}
 
 	function escapeHtml( text ) {
 		return String( text )
@@ -271,12 +324,33 @@
 		$frame.attr( 'src', url ).removeAttr( 'hidden' );
 	}
 
+	function clearPreviewState() {
+		lastPreviewUrl = '';
+		lastDownloadUrl = '';
+		setPreviewLoading( false );
+		setPreviewActionsVisible( false );
+		hidePreviewNotice();
+		hidePreviewPasswordHint();
+		$( '#cf7-pdf-preview-frame' ).attr( 'src', 'about:blank' ).attr( 'hidden', 'hidden' );
+		$( '#cf7pdf-preview-empty' ).removeAttr( 'hidden' );
+		$( '.cf7-pdf-preview-spinner' ).removeClass( 'is-active' );
+		$( '#cf7-pdf-preview-btn, #cf7-pdf-preview-refresh' ).prop( 'disabled', false );
+	}
+
 	function runPreview() {
 		var formId = getFormId();
 		if ( ! formId ) {
+			ensurePreviewExpanded();
 			showPreviewNotice( i18n.selectForm, 'error' );
 			return;
 		}
+
+		if ( ! isPdfOperationEnabled() ) {
+			showPreviewNotice( i18n.pdfDisabled, 'error' );
+			return;
+		}
+
+		ensurePreviewExpanded();
 
 		var previewPassword = '';
 		if ( isPasswordEnabled() && ! $( '#cf7_opt_remove_password' ).is( ':checked' ) ) {
@@ -419,6 +493,10 @@
 	}
 
 	function validatePasswordBeforeSave() {
+		if ( ! isPdfOperationEnabled() ) {
+			return true;
+		}
+
 		if ( $( '#cf7_opt_remove_password' ).is( ':checked' ) ) {
 			return true;
 		}
@@ -573,11 +651,44 @@
 		}
 	} );
 
+	function syncFeaturePanelsWithPdfEnable() {
+		var enabled = isPdfOperationEnabled();
+		$( '#cf7pdf-feature-panels' ).toggle( enabled );
+
+		if ( ! enabled ) {
+			clearPreviewState();
+			$( '#cf7pdf-password-enable' ).prop( 'checked', false );
+			$( '#cf7_opt_is_password_enable' ).val( 'false' );
+			$( '#cf7pdf-password-toggle-label' ).text( i18n.disabled || 'Protection disabled' );
+			$( '#cf7pdf-password-panel .cf7pdf-password-fields' ).attr( 'hidden', 'hidden' );
+			updatePasswordBadge();
+		} else {
+			togglePasswordFields();
+		}
+	}
+
 	$( document ).ready( function () {
+		syncFeaturePanelsWithPdfEnable();
 		togglePasswordFields();
 		updatePasswordStrength();
 		updatePasswordMatch();
 		initPreviewDataStatus();
+	} );
+
+	$( document ).on( 'change', '.cf7_opt_enable', syncFeaturePanelsWithPdfEnable );
+
+	$( document ).on( 'click', '#cf7pdf-preview-toggle', function ( e ) {
+		e.preventDefault();
+		togglePreviewPanel();
+	} );
+
+	$( document ).on( 'click', '#cf7pdf-goto-preview', function ( e ) {
+		e.preventDefault();
+		setPreviewExpanded( true );
+		var panel = document.getElementById( 'cf7pdf-preview-panel' );
+		if ( panel && panel.scrollIntoView ) {
+			panel.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+		}
 	} );
 
 	$( document ).on( 'click', '#cf7-pdf-preview-btn, #cf7-pdf-preview-refresh', function ( e ) {
