@@ -25,6 +25,9 @@ if ( ! class_exists( 'Cf7_Pdf_Submissions' ) ) {
 		const LEGACY_PDF_URL       = '_pdf_link';
 		const LEGACY_PDF_PATH      = '_pdf_path';
 
+		/** Minimum characters for PDF open password (mPDF). */
+		const MIN_PDF_PASSWORD_LENGTH = 4;
+
 		/**
 		 * Register hooks (always — not gated on is_admin at load time).
 		 */
@@ -394,6 +397,118 @@ if ( ! class_exists( 'Cf7_Pdf_Submissions' ) ) {
 		public static function bulk_actions( $actions ) {
 			unset( $actions['edit'] );
 			return $actions;
+		}
+
+		/**
+		 * Whether encrypted password is stored in form settings.
+		 *
+		 * @param array $settings Form PDF meta.
+		 * @return bool
+		 */
+		public static function has_stored_password( $settings ) {
+			return is_array( $settings ) && ! empty( $settings['cf7_opt_password_pdf'] );
+		}
+
+		/**
+		 * Validate and resolve password fields when saving form settings.
+		 *
+		 * @param string $enabled         'true' or 'false'.
+		 * @param string $new_pass        New plain password.
+		 * @param string $confirm         Confirm plain password.
+		 * @param array  $existing_meta   Existing cf7_pdf meta.
+		 * @param bool   $remove_password User requested removal.
+		 * @return array{ok:bool,error:string,encrypted:string,enabled:string}
+		 */
+		public static function process_password_save( $enabled, $new_pass, $confirm, $existing_meta, $remove_password = false ) {
+			$existing_meta = is_array( $existing_meta ) ? $existing_meta : array();
+			$has_stored    = self::has_stored_password( $existing_meta );
+
+			if ( $remove_password ) {
+				return array(
+					'ok'        => true,
+					'error'     => '',
+					'encrypted' => '',
+					'enabled'   => 'false',
+				);
+			}
+
+			if ( 'true' !== $enabled ) {
+				return array(
+					'ok'        => true,
+					'error'     => '',
+					'encrypted' => '',
+					'enabled'   => 'false',
+				);
+			}
+
+			$new_pass = (string) $new_pass;
+			$confirm  = (string) $confirm;
+
+			if ( '' === $new_pass && '' === $confirm ) {
+				if ( $has_stored ) {
+					return array(
+						'ok'        => true,
+						'error'     => '',
+						'encrypted' => $existing_meta['cf7_opt_password_pdf'],
+						'enabled'   => 'true',
+					);
+				}
+
+				return array(
+					'ok'        => false,
+					'error'     => 'missing',
+					'encrypted' => '',
+					'enabled'   => 'true',
+				);
+			}
+
+			if ( $new_pass !== $confirm ) {
+				return array(
+					'ok'        => false,
+					'error'     => 'mismatch',
+					'encrypted' => '',
+					'enabled'   => 'true',
+				);
+			}
+
+			if ( strlen( $new_pass ) < self::MIN_PDF_PASSWORD_LENGTH ) {
+				return array(
+					'ok'        => false,
+					'error'     => 'too_short',
+					'encrypted' => '',
+					'enabled'   => 'true',
+				);
+			}
+
+			return array(
+				'ok'        => true,
+				'error'     => '',
+				'encrypted' => self::encrypt_password( $new_pass ),
+				'enabled'   => 'true',
+			);
+		}
+
+		/**
+		 * Admin notice text for password save errors.
+		 *
+		 * @param string $code Error code from process_password_save().
+		 * @return string
+		 */
+		public static function get_password_error_message( $code ) {
+			switch ( $code ) {
+				case 'missing':
+					return __( 'Enter a PDF password before enabling protection, or save a password first.', 'generate-pdf-using-contact-form-7' );
+				case 'mismatch':
+					return __( 'PDF Password and Confirm Password do not match.', 'generate-pdf-using-contact-form-7' );
+				case 'too_short':
+					return sprintf(
+						/* translators: %d: minimum password length */
+						__( 'PDF password must be at least %d characters.', 'generate-pdf-using-contact-form-7' ),
+						self::MIN_PDF_PASSWORD_LENGTH
+					);
+				default:
+					return __( 'Could not save the PDF password. Please try again.', 'generate-pdf-using-contact-form-7' );
+			}
 		}
 
 		/**

@@ -168,11 +168,44 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 						array(
 							'previewNonce' => wp_create_nonce( 'cf7_pdf_live_preview' ),
 							'i18n'         => array(
-								'selectForm'   => __( 'Select a contact form first.', 'generate-pdf-using-contact-form-7' ),
-								'error'        => __( 'Preview failed. Please try again.', 'generate-pdf-using-contact-form-7' ),
-								'showPassword' => __( 'Show password', 'generate-pdf-using-contact-form-7' ),
-								'hidePassword' => __( 'Hide password', 'generate-pdf-using-contact-form-7' ),
+								'selectForm'           => __( 'Select a contact form first.', 'generate-pdf-using-contact-form-7' ),
+								'error'                => __( 'Preview failed. Please try again.', 'generate-pdf-using-contact-form-7' ),
+								'showPassword'         => __( 'Show password', 'generate-pdf-using-contact-form-7' ),
+								'hidePassword'         => __( 'Hide password', 'generate-pdf-using-contact-form-7' ),
+								'enabled'              => __( 'Protection enabled', 'generate-pdf-using-contact-form-7' ),
+								'disabled'             => __( 'Protection disabled', 'generate-pdf-using-contact-form-7' ),
+								'statusActive'         => __( 'Active', 'generate-pdf-using-contact-form-7' ),
+								'statusPending'        => __( 'Password required', 'generate-pdf-using-contact-form-7' ),
+								'statusOff'            => __( 'Off', 'generate-pdf-using-contact-form-7' ),
+								'passwordsMatch'       => __( 'Passwords match.', 'generate-pdf-using-contact-form-7' ),
+								'passwordMismatch'     => __( 'Passwords do not match.', 'generate-pdf-using-contact-form-7' ),
+								'passwordRequired'     => __( 'Enter and confirm a PDF password before saving.', 'generate-pdf-using-contact-form-7' ),
+								'passwordTooShort'     => sprintf(
+									/* translators: %d: minimum password length */
+									__( 'Password must be at least %d characters.', 'generate-pdf-using-contact-form-7' ),
+									Cf7_Pdf_Submissions::MIN_PDF_PASSWORD_LENGTH
+								),
+								'strengthWeak'         => __( 'Strength: weak', 'generate-pdf-using-contact-form-7' ),
+								'strengthFair'         => __( 'Strength: fair', 'generate-pdf-using-contact-form-7' ),
+								'strengthStrong'       => __( 'Strength: strong', 'generate-pdf-using-contact-form-7' ),
+								'copiedPassword'       => __( 'Password copied to clipboard.', 'generate-pdf-using-contact-form-7' ),
+								'copyFailed'           => __( 'Could not copy. Select the password and copy manually.', 'generate-pdf-using-contact-form-7' ),
+								'previewProtected'     => __( 'This preview is password-protected. Enter the PDF password (in the section below) to open it in the viewer.', 'generate-pdf-using-contact-form-7' ),
+								'previewNeedsPassword' => __( 'Password protection is on, but no password is available. Enter a password below or save settings first.', 'generate-pdf-using-contact-form-7' ),
+								'removeBlocksEnable'   => __( 'Uncheck “Remove password” to set a new password.', 'generate-pdf-using-contact-form-7' ),
+								'previewLoading'       => __( 'Generating preview…', 'generate-pdf-using-contact-form-7' ),
+								'previewReady'         => __( 'Preview ready', 'generate-pdf-using-contact-form-7' ),
+								'previewEmptyTitle'    => __( 'No preview yet', 'generate-pdf-using-contact-form-7' ),
+								'previewEmptyText'     => __( 'Click “Generate Preview” to see how your PDF will look using the current settings.', 'generate-pdf-using-contact-form-7' ),
+								'generatePreview'      => __( 'Generate Preview', 'generate-pdf-using-contact-form-7' ),
+								'refreshPreview'       => __( 'Refresh', 'generate-pdf-using-contact-form-7' ),
+								'openInNewTab'         => __( 'Open in new tab', 'generate-pdf-using-contact-form-7' ),
+								'downloadPreview'      => __( 'Download', 'generate-pdf-using-contact-form-7' ),
+								'viewSubmissions'      => __( 'View submissions', 'generate-pdf-using-contact-form-7' ),
+								'iframeError'          => __( 'The PDF could not be displayed in the browser. Try “Open in new tab” or “Download”.', 'generate-pdf-using-contact-form-7' ),
 							),
+							'submissionsUrl'  => admin_url( 'edit.php?post_type=' . Cf7_Pdf_Cpt::POST_TYPE ),
+							'minPasswordLength' => Cf7_Pdf_Submissions::MIN_PDF_PASSWORD_LENGTH,
 						)
 					);
 				}
@@ -206,27 +239,57 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 				$plain_password = sanitize_text_field( wp_unslash( $_POST['preview_password'] ) );
 			}
 
+			$saved_meta = get_post_meta( $form_id, 'cf7_pdf', true );
+			$merged     = wp_parse_args( $settings, is_array( $saved_meta ) ? $saved_meta : array() );
+
+			$password_enabled = isset( $merged['cf7_opt_is_password_enable'] ) && 'true' === $merged['cf7_opt_is_password_enable'];
+
+			if ( '' === $plain_password && $password_enabled ) {
+				$plain_password = Cf7_Pdf_Pdf_Builder::get_password_from_settings( $merged );
+			}
+
 			$result = Cf7_Pdf_Pdf_Builder::generate_preview_pdf( $form_id, $settings, $plain_password );
 
 			if ( is_wp_error( $result ) ) {
 				wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 			}
 
-			$file  = $result['file'];
-			$nonce = wp_create_nonce( 'cf7_pdf_preview_file_' . $file );
+			$file        = $result['file'];
+			$preview_url = $this->build_preview_file_url( $file, false );
+			$download_url = $this->build_preview_file_url( $file, true );
+			$data_info   = isset( $result['data_info'] ) && is_array( $result['data_info'] )
+				? $result['data_info']
+				: Cf7_Pdf_Pdf_Builder::get_preview_data_info( $form_id, $merged );
 
 			wp_send_json_success(
 				array(
-					'preview_url' => add_query_arg(
-						array(
-							'action' => 'cf7_pdf_preview_file',
-							'file'   => rawurlencode( $file ),
-							'nonce'  => $nonce,
-						),
-						admin_url( 'admin-ajax.php' )
-					),
+					'preview_url'        => $preview_url,
+					'download_url'       => $download_url,
+					'data_info'          => $data_info,
+					'password_protected' => $password_enabled && '' !== $plain_password,
+					'needs_password'     => $password_enabled && '' === $plain_password,
 				)
 			);
+		}
+
+		/**
+		 * @param string $file     Preview filename.
+		 * @param bool   $download Force download disposition.
+		 * @return string
+		 */
+		private function build_preview_file_url( $file, $download = false ) {
+			$nonce = wp_create_nonce( 'cf7_pdf_preview_file_' . $file );
+			$args  = array(
+				'action' => 'cf7_pdf_preview_file',
+				'file'   => rawurlencode( $file ),
+				'nonce'  => $nonce,
+			);
+
+			if ( $download ) {
+				$args['download'] = '1';
+			}
+
+			return add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
 		}
 
 		/**
@@ -250,8 +313,12 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 				wp_die( esc_html__( 'Preview file not found.', 'generate-pdf-using-contact-form-7' ), '', array( 'response' => 404 ) );
 			}
 
+			$download = isset( $_GET['download'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['download'] ) );
+
 			header( 'Content-Type: application/pdf' );
-			header( 'Content-Disposition: inline; filename="preview.pdf"' );
+			header(
+				'Content-Disposition: ' . ( $download ? 'attachment' : 'inline' ) . '; filename="cf7-pdf-preview.pdf"'
+			);
 			header( 'Content-Length: ' . (string) filesize( $path ) );
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 			readfile( $path );
