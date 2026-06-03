@@ -92,16 +92,11 @@ if ( !function_exists( 'Cf7_Pdf_Generation' ) ) {
 	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-cpt.php' );
 	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-submissions.php' );
 	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-pdf-builder.php' );
-	if(is_admin())
-	{
-		require_once( WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.php' );
-		require_once( WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.action.php' );
-		require_once( WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.filter.php' );
-	}
-	else
-	{
-		require_once( WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.php' );
-		require_once( WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.action.php' );
-		require_once( WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.filter.php' );
+	if ( is_admin() ) {
+		require_once WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.action.php';
+		require_once WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.filter.php';
+	} else {
+		require_once WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.action.php';
+		require_once WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.filter.php';
 	}
 }

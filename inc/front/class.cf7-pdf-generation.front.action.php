@@ -21,7 +21,6 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 	class Cf7_Pdf_Generation_Front_Action {
 
 		function __construct()  {
-			add_action( 'wp_enqueue_scripts',  array( $this, 'enqueue_styles' ));
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ));
 			add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7_pdf_attachment_script' ));
 		}
@@ -70,13 +69,6 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 		}
 
 		/**
-		 * Store a PDF submission entry after successful generation.
-		 *
-		 * @param int    $form_id  CF7 form ID.
-		 * @param string $pdf_url  PDF URL.
-		 * @param string $pdf_path Optional filesystem path.
-		 */
-		/**
 		 * Clear frontend PDF download cookies when PDF operation is off.
 		 */
 		private function clear_pdf_cookies() {
@@ -88,6 +80,13 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			setcookie( 'wp-unit_tag', '', $expire, '/' );
 		}
 
+		/**
+		 * Store a PDF submission entry after successful generation.
+		 *
+		 * @param int    $form_id  CF7 form ID.
+		 * @param string $pdf_url  PDF URL.
+		 * @param string $pdf_path Optional filesystem path.
+		 */
 		private function log_pdf_submission( $form_id, $pdf_url, $pdf_path = '' ) {
 			if ( ! class_exists( 'Cf7_Pdf_Submissions' ) || empty( $pdf_url ) ) {
 				return;
@@ -408,39 +407,19 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			return $wpcf7;
 
 		}
-		/*
-		   ###     ######  ######## ####  #######  ##    ##  ######
-		  ## ##   ##    ##    ##     ##  ##     ## ###   ## ##    ##
-		 ##   ##  ##          ##     ##  ##     ## ####  ## ##
-		##     ## ##          ##     ##  ##     ## ## ## ##  ######
-		######### ##          ##     ##  ##     ## ##  ####       ##
-		##     ## ##    ##    ##     ##  ##     ## ##   ### ##    ##
-		##     ##  ######     ##    ####  #######  ##    ##  ######
-		*/
 
 		/**
-		* WP Enqueue style for public CSS
-		*/
-		public function enqueue_styles() {
-			wp_enqueue_style( 'cf7-pdf-generation-public-css', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-generation-public-min.css', array(), 1.2, 'all' );
-		}
-
-		/**
-		* WP Enqueue scripts for public JS
-		*/
+		 * Enqueue public-facing scripts (PDF download link after submit).
+		 */
 		public function enqueue_scripts() {
-			wp_enqueue_script( 'cf7-pdf-generation-public-js', WP_CF7_PDF_URL . 'assets/js/cf7-pdf-generation-public-min.js', array( 'jquery' ), 1.2, false );
+			wp_enqueue_script(
+				'cf7-pdf-generation-public-js',
+				WP_CF7_PDF_URL . 'assets/js/cf7-pdf-generation-public-min.js',
+				array( 'jquery' ),
+				Cf7_Pdf_Generation_VERSION,
+				false
+			);
 		}
-
-		/*
-		######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
-		##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
-		##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
-		######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
-		##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
-		##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
-		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
-		*/
 
 	}
 
