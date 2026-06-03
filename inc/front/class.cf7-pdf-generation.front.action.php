@@ -49,6 +49,60 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			return $sanitized;
 		}
 
+		/**
+		 * Resolve a public PDF URL to a local filesystem path when possible.
+		 *
+		 * @param string $pdf_url PDF URL.
+		 * @return string
+		 */
+		private function pdf_url_to_path( $pdf_url ) {
+			$upload = wp_upload_dir();
+
+			if ( ! empty( $upload['baseurl'] ) && strpos( $pdf_url, $upload['baseurl'] ) === 0 ) {
+				return str_replace( $upload['baseurl'], $upload['basedir'], $pdf_url );
+			}
+
+			if ( strpos( $pdf_url, WP_CF7_PDF_URL ) === 0 ) {
+				return str_replace( WP_CF7_PDF_URL, WP_CF7_PDF_DIR, $pdf_url );
+			}
+
+			return '';
+		}
+
+		/**
+		 * Store a PDF submission entry after successful generation.
+		 *
+		 * @param int    $form_id  CF7 form ID.
+		 * @param string $pdf_url  PDF URL.
+		 * @param string $pdf_path Optional filesystem path.
+		 */
+		private function log_pdf_submission( $form_id, $pdf_url, $pdf_path = '' ) {
+			if ( ! class_exists( 'Cf7_Pdf_Submissions' ) || empty( $pdf_url ) ) {
+				return;
+			}
+
+			if ( '' === $pdf_path ) {
+				$pdf_path = $this->pdf_url_to_path( $pdf_url );
+			}
+
+			$title = '';
+			$submission = WPCF7_Submission::get_instance();
+
+			if ( $submission ) {
+				$posted = $submission->get_posted_data();
+				if ( is_array( $posted ) ) {
+					foreach ( $posted as $value ) {
+						if ( is_string( $value ) && is_email( $value ) ) {
+							$title = $value;
+							break;
+						}
+					}
+				}
+			}
+
+			Cf7_Pdf_Submissions::create_submission( $form_id, $pdf_url, $pdf_path, $title );
+		}
+
 		function wpcf7_pdf_create_attachment($filename)
 		{
 			// Check the type of file. We'll use this as the 'post_mime_type'.
@@ -180,6 +234,10 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 								setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/");
 							}
 							
+							if ( ! empty( $attdataurl ) ) {
+								$this->log_pdf_submission( $contact_id, $attdataurl, isset( $attdataurl_array['absolute_path'] ) ? $attdataurl_array['absolute_path'] : $pdf_file_path );
+							}
+
 							if($setting_data['cf7_dettach_pdf'] == 'true'){
 
 								$mail = $wpcf7->prop('mail');
@@ -381,6 +439,10 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 
 						$mpdf->WriteHTML($html);
 
+						if ( class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
+							Cf7_Pdf_Pdf_Builder::apply_password_protection( $mpdf, $setting_data );
+						}
+
 						if( $cf7_pdf_filename_prefix!='' ) {
 							$pdf_file_name = $this->sanitize_pdf_filename( $cf7_pdf_filename_prefix . '-' . $current_time . '.pdf' );
 						} else {
@@ -419,6 +481,16 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 							$attdataurl = $attdataurl_array['attach_url'];
 						} else {
 							$attdataurl = $pdf_url_path;
+						}
+
+						if ( ! empty( $attdataurl ) ) {
+							$log_path = '';
+							if ( isset( $attdataurl_array['absolute_path'] ) ) {
+								$log_path = $attdataurl_array['absolute_path'];
+							} elseif ( ! empty( $pdf_file_path ) && file_exists( $pdf_file_path ) ) {
+								$log_path = $pdf_file_path;
+							}
+							$this->log_pdf_submission( $contact_id, $attdataurl, $log_path );
 						}
 
 						if($setting_data['cf7_pdf_link_is_enable'] == 'true'){

@@ -37,14 +37,12 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Filter' ) ){
 				return $links;
 			}
 		
-			if ( ! current_user_can( 'wpcf7_read_contact_forms' ) ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
 				return $links;
 			}
-			
-			$settings_link = wpcf7_link(
-				menu_page_url( 'wp-cf7-send-pdf', false ),
-				esc_html(__( 'Settings', 'Contact-Form-7-PDF-Generation' ))
-			);
+
+			$settings_url  = admin_url( 'admin.php?page=wp-cf7-send-pdf' );
+			$settings_link = '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings', 'generate-pdf-using-contact-form-7' ) . '</a>';
 			array_unshift( $links, $settings_link );
 
 			$documentlink = '<a target="_blank" href="https://store.zealousweb.com/generate-pdf-using-contact-form-7"> '. __( 'Document Link', 'generate-pdf-using-contact-form-7') .'</a>';

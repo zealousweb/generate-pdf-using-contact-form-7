@@ -15,7 +15,7 @@
  * Plugin Name:     Generate PDF using Contact Form 7
  * Plugin URI:      https://wordpress.org/plugins/generate-pdf-using-contact-form-7/
  * Description:     Generate PDF using Contact Form 7 Plugin provides an easier way to download document files, open the document file or send as an attachment after the successful form submit.
- * Version:         4.1.7
+ * Version:         4.2.0
  * Author:          ZealousWeb
  * Author URI:      https://www.zealousweb.com/
  * Developer: 		The ZealousWeb Team
@@ -36,7 +36,7 @@ if ( ! defined( 'WPINC' ) ) {
 * Start at version 1.0.0 and use SemVer - https://semver.org
 */
 if ( !defined( 'Cf7_Pdf_Generation_VERSION' ) ) {
-	define( 'Cf7_Pdf_Generation_VERSION', '4.1.7' );
+	define( 'Cf7_Pdf_Generation_VERSION', '4.2.0' );
 }
 
 /**
@@ -82,6 +82,10 @@ if ( !function_exists( 'Cf7_Pdf_Generation' ) ) {
 	* require include, filter and action files.
 	*/	
 	require_once( WP_CF7_PDF_DIR . '/inc/class.' . WP_CF7_PDF_PREFIX . '.php' );
+	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-global-settings.php' );
+	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-pdf-builder.php' );
+	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-cpt.php' );
+	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-submissions.php' );
 	if(is_admin())
 	{
 		require_once( WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.php' );

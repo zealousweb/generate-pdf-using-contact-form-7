@@ -1,0 +1,32 @@
+.cf7pdf-settings-panel {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin: 16px 0 20px;
+	padding: 12px 16px 4px;
+}
+
+.cf7pdf-settings-panel h2 {
+	margin-top: 0;
+	font-size: 1.2em;
+}
+
+.cf7pdf-settings-divider {
+	margin: 24px 0;
+}
+
+.cf7-pdf-preview-frame {
+	width: 100%;
+	min-height: 640px;
+	border: 1px solid #c3c4c7;
+	margin-top: 12px;
+	background: #f6f7f7;
+}
+
+.cf7-pdf-preview-notice {
+	margin-top: 10px;
+}
+
+.cf7pdf-settings-panel--preview {
+	margin-top: 24px;
+}
