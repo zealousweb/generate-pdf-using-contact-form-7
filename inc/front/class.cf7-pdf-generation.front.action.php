@@ -85,12 +85,14 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 				$pdf_path = $this->pdf_url_to_path( $pdf_url );
 			}
 
-			$title = '';
+			$title      = '';
+			$form_data  = array();
 			$submission = WPCF7_Submission::get_instance();
 
 			if ( $submission ) {
 				$posted = $submission->get_posted_data();
 				if ( is_array( $posted ) ) {
+					$form_data = $posted;
 					foreach ( $posted as $value ) {
 						if ( is_string( $value ) && is_email( $value ) ) {
 							$title = $value;
@@ -100,7 +102,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 				}
 			}
 
-			Cf7_Pdf_Submissions::create_submission( $form_id, $pdf_url, $pdf_path, $title );
+			Cf7_Pdf_Submissions::create_submission( $form_id, $pdf_url, $pdf_path, $title, $form_data );
 		}
 
 		function wpcf7_pdf_create_attachment($filename)

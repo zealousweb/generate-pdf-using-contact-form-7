@@ -30,3 +30,46 @@
 .cf7pdf-settings-panel--preview {
 	margin-top: 24px;
 }
+
+.cf7pdf-password-wrap {
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+}
+
+.cf7pdf-password-wrap .cf7pdf-password-input {
+	padding-right: 40px;
+	max-width: 25em;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.cf7pdf-password-wrap .cf7pdf-toggle-password {
+	position: absolute;
+	right: 1px;
+	top: 1px;
+	bottom: 1px;
+	min-height: 0;
+	height: auto;
+	padding: 0 8px;
+	margin: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	line-height: 1;
+}
+
+.cf7pdf-password-wrap .cf7pdf-toggle-password:hover,
+.cf7pdf-password-wrap .cf7pdf-toggle-password:focus {
+	background: #f0f0f1;
+	box-shadow: none;
+}
+
+.cf7pdf-password-wrap .cf7pdf-toggle-password .dashicons {
+	width: 20px;
+	height: 20px;
+	font-size: 20px;
+	line-height: 1;
+	vertical-align: middle;
+	margin-top: 0;
+}

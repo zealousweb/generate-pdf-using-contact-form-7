@@ -578,7 +578,7 @@ Your Message : [your-message]';
 
 		<div class="cf7pdf-settings-panel cf7pdf-settings-panel--preview">
 			<h2><?php esc_html_e( 'Live PDF Preview', 'generate-pdf-using-contact-form-7' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Generate a preview using the current form settings below (sample field data). Save settings first for best results.', 'generate-pdf-using-contact-form-7' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Preview shows your PDF layout and styling. If this form already has a saved PDF submission, the latest real entry is used; otherwise sample placeholder text is shown. After visitors submit the form, the generated PDF uses their actual field values.', 'generate-pdf-using-contact-form-7' ); ?></p>
 			<p>
 				<button type="button" class="button button-secondary" id="cf7-pdf-preview-btn">
 					<?php esc_html_e( 'Preview PDF', 'generate-pdf-using-contact-form-7' ); ?>
@@ -608,7 +608,12 @@ Your Message : [your-message]';
 				<tr valign="top" class="cf7pdf-password-fields" <?php echo ( 'true' === $cf7_opt_is_password_enable ) ? '' : ' style="display:none;"'; ?>>
 					<th scope="row"><label for="cf7_opt_password_pdf"><?php esc_html_e( 'PDF Password', 'generate-pdf-using-contact-form-7' ); ?></label></th>
 					<td>
-						<input type="password" name="wp_cf7_pdf_settings[cf7_opt_password_pdf]" id="cf7_opt_password_pdf" value="" autocomplete="new-password" class="regular-text" />
+						<div class="cf7pdf-password-wrap">
+							<input type="password" name="wp_cf7_pdf_settings[cf7_opt_password_pdf]" id="cf7_opt_password_pdf" value="" autocomplete="new-password" class="regular-text cf7pdf-password-input" />
+							<button type="button" class="button cf7pdf-toggle-password" data-target="cf7_opt_password_pdf" aria-label="<?php esc_attr_e( 'Show password', 'generate-pdf-using-contact-form-7' ); ?>" aria-pressed="false">
+								<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+							</button>
+						</div>
 						<?php if ( $has_stored_password ) : ?>
 							<p class="description"><?php esc_html_e( 'Leave blank to keep the current password.', 'generate-pdf-using-contact-form-7' ); ?></p>
 						<?php endif; ?>
@@ -617,7 +622,12 @@ Your Message : [your-message]';
 				<tr valign="top" class="cf7pdf-password-fields" <?php echo ( 'true' === $cf7_opt_is_password_enable ) ? '' : ' style="display:none;"'; ?>>
 					<th scope="row"><label for="cf7_opt_password_pdf_confirm"><?php esc_html_e( 'Confirm Password', 'generate-pdf-using-contact-form-7' ); ?></label></th>
 					<td>
-						<input type="password" name="wp_cf7_pdf_settings[cf7_opt_password_pdf_confirm]" id="cf7_opt_password_pdf_confirm" value="" autocomplete="new-password" class="regular-text" />
+						<div class="cf7pdf-password-wrap">
+							<input type="password" name="wp_cf7_pdf_settings[cf7_opt_password_pdf_confirm]" id="cf7_opt_password_pdf_confirm" value="" autocomplete="new-password" class="regular-text cf7pdf-password-input" />
+							<button type="button" class="button cf7pdf-toggle-password" data-target="cf7_opt_password_pdf_confirm" aria-label="<?php esc_attr_e( 'Show password', 'generate-pdf-using-contact-form-7' ); ?>" aria-pressed="false">
+								<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+							</button>
+						</div>
 					</td>
 				</tr>
 			</table>

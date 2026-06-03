@@ -101,7 +101,32 @@
 		$n.html( '<p>' + message + '</p>' ).show();
 	}
 
+	function togglePasswordVisibility( e ) {
+		e.preventDefault();
+
+		var $btn = $( this );
+		var targetId = $btn.data( 'target' );
+		var $input = $( '#' + targetId );
+
+		if ( ! $input.length ) {
+			return;
+		}
+
+		var isHidden = 'password' === $input.attr( 'type' );
+
+		$input.attr( 'type', isHidden ? 'text' : 'password' );
+		$btn.attr( 'aria-pressed', isHidden ? 'true' : 'false' );
+		$btn.attr(
+			'aria-label',
+			isHidden ? cf7PdfAdminFeatures.i18n.hidePassword : cf7PdfAdminFeatures.i18n.showPassword
+		);
+		$btn.find( '.dashicons' )
+			.toggleClass( 'dashicons-visibility', ! isHidden )
+			.toggleClass( 'dashicons-hidden', isHidden );
+	}
+
 	$( document ).on( 'change', 'input.cf7_opt_pass_enable', togglePasswordFields );
+	$( document ).on( 'click', '.cf7pdf-toggle-password', togglePasswordVisibility );
 	$( document ).ready( togglePasswordFields );
 
 	$( document ).on( 'click', '#cf7-pdf-preview-btn', function ( e ) {

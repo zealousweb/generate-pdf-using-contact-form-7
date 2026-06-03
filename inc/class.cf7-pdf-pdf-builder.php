@@ -295,15 +295,21 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 		 * @return array
 		 */
 		private static function get_sample_posted_data( $form_id ) {
+			$from_submission = self::get_last_submission_posted_data( $form_id );
+
+			if ( ! empty( $from_submission ) ) {
+				return $from_submission;
+			}
+
 			$form = WPCF7_ContactForm::get_instance( $form_id );
 			$data = array();
 
 			if ( ! $form ) {
 				return array(
-					'your-name'    => __( 'Sample Name', 'generate-pdf-using-contact-form-7' ),
+					'your-name'    => 'John Smith',
 					'your-email'   => 'preview@example.com',
-					'your-subject' => __( 'Preview Subject', 'generate-pdf-using-contact-form-7' ),
-					'your-message' => __( 'This is sample preview content.', 'generate-pdf-using-contact-form-7' ),
+					'your-subject' => __( 'Sample subject for PDF preview', 'generate-pdf-using-contact-form-7' ),
+					'your-message' => __( 'This is sample message text for layout preview only.', 'generate-pdf-using-contact-form-7' ),
 				);
 			}
 
@@ -319,11 +325,57 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 		}
 
 		/**
+		 * Use the most recent real submission for this form when available.
+		 *
+		 * @param int $form_id CF7 form ID.
+		 * @return array
+		 */
+		private static function get_last_submission_posted_data( $form_id ) {
+			$posts = get_posts(
+				array(
+					'post_type'      => Cf7_Pdf_Cpt::POST_TYPE,
+					'post_status'    => 'any',
+					'posts_per_page' => 1,
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'OR',
+						array(
+							'key'   => Cf7_Pdf_Submissions::META_FORM_ID,
+							'value' => absint( $form_id ),
+						),
+						array(
+							'key'   => Cf7_Pdf_Submissions::LEGACY_FORM_ID,
+							'value' => absint( $form_id ),
+						),
+					),
+				)
+			);
+
+			if ( empty( $posts ) ) {
+				return array();
+			}
+
+			$form_data = get_post_meta( $posts[0]->ID, '_form_data', true );
+
+			if ( is_string( $form_data ) ) {
+				$form_data = maybe_unserialize( $form_data );
+			}
+
+			if ( is_array( $form_data ) && ! empty( $form_data ) ) {
+				return $form_data;
+			}
+
+			return array();
+		}
+
+		/**
 		 * @param object $tag CF7 form tag.
 		 * @return string
 		 */
 		private static function sample_value_for_tag( $tag ) {
 			$type = isset( $tag->basetype ) ? $tag->basetype : '';
+			$name = isset( $tag->name ) ? strtolower( (string) $tag->name ) : '';
 
 			switch ( $type ) {
 				case 'email':
@@ -336,13 +388,27 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 					return gmdate( 'Y-m-d' );
 				case 'acceptance':
 					return '1';
-				default:
-					return sprintf(
-						/* translators: %s: form field name. */
-						__( 'Sample: %s', 'generate-pdf-using-contact-form-7' ),
-						$tag->name
-					);
+				case 'textarea':
+					return __( 'This is sample message text for layout preview only. After a visitor submits the form, their real answers appear in the PDF.', 'generate-pdf-using-contact-form-7' );
 			}
+
+			if ( preg_match( '/(your-name|^name$|first-name|last-name|fullname)/', $name ) ) {
+				return 'John Smith';
+			}
+
+			if ( preg_match( '/(subject|asunto|topic)/', $name ) ) {
+				return __( 'Sample subject for PDF preview', 'generate-pdf-using-contact-form-7' );
+			}
+
+			if ( preg_match( '/(message|msg|comment|inquiry|body)/', $name ) ) {
+				return __( 'This is sample message text for layout preview only.', 'generate-pdf-using-contact-form-7' );
+			}
+
+			if ( preg_match( '/(company|organization)/', $name ) ) {
+				return __( 'Sample Company', 'generate-pdf-using-contact-form-7' );
+			}
+
+			return __( 'Sample value', 'generate-pdf-using-contact-form-7' );
 		}
 
 		/**

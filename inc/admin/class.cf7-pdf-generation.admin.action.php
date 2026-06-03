@@ -137,7 +137,8 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 				wp_enqueue_style( 'codemirror-css', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-generation-codemirror-min.css', array(), Cf7_Pdf_Generation_VERSION, 'all' );
 				wp_enqueue_style( 'codemirror-theme-3024-night', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-generation-3024-night-min.css', array(), Cf7_Pdf_Generation_VERSION, 'all' );
 				wp_enqueue_style( 'jquery-ui-resize', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-jquery-ui-min.css', array(), Cf7_Pdf_Generation_VERSION, 'all' );
-				wp_enqueue_style( 'cf7-pdf-admin-features', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-admin-features.css', array(), Cf7_Pdf_Generation_VERSION, 'all' );
+				wp_enqueue_style( 'dashicons' );
+				wp_enqueue_style( 'cf7-pdf-admin-features', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-admin-features.css', array( 'dashicons' ), Cf7_Pdf_Generation_VERSION, 'all' );
 			}
 		}
 
@@ -179,6 +180,8 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 								'generating'   => __( 'Generating preview…', 'generate-pdf-using-contact-form-7' ),
 								'selectForm'   => __( 'Select a contact form first.', 'generate-pdf-using-contact-form-7' ),
 								'error'        => __( 'Preview failed. Please try again.', 'generate-pdf-using-contact-form-7' ),
+								'showPassword' => __( 'Show password', 'generate-pdf-using-contact-form-7' ),
+								'hidePassword' => __( 'Hide password', 'generate-pdf-using-contact-form-7' ),
 							),
 						)
 					);

@@ -183,9 +183,10 @@ if ( ! class_exists( 'Cf7_Pdf_Submissions' ) ) {
 		 * @param string $pdf_url   Public PDF URL.
 		 * @param string $pdf_path  Filesystem path to PDF.
 		 * @param string $title     Optional post title.
+		 * @param array  $form_data Optional posted field data for preview/history.
 		 * @return int|false Post ID or false.
 		 */
-		public static function create_submission( $form_id, $pdf_url, $pdf_path, $title = '' ) {
+		public static function create_submission( $form_id, $pdf_url, $pdf_path, $title = '', $form_data = array() ) {
 			$form_id  = absint( $form_id );
 			$pdf_url  = esc_url_raw( $pdf_url );
 			$pdf_path = sanitize_text_field( $pdf_path );
@@ -229,6 +230,10 @@ if ( ! class_exists( 'Cf7_Pdf_Submissions' ) ) {
 			update_post_meta( $post_id, self::LEGACY_PDF_URL, $pdf_url );
 			if ( ! empty( $pdf_path ) ) {
 				update_post_meta( $post_id, self::LEGACY_PDF_PATH, $pdf_path );
+			}
+
+			if ( is_array( $form_data ) && ! empty( $form_data ) ) {
+				update_post_meta( $post_id, '_form_data', $form_data );
 			}
 
 			return (int) $post_id;
