@@ -11,130 +11,130 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-$plugin_data           = get_plugin_data( WP_CF7_PDF_FILE );
-$current_plugin_name   = isset( $plugin_data['Name'] ) ? $plugin_data['Name'] : '';
+$cf7pdf_plugin_data           = get_plugin_data( WP_CF7_PDF_FILE );
+$cf7pdf_current_plugin_name   = isset( $cf7pdf_plugin_data['Name'] ) ? $cf7pdf_plugin_data['Name'] : '';
 
 /*--------------------------------------------------------------
 # Remote data (blogs + FAQs) with transient cache
 --------------------------------------------------------------*/
 
-$api_url    = 'https://api.zealousweb.com/wp-json/acf/v3/options/options/plugin_blogs/';
-$cache_key  = 'cf7-pdf-generation_plugin_blogs_cache_v1';
-$data       = get_transient( $cache_key );
-$needs_refetch = (
-	false === $data
-	|| ! is_array( $data )
-	|| empty( $data['plugin_blogs'] )
-	|| ! is_array( $data['plugin_blogs'] )
+$cf7pdf_api_url    = 'https://api.zealousweb.com/wp-json/acf/v3/options/options/plugin_blogs/';
+$cf7pdf_cache_key  = 'cf7-pdf-generation_plugin_blogs_cache_v1';
+$cf7pdf_blogs_data       = get_transient( $cf7pdf_cache_key );
+$cf7pdf_needs_refetch = (
+	false === $cf7pdf_blogs_data
+	|| ! is_array( $cf7pdf_blogs_data )
+	|| empty( $cf7pdf_blogs_data['plugin_blogs'] )
+	|| ! is_array( $cf7pdf_blogs_data['plugin_blogs'] )
 );
 
-if ( $needs_refetch ) {
-	$data = array();
-	$response = wp_remote_get(
-		$api_url,
+if ( $cf7pdf_needs_refetch ) {
+	$cf7pdf_blogs_data = array();
+	$cf7pdf_response = wp_remote_get(
+		$cf7pdf_api_url,
 		array(
 			'timeout'   => 20,
 			'sslverify' => true,
 		)
 	);
 
-	if ( ! is_wp_error( $response ) ) {
-		$body = wp_remote_retrieve_body( $response );
-		$decoded = json_decode( $body, true );
-		if ( is_array( $decoded ) ) {
-			$data = $decoded;
+	if ( ! is_wp_error( $cf7pdf_response ) ) {
+		$cf7pdf_body = wp_remote_retrieve_body( $cf7pdf_response );
+		$cf7pdf_decoded = json_decode( $cf7pdf_body, true );
+		if ( is_array( $cf7pdf_decoded ) ) {
+			$cf7pdf_blogs_data = $cf7pdf_decoded;
 		}
 	}
 
 	// Cache only valid payloads, so a temporary API failure does not hide blogs for 24h.
-	if ( ! empty( $data['plugin_blogs'] ) && is_array( $data['plugin_blogs'] ) ) {
-		set_transient( $cache_key, $data, DAY_IN_SECONDS );
+	if ( ! empty( $cf7pdf_blogs_data['plugin_blogs'] ) && is_array( $cf7pdf_blogs_data['plugin_blogs'] ) ) {
+		set_transient( $cf7pdf_cache_key, $cf7pdf_blogs_data, DAY_IN_SECONDS );
 	} else {
-		delete_transient( $cache_key );
+		delete_transient( $cf7pdf_cache_key );
 	}
 }
 
 
-$matched_blogs = array();
+$cf7pdf_matched_blogs = array();
 
-if ( ! empty( $data['plugin_blogs'] ) && is_array( $data['plugin_blogs'] ) ) {
-	$current_name = strtolower( preg_replace( '/[^a-z0-9]/i', '', (string) $current_plugin_name ) );
-	foreach ( $data['plugin_blogs'] as $plugin_item ) {
-		if ( empty( $plugin_item['plugin_name'] ) || empty( $plugin_item['blogs'] ) || ! is_array( $plugin_item['blogs'] ) ) {
+if ( ! empty( $cf7pdf_blogs_data['plugin_blogs'] ) && is_array( $cf7pdf_blogs_data['plugin_blogs'] ) ) {
+	$cf7pdf_current_name = strtolower( preg_replace( '/[^a-z0-9]/i', '', (string) $cf7pdf_current_plugin_name ) );
+	foreach ( $cf7pdf_blogs_data['plugin_blogs'] as $cf7pdf_plugin_item ) {
+		if ( empty( $cf7pdf_plugin_item['plugin_name'] ) || empty( $cf7pdf_plugin_item['blogs'] ) || ! is_array( $cf7pdf_plugin_item['blogs'] ) ) {
 			continue;
 		}
 
-		$api_name = strtolower( preg_replace( '/[^a-z0-9]/i', '', (string) $plugin_item['plugin_name'] ) );
+		$cf7pdf_api_name = strtolower( preg_replace( '/[^a-z0-9]/i', '', (string) $cf7pdf_plugin_item['plugin_name'] ) );
 
 		// Keep matching flexible: exact match first, then "contains" for minor naming variants.
 		if (
-			$api_name === $current_name
-			|| ( '' !== $api_name && '' !== $current_name && false !== strpos( $api_name, $current_name ) )
-			|| ( '' !== $api_name && '' !== $current_name && false !== strpos( $current_name, $api_name ) )
+			$cf7pdf_api_name === $cf7pdf_current_name
+			|| ( '' !== $cf7pdf_api_name && '' !== $cf7pdf_current_name && false !== strpos( $cf7pdf_api_name, $cf7pdf_current_name ) )
+			|| ( '' !== $cf7pdf_api_name && '' !== $cf7pdf_current_name && false !== strpos( $cf7pdf_current_name, $cf7pdf_api_name ) )
 		) {
-			$matched_blogs = $plugin_item['blogs'];
+			$cf7pdf_matched_blogs = $cf7pdf_plugin_item['blogs'];
 			break;
 		}
 	}
 }
 
 
-$help_blog_posts = array();
+$cf7pdf_help_blog_posts = array();
 
-foreach ( $matched_blogs as $blog ) {
-	$blog_slug  = isset( $blog['post_name'] ) ? sanitize_title( $blog['post_name'] ) : '';
-	$blog_title = isset( $blog['post_title'] ) ? $blog['post_title'] : '';
+foreach ( $cf7pdf_matched_blogs as $cf7pdf_blog ) {
+	$cf7pdf_blog_slug  = isset( $cf7pdf_blog['post_name'] ) ? sanitize_title( $cf7pdf_blog['post_name'] ) : '';
+	$cf7pdf_blog_title = isset( $cf7pdf_blog['post_title'] ) ? $cf7pdf_blog['post_title'] : '';
 
-	if ( '' === $blog_slug || '' === $blog_title ) {
+	if ( '' === $cf7pdf_blog_slug || '' === $cf7pdf_blog_title ) {
 		continue;
 	}
 
-	$help_blog_posts[] = array(
-		'url'   => trailingslashit( WP_CF7_PDF_FRONTEND_BLOG_URL ) . $blog_slug . '/',
-		'title' => $blog_title,
+	$cf7pdf_help_blog_posts[] = array(
+		'url'   => trailingslashit( WP_CF7_PDF_FRONTEND_BLOG_URL ) . $cf7pdf_blog_slug . '/',
+		'title' => $cf7pdf_blog_title,
 	);
 }
 
-$faq_api_url   = 'https://store.zealousweb.com/productfaq/products/faqs?sku=cf7po';
-$faq_cache_key = 'cf7-pdf-generation_faqs_cache_v1';
-$faqs_raw      = get_transient( $faq_cache_key );
+$cf7pdf_faq_api_url   = 'https://store.zealousweb.com/productfaq/products/faqs?sku=cf7po';
+$cf7pdf_faq_cache_key = 'cf7-pdf-generation_faqs_cache_v1';
+$cf7pdf_faqs_raw      = get_transient( $cf7pdf_faq_cache_key );
 
-if ( false === $faqs_raw || ! is_array( $faqs_raw ) ) {
-	$faqs_raw = array();
-	$faq_response = wp_remote_get(
-		$faq_api_url,
+if ( false === $cf7pdf_faqs_raw || ! is_array( $cf7pdf_faqs_raw ) ) {
+	$cf7pdf_faqs_raw = array();
+	$cf7pdf_faq_response = wp_remote_get(
+		$cf7pdf_faq_api_url,
 		array(
 			'timeout'   => 20,
 			'sslverify' => true,
 		)
 	);
 
-	if ( ! is_wp_error( $faq_response ) ) {
-		$faq_body = wp_remote_retrieve_body( $faq_response );
-		$faq_data = json_decode( $faq_body, true );
+	if ( ! is_wp_error( $cf7pdf_faq_response ) ) {
+		$cf7pdf_faq_body = wp_remote_retrieve_body( $cf7pdf_faq_response );
+		$cf7pdf_faq_data = json_decode( $cf7pdf_faq_body, true );
 
-		if ( ! empty( $faq_data['faqs'] ) && is_array( $faq_data['faqs'] ) ) {
-			$faqs_raw = $faq_data['faqs'];
+		if ( ! empty( $cf7pdf_faq_data['faqs'] ) && is_array( $cf7pdf_faq_data['faqs'] ) ) {
+			$cf7pdf_faqs_raw = $cf7pdf_faq_data['faqs'];
 		}
 	}
 
-	set_transient( $faq_cache_key, $faqs_raw, DAY_IN_SECONDS );
+	set_transient( $cf7pdf_faq_cache_key, $cf7pdf_faqs_raw, DAY_IN_SECONDS );
 }
 
-$help_faqs = array();
+$cf7pdf_help_faqs = array();
 
-foreach ( $faqs_raw as $faq_index => $faq ) {
-	$question = isset( $faq['question'] ) ? $faq['question'] : '';
-	$answer   = isset( $faq['answer'] ) ? $faq['answer'] : '';
+foreach ( $cf7pdf_faqs_raw as $cf7pdf_faq_index => $cf7pdf_faq ) {
+	$cf7pdf_faq_question = isset( $cf7pdf_faq['question'] ) ? $cf7pdf_faq['question'] : '';
+	$cf7pdf_faq_answer   = isset( $cf7pdf_faq['answer'] ) ? $cf7pdf_faq['answer'] : '';
 
-	if ( '' === $question || '' === $answer ) {
+	if ( '' === $cf7pdf_faq_question || '' === $cf7pdf_faq_answer ) {
 		continue;
 	}
 
-	$help_faqs[] = array(
-		'id'       => isset( $faq['id'] ) ? $faq['id'] : (string) ( $faq_index + 1 ),
-		'question' => $question,
-		'answer'   => $answer,
+	$cf7pdf_help_faqs[] = array(
+		'id'       => isset( $cf7pdf_faq['id'] ) ? $cf7pdf_faq['id'] : (string) ( $cf7pdf_faq_index + 1 ),
+		'question' => $cf7pdf_faq_question,
+		'answer'   => $cf7pdf_faq_answer,
 	);
 }
 
@@ -142,12 +142,12 @@ foreach ( $faqs_raw as $faq_index => $faq ) {
 # Newsletter embed (cached HTML string)
 --------------------------------------------------------------*/
 
-$newsletter_embed_html = get_transient( 'cf7-pdf-generation_help_newsletter_embed_html_v1' );
+$cf7pdf_newsletter_embed_html = get_transient( 'cf7-pdf-generation_help_newsletter_embed_html_v1' );
 
-if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) || '' === $newsletter_embed_html ) {
-	$newsletter_embed_html  = '<iframe src="//api.zealousweb.com/gfembed/?f=55" width="100%" frameborder="0" scrolling="no" loading="lazy" class="gfiframe" style="display:block;border:0;overflow:hidden;min-height:170px;"></iframe>';
-	$newsletter_embed_html .= '<script src="//api.zealousweb.com/wp-content/plugins/gravity-forms-iframe-develop/assets/scripts/gfembed.min.js" type="text/javascript"></script>';
-	set_transient( 'cf7-pdf-generation_help_newsletter_embed_html_v1', $newsletter_embed_html, DAY_IN_SECONDS );
+if ( false === $cf7pdf_newsletter_embed_html || ! is_string( $cf7pdf_newsletter_embed_html ) || '' === $cf7pdf_newsletter_embed_html ) {
+	$cf7pdf_newsletter_embed_html  = '<iframe src="//api.zealousweb.com/gfembed/?f=55" width="100%" frameborder="0" scrolling="no" loading="lazy" class="gfiframe" style="display:block;border:0;overflow:hidden;min-height:170px;"></iframe>';
+	$cf7pdf_newsletter_embed_html .= '<script src="//api.zealousweb.com/wp-content/plugins/gravity-forms-iframe-develop/assets/scripts/gfembed.min.js" type="text/javascript"></script>';
+	set_transient( 'cf7-pdf-generation_help_newsletter_embed_html_v1', $cf7pdf_newsletter_embed_html, DAY_IN_SECONDS );
 }
 
 ?>
@@ -218,7 +218,7 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 				<div class="cf7-pdf-generation-help-card-footer cf7-pdf-generation-help-newsletter-embed">
 					<?php
 					echo wp_kses(
-						$newsletter_embed_html,
+						$cf7pdf_newsletter_embed_html,
 						array(
 							'iframe' => array(
 								'src'         => true,
@@ -243,7 +243,7 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 		</div>
 
 		<div class="cf7-pdf-generation-help-bottom-grid">
-			<?php if ( ! empty( $help_blog_posts ) ) : ?>
+			<?php if ( ! empty( $cf7pdf_help_blog_posts ) ) : ?>
                 <div class="cf7-pdf-generation-help-card cf7-pdf-generation-help-card-wide">
                     <div class="cf7-pdf-generation-help-card-icon" aria-hidden="true">
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -260,10 +260,10 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
                     </p>
 
                     <ul class="cf7-pdf-generation-help-list" aria-label="<?php esc_attr_e( 'Related blog posts', 'generate-pdf-using-contact-form-7' ); ?>">
-                        <?php foreach ( $help_blog_posts as $help_blog_post ) : ?>
+                        <?php foreach ( $cf7pdf_help_blog_posts as $cf7pdf_help_blog_post ) : ?>
                             <li>
-                                <a href="<?php echo esc_url( $help_blog_post['url'] ); ?>" target="_blank" rel="noopener noreferrer">
-                                    <?php echo esc_html( $help_blog_post['title'] ); ?>
+                                <a href="<?php echo esc_url( $cf7pdf_help_blog_post['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+                                    <?php echo esc_html( $cf7pdf_help_blog_post['title'] ); ?>
                                 </a>
                             </li>
                         <?php endforeach; ?>
@@ -281,27 +281,27 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 				<h2 class="cf7-pdf-generation-help-card-title"><?php esc_html_e( 'Frequently Asked Questions', 'generate-pdf-using-contact-form-7' ); ?></h2>
 
 				<div class="cf7-pdf-generation-help-faq-list" role="list">
-					<?php if ( ! empty( $help_faqs ) ) : ?>
-						<?php foreach ( $help_faqs as $faq_index => $help_faq ) : ?>
+					<?php if ( ! empty( $cf7pdf_help_faqs ) ) : ?>
+						<?php foreach ( $cf7pdf_help_faqs as $cf7pdf_faq_index => $cf7pdf_help_faq ) : ?>
 							<?php
-							$faq_id        = isset( $help_faq['id'] ) ? preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) $help_faq['id'] ) : (string) ( $faq_index + 1 );
-							$faq_suffix    = $faq_id . '-' . (int) $faq_index;
-							$is_first_open = ( 0 === (int) $faq_index );
-							$question_id   = 'cf7-pdf-generation-faq-question-' . $faq_suffix;
-							$answer_id     = 'cf7-pdf-generation-faq-answer-' . $faq_suffix;
+							$cf7pdf_faq_id        = isset( $cf7pdf_help_faq['id'] ) ? preg_replace( '/[^a-zA-Z0-9_-]/', '', (string) $cf7pdf_help_faq['id'] ) : (string) ( $cf7pdf_faq_index + 1 );
+							$cf7pdf_faq_suffix    = $cf7pdf_faq_id . '-' . (int) $cf7pdf_faq_index;
+							$cf7pdf_is_first_open = ( 0 === (int) $cf7pdf_faq_index );
+							$cf7pdf_question_id   = 'cf7-pdf-generation-faq-question-' . $cf7pdf_faq_suffix;
+							$cf7pdf_answer_id     = 'cf7-pdf-generation-faq-answer-' . $cf7pdf_faq_suffix;
 							?>
-							<div class="cf7-pdf-generation-help-faq-item<?php echo $is_first_open ? ' is-open' : ''; ?>" role="listitem">
+							<div class="cf7-pdf-generation-help-faq-item<?php echo $cf7pdf_is_first_open ? ' is-open' : ''; ?>" role="listitem">
 								<button type="button" class="cf7-pdf-generation-help-faq-question"
-									aria-expanded="<?php echo $is_first_open ? 'true' : 'false'; ?>"
-									aria-controls="<?php echo esc_attr( $answer_id ); ?>"
-									id="<?php echo esc_attr( $question_id ); ?>">
-									<?php echo esc_html( $help_faq['question'] ); ?>
-									<span aria-hidden="true"><?php echo $is_first_open ? '&minus;' : '+'; ?></span>
+									aria-expanded="<?php echo $cf7pdf_is_first_open ? 'true' : 'false'; ?>"
+									aria-controls="<?php echo esc_attr( $cf7pdf_answer_id ); ?>"
+									id="<?php echo esc_attr( $cf7pdf_question_id ); ?>">
+									<?php echo esc_html( $cf7pdf_help_faq['question'] ); ?>
+									<span aria-hidden="true"><?php echo $cf7pdf_is_first_open ? '&minus;' : '+'; ?></span>
 								</button>
-								<div class="cf7-pdf-generation-help-faq-answer" id="<?php echo esc_attr( $answer_id ); ?>" role="region"
-									aria-labelledby="<?php echo esc_attr( $question_id ); ?>"
-									aria-hidden="<?php echo $is_first_open ? 'false' : 'true'; ?>">
-									<?php echo wp_kses_post( $help_faq['answer'] ); ?>
+								<div class="cf7-pdf-generation-help-faq-answer" id="<?php echo esc_attr( $cf7pdf_answer_id ); ?>" role="region"
+									aria-labelledby="<?php echo esc_attr( $cf7pdf_question_id ); ?>"
+									aria-hidden="<?php echo $cf7pdf_is_first_open ? 'false' : 'true'; ?>">
+									<?php echo wp_kses_post( $cf7pdf_help_faq['answer'] ); ?>
 								</div>
 							</div>
 						<?php endforeach; ?>
@@ -315,7 +315,7 @@ if ( false === $newsletter_embed_html || ! is_string( $newsletter_embed_html ) |
 		</div>
 	</div>
 </div>
-<?php if ( ! empty( $help_faqs ) ) : ?>
+<?php if ( ! empty( $cf7pdf_help_faqs ) ) : ?>
 <script>
 (function () {
 	document.addEventListener('DOMContentLoaded', function () {

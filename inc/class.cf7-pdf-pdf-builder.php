@@ -309,8 +309,8 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 
 				require WP_CF7_PDF_DIR . 'inc/templates/cf7-pdf-generation.public.html.php';
 
-				$mpdf->SetHTMLHeader( $headerContent );
-				$mpdf->SetHTMLFooter( $footerContent );
+				$mpdf->SetHTMLHeader( $cf7pdf_header_content );
+				$mpdf->SetHTMLFooter( $cf7pdf_footer_content );
 
 				if ( $cf7_pdf_bg_image ) {
 					$mpdf->SetDefaultBodyCSS( 'background', "url('" . $cf7_pdf_bg_image . "')" );
