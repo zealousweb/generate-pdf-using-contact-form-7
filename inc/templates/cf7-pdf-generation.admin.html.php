@@ -139,7 +139,7 @@ Your Message : [your-message]','generate-pdf-using-contact-form-7');
 				$password_mismatch = true;
 				$temp              = 0;
 			} elseif ( '' !== $new_pass ) {
-				$before_post['cf7_opt_password_pdf'] = Cf7_Pdf_Global_Settings::encrypt_password( $new_pass );
+				$before_post['cf7_opt_password_pdf'] = Cf7_Pdf_Submissions::encrypt_password( $new_pass );
 			} else {
 				$existing_meta = get_post_meta( $cf7_idform, 'cf7_pdf', true );
 				if ( is_array( $existing_meta ) && ! empty( $existing_meta['cf7_opt_password_pdf'] ) ) {

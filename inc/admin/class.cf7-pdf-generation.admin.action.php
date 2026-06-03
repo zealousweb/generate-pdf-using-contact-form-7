@@ -162,22 +162,12 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 						true
 					);
 
-					$form_id = 0;
-					if ( isset( $_POST['cf7_idform'] ) ) {
-						$form_id = absint( wp_unslash( $_POST['cf7_idform'] ) );
-					} elseif ( isset( $_GET['cf7_idform'] ) ) {
-						$form_id = absint( wp_unslash( $_GET['cf7_idform'] ) );
-					}
-
 					wp_localize_script(
 						'cf7-pdf-admin-features',
 						'cf7PdfAdminFeatures',
 						array(
-							'previewNonce'       => wp_create_nonce( 'cf7_pdf_live_preview' ),
-							'formId'             => $form_id,
-							'i18n'               => array(
-								'preview'      => __( 'Preview PDF', 'generate-pdf-using-contact-form-7' ),
-								'generating'   => __( 'Generating preview…', 'generate-pdf-using-contact-form-7' ),
+							'previewNonce' => wp_create_nonce( 'cf7_pdf_live_preview' ),
+							'i18n'         => array(
 								'selectForm'   => __( 'Select a contact form first.', 'generate-pdf-using-contact-form-7' ),
 								'error'        => __( 'Preview failed. Please try again.', 'generate-pdf-using-contact-form-7' ),
 								'showPassword' => __( 'Show password', 'generate-pdf-using-contact-form-7' ),

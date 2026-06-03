@@ -52,7 +52,7 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 				return '';
 			}
 
-			return Cf7_Pdf_Global_Settings::decrypt_password( $setting_data['cf7_opt_password_pdf'] );
+			return Cf7_Pdf_Submissions::decrypt_password( $setting_data['cf7_opt_password_pdf'] );
 		}
 
 		/**
@@ -110,7 +110,7 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 					$msg_body = __( "Your Name : [your-name]\nYour Email : [your-email]\nSubject : [your-subject]\nYour Message : [your-message]", 'generate-pdf-using-contact-form-7' );
 				}
 
-				$html = self::build_html_from_message( $msg_body, $posted_data, $settings, $date, $time, $form_id );
+				$html = self::build_html_from_message( $msg_body, $posted_data, $date, $time );
 
 				$cf7_opt_header_pdf_image = isset( $settings['cf7_opt_header_pdf_image'] ) ? $settings['cf7_opt_header_pdf_image'] : '';
 				$cf7_opt_max_width_logo   = isset( $settings['cf7_opt_max_width_logo'] ) ? $settings['cf7_opt_max_width_logo'] : '160px';
@@ -161,7 +161,6 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 				return array(
 					'file' => $filename,
 					'path' => $path,
-					'url'  => $upload_dir['baseurl'] . $subdir . '/' . $filename,
 				);
 			} catch ( Exception $e ) {
 				return new WP_Error( 'mpdf_exception', $e->getMessage() );
@@ -230,7 +229,6 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 			return array(
 				'file' => $new_name,
 				'path' => $dest,
-				'url'  => $upload_dir['baseurl'] . $subdir . '/' . $new_name,
 			);
 		}
 
@@ -413,14 +411,12 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 
 		/**
 		 * @param string $msg_body     Message template.
-		 * @param array  $posted_data  Sample values.
-		 * @param array  $settings     Form settings.
-		 * @param string $date         Date string.
-		 * @param string $time         Time string.
-		 * @param int    $form_id      Form ID.
+		 * @param array  $posted_data Sample values.
+		 * @param string $date        Date string.
+		 * @param string $time        Time string.
 		 * @return string HTML body.
 		 */
-		private static function build_html_from_message( $msg_body, $posted_data, $settings, $date, $time, $form_id ) {
+		private static function build_html_from_message( $msg_body, $posted_data, $date, $time ) {
 			$current_time = (string) microtime( true );
 			$current_time = str_replace( '.', '-', $current_time );
 

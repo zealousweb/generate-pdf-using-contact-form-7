@@ -8,10 +8,7 @@
 
 	function getFormId() {
 		var id = $( 'input[name="cf7_idform"]' ).val();
-		if ( id ) {
-			return parseInt( id, 10 );
-		}
-		return cf7PdfAdminFeatures.formId || 0;
+		return id ? parseInt( id, 10 ) : 0;
 	}
 
 	function syncCodeMirrorToTextarea() {
@@ -164,7 +161,6 @@
 			.done( function ( response ) {
 				if ( response.success && response.data && response.data.preview_url ) {
 					$( '#cf7-pdf-preview-frame' ).attr( 'src', response.data.preview_url ).show();
-					showPreviewNotice( '', 'success' );
 					$( '#cf7-pdf-preview-notice' ).hide();
 				} else {
 					var msg = ( response.data && response.data.message ) ? response.data.message : cf7PdfAdminFeatures.i18n.error;
