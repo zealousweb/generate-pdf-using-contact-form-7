@@ -26,6 +26,29 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7_pdf_attachment_script' ));
 		}
 
+		/**
+		 * Sanitize a PDF filename for safe filesystem paths and URLs.
+		 *
+		 * Replaces characters such as / and # that break file writes or URL resolution.
+		 *
+		 * @param string $filename Proposed filename (with .pdf extension).
+		 * @return string Safe filename.
+		 */
+		private function sanitize_pdf_filename( $filename ) {
+			$sanitized = sanitize_file_name( $filename );
+
+			if ( '' === $sanitized ) {
+				return 'cf7-document.pdf';
+			}
+
+			if ( ! preg_match( '/\.pdf$/i', $sanitized ) ) {
+				$sanitized = preg_replace( '/\.[^.]+$/', '', $sanitized );
+				$sanitized = ( '' !== $sanitized ) ? $sanitized . '.pdf' : 'cf7-document.pdf';
+			}
+
+			return $sanitized;
+		}
+
 		function wpcf7_pdf_create_attachment($filename)
 		{
 			// Check the type of file. We'll use this as the 'post_mime_type'.
@@ -36,7 +59,8 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			// Get the path to the upload directory.
 			$wp_upload_dir = wp_upload_dir();
 
-			$attachFileName = $wp_upload_dir['path'] . '/' . basename($filename);
+			$safe_basename = $this->sanitize_pdf_filename( basename( $filename ) );
+			$attachFileName = $wp_upload_dir['path'] . '/' . $safe_basename;
 			copy($filename, $attachFileName);
 
 			// Prepare an array of post data for the attachment.
@@ -358,9 +382,9 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 						$mpdf->WriteHTML($html);
 
 						if( $cf7_pdf_filename_prefix!='' ) {
-							$pdf_file_name = $cf7_pdf_filename_prefix.'-'.$current_time.'.pdf';
+							$pdf_file_name = $this->sanitize_pdf_filename( $cf7_pdf_filename_prefix . '-' . $current_time . '.pdf' );
 						} else {
-							$pdf_file_name = 'cf7-'.$contact_id.'-'.$current_time.'.pdf';
+							$pdf_file_name = $this->sanitize_pdf_filename( 'cf7-' . $contact_id . '-' . $current_time . '.pdf' );
 						}
 
 						$path_dir_cf7 = '';

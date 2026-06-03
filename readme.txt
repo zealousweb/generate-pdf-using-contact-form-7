@@ -4,7 +4,7 @@ Donate link: http://www.zealousweb.com/payment/
 Tags: contact form, contact, PDF, email
 Requires at least: 3.0.1
 Requires PHP: 5.6
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 4.1.7
 Version: 4.1.7
 License: GPLv3 or later
@@ -118,7 +118,8 @@ S.S https://prnt.sc/-TLx40Qup76r
 == Changelog ==
 
 = 4.1.7 =
-* Tested with the latest version of WordPress (6.9).
+* Tested with the latest version of WordPress (7.0).
+* Fix - Sanitize PDF filenames so characters such as / and # in form fields no longer cause errors or broken download links.
 
 = 4.1.6 =
 * Added a new option to Show or Hide Label Field Tags
@@ -305,6 +306,10 @@ S.S https://prnt.sc/-TLx40Qup76r
 * Release version.
 
 == Upgrade Notice ==
+
+= 4.1.7 =
+* Tested with the latest version of WordPress (7.0).
+* Fix - Sanitize PDF filenames so characters such as / and # in form fields no longer cause errors or broken download links.
 
 = 4.1.6 =
 * Added a new option to Show or Hide Label Field Tags
