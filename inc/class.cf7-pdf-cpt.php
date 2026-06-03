@@ -20,12 +20,55 @@ if ( ! class_exists( 'Cf7_Pdf_Cpt' ) ) {
 		const MENU_PARENT  = 'pdf-with-cf7';
 
 		/**
+		 * Admin menu icon as base64 SVG data URI (same pattern as CF7 PDF Pro).
+		 *
+		 * @return string Dashicon slug or data:image/svg+xml;base64,...
+		 */
+		public static function get_admin_menu_icon() {
+			$icon_path = WP_CF7_PDF_DIR . 'assets/images/pdf-with-cf7-menu-icon-source.svg';
+
+			if ( ! is_readable( $icon_path ) ) {
+				return 'dashicons-media-document';
+			}
+
+			$svg = file_get_contents( $icon_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+			if ( false === $svg || '' === trim( $svg ) ) {
+				return 'dashicons-media-document';
+			}
+
+			return 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		}
+
+		/**
 		 * Bootstrap hooks.
 		 */
 		public static function init() {
 			add_action( 'init', array( __CLASS__, 'register_post_type' ), 10 );
 			add_action( 'init', array( __CLASS__, 'fix_post_type_args' ), 99 );
 			add_action( 'admin_menu', array( __CLASS__, 'remove_from_contact_menu' ), 999 );
+			add_action( 'admin_head', array( __CLASS__, 'print_admin_menu_icon_styles' ) );
+		}
+
+		/**
+		 * Size and highlight the custom SVG admin menu icon.
+		 */
+		public static function print_admin_menu_icon_styles() {
+			?>
+			<style id="cf7pdf-admin-menu-icon">
+				#adminmenu #toplevel_page_<?php echo esc_attr( self::MENU_PARENT ); ?> .wp-menu-image {
+					background-size: 18px auto;
+					background-position: center 8px;
+					background-repeat: no-repeat;
+				}
+				#adminmenu #toplevel_page_<?php echo esc_attr( self::MENU_PARENT ); ?>.wp-has-current-submenu .wp-menu-image,
+				#adminmenu #toplevel_page_<?php echo esc_attr( self::MENU_PARENT ); ?>.current .wp-menu-image,
+				#adminmenu #toplevel_page_<?php echo esc_attr( self::MENU_PARENT ); ?>:hover .wp-menu-image,
+				#adminmenu #toplevel_page_<?php echo esc_attr( self::MENU_PARENT ); ?>:focus .wp-menu-image {
+					filter: brightness(0) invert(1);
+				}
+			</style>
+			<?php
 		}
 
 		/**

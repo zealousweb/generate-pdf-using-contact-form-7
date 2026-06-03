@@ -1,56 +1,23 @@
 <?php
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
-if ( !class_exists( 'Cf7_Pdf_Generation_Admin' ) ) {
+if ( ! class_exists( 'Cf7_Pdf_Generation_Admin' ) ) {
 
 	/**
-	* The Cf7_Pdf_Generation_Admin Class
-	*/
+	 * Admin bootstrap (hooks live in Cf7_Pdf_Generation_Admin_Action).
+	 */
 	class Cf7_Pdf_Generation_Admin {
 
 		function __construct() {}
-
-		/*
-		   ###     ######  ######## ####  #######  ##    ##  ######
-		  ## ##   ##    ##    ##     ##  ##     ## ###   ## ##    ##
-		 ##   ##  ##          ##     ##  ##     ## ####  ## ##
-		##     ## ##          ##     ##  ##     ## ## ## ##  ######
-		######### ##          ##     ##  ##     ## ##  ####       ##
-		##     ## ##    ##    ##     ##  ##     ## ##   ### ##    ##
-		##     ##  ######     ##    ####  #######  ##    ##  ######
-		*/
-
-
-		/*
-		######## #### ##       ######## ######## ########   ######
-		##        ##  ##          ##    ##       ##     ## ##    ##
-		##        ##  ##          ##    ##       ##     ## ##
-		######    ##  ##          ##    ######   ########   ######
-		##        ##  ##          ##    ##       ##   ##         ##
-		##        ##  ##          ##    ##       ##    ##  ##    ##
-		##       #### ########    ##    ######## ##     ##  ######
-		*/
-
-
-		/*
-		######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
-		##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
-		##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
-		######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
-		##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
-		##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
-		##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
-		*/
-
-
 	}
-	
-	/**
-	*  Load public file.
-	*/
-	add_action( 'plugins_loaded', function() {
-		new Cf7_Pdf_Generation_Admin;
-	} );
-	
+
+	add_action(
+		'plugins_loaded',
+		function () {
+			new Cf7_Pdf_Generation_Admin();
+		}
+	);
 }

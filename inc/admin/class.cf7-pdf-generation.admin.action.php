@@ -20,6 +20,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 	class Cf7_Pdf_Generation_Admin_Action {
 
 		const SETTINGS_PAGE_SLUG = 'wp-cf7-send-pdf';
+		const HELP_PAGE_SLUG      = 'cf7_pdf_help_support';
 
 		/**
 		* Construction
@@ -28,7 +29,9 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_styles' ));
 			add_action( 'admin_enqueue_scripts',array( $this, 'enqueue_scripts' ));
 			add_action( 'admin_menu',array( $this, 'register_admin_menu' ), 9 );
+			add_action( 'admin_menu', array( $this, 'register_help_support_menu' ), 1000 );
 			add_action( 'admin_menu',array( $this, 'finalize_admin_menu' ), 999 );
+			add_action( 'admin_init', array( $this, 'redirect_legacy_help_support_page' ) );
 			add_filter( 'parent_file', array( $this, 'set_active_parent_menu' ) );
 			add_filter( 'submenu_file', array( $this, 'set_active_submenu' ) );
 			add_action( 'wp_ajax_cf7_pdf_live_preview', array( $this, 'ajax_live_preview' ) );
@@ -44,7 +47,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 		 * @return string
 		 */
 		function set_active_parent_menu( $parent_file ) {
-			if ( $this->is_submissions_screen() || $this->is_settings_screen() ) {
+			if ( $this->is_submissions_screen() || $this->is_settings_screen() || $this->is_help_screen() ) {
 				return Cf7_Pdf_Cpt::MENU_PARENT;
 			}
 
@@ -64,6 +67,10 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 
 			if ( $this->is_settings_screen() ) {
 				return self::SETTINGS_PAGE_SLUG;
+			}
+
+			if ( $this->is_help_screen() ) {
+				return self::HELP_PAGE_SLUG;
 			}
 
 			return $submenu_file;
@@ -114,6 +121,17 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 		}
 
 		/**
+		 * Help & Support admin page.
+		 *
+		 * @return bool
+		 */
+		private function is_help_screen() {
+			$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+			return self::HELP_PAGE_SLUG === $page;
+		}
+
+		/**
 		 * Whether current screen belongs to this plugin admin.
 		 *
 		 * @return bool
@@ -123,7 +141,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 				return false;
 			}
 
-			return $this->is_submissions_screen() || $this->is_settings_screen();
+			return $this->is_submissions_screen() || $this->is_settings_screen() || $this->is_help_screen();
 		}
 
 		/**
@@ -139,6 +157,17 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 				wp_enqueue_style( 'jquery-ui-resize', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-jquery-ui-min.css', array(), Cf7_Pdf_Generation_VERSION, 'all' );
 				wp_enqueue_style( 'dashicons' );
 				wp_enqueue_style( 'cf7-pdf-admin-features', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-admin-features.css', array( 'dashicons' ), Cf7_Pdf_Generation_VERSION, 'all' );
+			}
+
+			if ( $this->is_help_screen() ) {
+				$help_css = WP_CF7_PDF_DIR . 'assets/css/cf7-pdf-generation-help-support.css';
+				wp_enqueue_style(
+					'cf7-pdf-generation-help-support',
+					WP_CF7_PDF_URL . 'assets/css/cf7-pdf-generation-help-support.css',
+					array( 'main-admin-css' ),
+					is_readable( $help_css ) ? (string) filemtime( $help_css ) : Cf7_Pdf_Generation_VERSION,
+					'all'
+				);
 			}
 		}
 
@@ -373,7 +402,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 				'manage_options',
 				Cf7_Pdf_Cpt::MENU_PARENT,
 				array( $this, 'redirect_to_submissions' ),
-				'dashicons-media-document',
+				Cf7_Pdf_Cpt::get_admin_menu_icon(),
 				58
 			);
 
@@ -398,6 +427,51 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 		}
 
 		/**
+		 * Register Help & Support submenu (admin.php?page=cf7_pdf_help_support).
+		 */
+		function register_help_support_menu() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
+			add_submenu_page(
+				Cf7_Pdf_Cpt::MENU_PARENT,
+				__( 'Help & Support', 'generate-pdf-using-contact-form-7' ),
+				__( 'Help & Support', 'generate-pdf-using-contact-form-7' ),
+				'manage_options',
+				self::HELP_PAGE_SLUG,
+				array( $this, 'render_help_support_page' )
+			);
+		}
+
+		/**
+		 * Help & Support admin page callback.
+		 */
+		function render_help_support_page() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'You do not have permission to access this page.', 'generate-pdf-using-contact-form-7' ) );
+			}
+
+			require WP_CF7_PDF_DIR . 'inc/templates/' . WP_CF7_PDF_PREFIX . '.help.support.php';
+		}
+
+		/**
+		 * Redirect legacy Help & Support slug to the current page.
+		 */
+		function redirect_legacy_help_support_page() {
+			if ( ! isset( $_GET['page'] ) || 'cf7_pdf-help-support' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+				return;
+			}
+
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
+			wp_safe_redirect( admin_url( 'admin.php?page=' . self::HELP_PAGE_SLUG ) );
+			exit;
+		}
+
+		/**
 		 * Parent menu opens submissions list; hide Add New on submissions.
 		 */
 		function finalize_admin_menu() {
@@ -419,6 +493,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 			$order = array(
 				'edit.php?post_type=' . Cf7_Pdf_Cpt::POST_TYPE,
 				self::SETTINGS_PAGE_SLUG,
+				self::HELP_PAGE_SLUG,
 			);
 
 			$items = array_values( $submenu[ Cf7_Pdf_Cpt::MENU_PARENT ] );

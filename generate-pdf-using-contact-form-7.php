@@ -75,6 +75,13 @@ if ( !defined( 'WP_CF7_PDF_PREFIX' ) ) {
 }
 
 /**
+ * ZealousWeb blog base URL for Help & Support related posts.
+ */
+if ( ! defined( 'WP_CF7_PDF_FRONTEND_BLOG_URL' ) ) {
+	define( 'WP_CF7_PDF_FRONTEND_BLOG_URL', 'https://www.zealousweb.com/blog/' );
+}
+
+/**
 * Check main function is exist or not.
 */
 if ( !function_exists( 'Cf7_Pdf_Generation' ) ) {

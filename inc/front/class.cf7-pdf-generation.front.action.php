@@ -193,8 +193,9 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 				return $wpcf7;
 			}
 			
-            if ( isset($setting_data['cf7_opt_attach_pdf_image'])){
-		        $attach_image = $setting_data['cf7_opt_attach_pdf_image'] ? $setting_data['cf7_opt_attach_pdf_image'] : "";
+			$attach_image = '';
+            if ( isset( $setting_data['cf7_opt_attach_pdf_image'] ) ) {
+		        $attach_image = $setting_data['cf7_opt_attach_pdf_image'] ? $setting_data['cf7_opt_attach_pdf_image'] : '';
             }
 
             if ( isset($setting_data['cf7_pdf_link_is_enable'])){
@@ -213,10 +214,6 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 				$cf7_pdf_download_link_txt = __('Click here to download PDF','generate-pdf-using-contact-form-7');
 			}
 
-			if ( isset($setting_data['cf7_pdf_show_hide_label'])){
-		        $cf7_pdf_show_hide_label = $setting_data['cf7_pdf_show_hide_label'] ? $setting_data['cf7_pdf_show_hide_label'] : "";
-            }
-
 			$attdataurl_array = array();
 
 			$cf7_dettach_active = isset( $setting_data['cf7_dettach_pdf'] ) && 'true' === $setting_data['cf7_dettach_pdf'];
@@ -231,7 +228,6 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 		 					$pdf_file_path = WP_CF7_PDF_DIR .'attachments/'.$attach_image;
 		 					$pdf_url_path = WP_CF7_PDF_URL.'attachments/'.$attach_image;
 
-		 					$temp_name = sanitize_text_field(wp_rand());
 							copy($pdf_file_path, $pdf_file_path1);
 							$attdataurl_array = $this->wpcf7_pdf_create_attachment($pdf_url_path);
 
