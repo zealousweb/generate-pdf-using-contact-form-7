@@ -153,13 +153,77 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 
 == Frequently Asked Questions ==
 
-= Can I change font size in PDF file content? =
+= Can I attach a PDF to Contact Form 7 notification emails? =
 
-Yes. The default font size is 9px, but you can change it from the admin side.
+Yes. From the admin side, you can attach a PDF file to form notification emails sent to the user and/or administrator.
+
+= Is a PDF download link shown after form submission? =
+
+Yes. A link to the generated PDF can be displayed in the form success message along with your thank you text.
+
+= Can I use different PDF settings for different Contact Form 7 forms? =
+
+Yes. You can configure a separate PDF for each contact form and create as many forms as you need.
+
+= Can I generate a PDF with submitted form data? =
+
+Yes. You can create a custom PDF using the data submitted through the contact form.
+
+= Can I add a logo and form fields to the PDF? =
+
+Yes. You can customize the PDF by adding a header logo and including relevant form field values in the PDF content.
 
 = Can I update the header and footer content of the PDF? =
 
 Yes. You can add content to the PDF header and footer from the admin side, and set the header and footer margins in the PDF settings.
+
+= Can I include uploaded files from the form with the PDF email attachment? =
+
+Yes. The plugin supports adding file options along with the PDF attachment in mail.
+
+= How do I add a page break in the PDF? =
+
+You can use a page break in the PDF message body so new content moves to the next page.
+
+= How do I show Acceptance field values in the PDF? =
+
+Use a tag that starts with [acceptance-] in the PDF editor. For example, [acceptance-terms-condition] or [acceptance-policy], matching your acceptance field name.
+
+= Can I set a custom PDF file name? =
+
+Yes. You can set the PDF file name prefix from the admin settings and use any form field tag as part of the file name.
+
+= Can I add page numbers to the PDF? =
+
+Yes. Page number options are available in the admin settings so you can display custom text with the PDF page number.
+
+= Can I change font size in PDF file content? =
+
+Yes. The default font size is 9px, but you can change it from the admin side.
+
+= Where can I view past PDF submissions? =
+
+The PDF Submission List keeps all your form submissions organized and accessible in PDF format for easy viewing and record-keeping.
+
+= Is there a dedicated menu for managing PDFs in the WordPress admin? =
+
+Yes. A separate PDF menu in the WordPress admin dashboard lets you quickly manage, view, and configure PDFs.
+
+= Can I preview the PDF before saving or sending? =
+
+Yes. Live PDF Preview lets you see exactly how your PDF will look before saving or sending.
+
+= Can I password-protect generated PDFs? =
+
+Yes. You can secure generated PDFs with a password to control who can access sensitive information.
+
+= Where can I find plugin documentation and support? =
+
+The Help & Support section provides documentation, FAQs, support ticket submission, guides, blogs, and newsletter subscription options in one place.
+
+= Is this plugin compatible with WordPress VIP? =
+
+Yes. The plugin is compatible with the WordPress VIP platform.
 
 = How to upload mpdf TTf Fonts in library =
 
