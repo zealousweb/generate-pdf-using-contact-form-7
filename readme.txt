@@ -153,6 +153,14 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 
 == Frequently Asked Questions ==
 
+= Can I change font size in PDF file content? =
+
+Yes. The default font size is 9px, but you can change it from the admin side.
+
+= Can I update the header and footer content of the PDF? =
+
+Yes. You can add content to the PDF header and footer from the admin side, and set the header and footer margins in the PDF settings.
+
 = How to upload mpdf TTf Fonts in library =
 
 To prevent the plugin from becoming too large, we have opted to utilize common TTF fonts and have included them in the plugin.
@@ -379,6 +387,16 @@ S.S https://prnt.sc/-TLx40Qup76r
 
 == Upgrade Notice ==
 
+= 4.2.0 =
+* PDF Submission List: Keep all your form submissions organized and accessible in PDF format for easy viewing and record-keeping.
+* Dedicated PDF Menu in Admin Panel: Quickly manage, view, and configure PDFs from a separate, easy-to-use menu in the WordPress admin dashboard.
+* Live PDF Preview: See exactly how your PDF will look before saving or sending, ensuring perfect formatting every time.
+* Password-Protected PDFs: Secure your generated PDFs with a password to control who can access sensitive information.
+* Access helpful resources including documentation, FAQs, and support options in one place.
+* Easily submit support tickets or explore guides to resolve issues quickly.
+* Stay updated with the latest insights through blogs and newsletter subscriptions.
+* Tested with the latest version of WordPress (7.0).
+
 = 4.1.7 =
 * Tested with the latest version of WordPress (7.0).
 * Fix - Sanitize PDF filenames so characters such as / and # in form fields no longer cause errors or broken download links.
@@ -559,10 +577,10 @@ S.S https://prnt.sc/-TLx40Qup76r
 * Fix - We have fixed for support Dropdown and Radio button in PDF generate.
 
 = 1.2 =
-Add New Feature to edit PDF Header/Footer Text.
+* Add - Add New Feature to edit PDF Header/Footer Text.
 
 = 1.1 =
-Add support Link.
+* Add support Link.
 
 = 1.0 =
-Release version.
+* Release version.
