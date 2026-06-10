@@ -23,8 +23,21 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Filter' ) ){
 		* Construction
 		*/
 		function __construct()  {
-			add_filter( 'plugin_action_links',array( $this,'cf7_pdf_plugin_action_links'), 10, 2 );	
-			add_filter('attachment_fields_to_edit', 'remove_media_upload_fields', 10000, 2);
+			add_filter( 'plugin_action_links',array( $this,'cf7_pdf_plugin_action_links'), 10, 2 );
+			add_filter( 'attachment_fields_to_edit', array( $this, 'cf7pdf_remove_media_upload_fields' ), 10000, 2 );
+		}
+
+		/**
+		 * Remove unused attachment fields from the media upload modal.
+		 *
+		 * @param array   $form_fields Attachment form fields.
+		 * @param WP_Post $post        Attachment post object.
+		 * @return array
+		 */
+		public function cf7pdf_remove_media_upload_fields( $form_fields, $post ) {
+			unset( $form_fields['url'] );
+			unset( $form_fields['align'] );
+			return $form_fields;
 		}
 
 		
@@ -37,14 +50,12 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Filter' ) ){
 				return $links;
 			}
 		
-			if ( ! current_user_can( 'wpcf7_read_contact_forms' ) ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
 				return $links;
 			}
-			
-			$settings_link = wpcf7_link(
-				menu_page_url( 'wp-cf7-send-pdf', false ),
-				esc_html(__( 'Settings', 'Contact-Form-7-PDF-Generation' ))
-			);
+
+			$settings_url  = admin_url( 'admin.php?page=wp-cf7-send-pdf' );
+			$settings_link = '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings', 'generate-pdf-using-contact-form-7' ) . '</a>';
 			array_unshift( $links, $settings_link );
 
 			$documentlink = '<a target="_blank" href="https://store.zealousweb.com/generate-pdf-using-contact-form-7"> '. __( 'Document Link', 'generate-pdf-using-contact-form-7') .'</a>';
@@ -52,15 +63,6 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Filter' ) ){
 		
 			return $links;
 		}
-	}
-
-	/**
-	*
-	*/
-	function remove_media_upload_fields( $form_fields, $post ) {
-	        unset( $form_fields['url'] );
-	        unset( $form_fields['align'] );
-	    return $form_fields;
 	}
 
 	add_action( 'plugins_loaded' , function() {

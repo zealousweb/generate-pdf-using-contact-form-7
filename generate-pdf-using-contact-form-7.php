@@ -15,7 +15,9 @@
  * Plugin Name:     Generate PDF using Contact Form 7
  * Plugin URI:      https://wordpress.org/plugins/generate-pdf-using-contact-form-7/
  * Description:     Generate PDF using Contact Form 7 Plugin provides an easier way to download document files, open the document file or send as an attachment after the successful form submit.
- * Version:         4.1.7
+ * Version:         4.2.0
+ * Requires at least: 4.7
+ * Requires PHP:      5.6
  * Author:          ZealousWeb
  * Author URI:      https://www.zealousweb.com/
  * Developer: 		The ZealousWeb Team
@@ -36,7 +38,7 @@ if ( ! defined( 'WPINC' ) ) {
 * Start at version 1.0.0 and use SemVer - https://semver.org
 */
 if ( !defined( 'Cf7_Pdf_Generation_VERSION' ) ) {
-	define( 'Cf7_Pdf_Generation_VERSION', '4.1.7' );
+	define( 'Cf7_Pdf_Generation_VERSION', '4.2.0' );
 }
 
 /**
@@ -75,6 +77,13 @@ if ( !defined( 'WP_CF7_PDF_PREFIX' ) ) {
 }
 
 /**
+ * ZealousWeb blog base URL for Help & Support related posts.
+ */
+if ( ! defined( 'WP_CF7_PDF_FRONTEND_BLOG_URL' ) ) {
+	define( 'WP_CF7_PDF_FRONTEND_BLOG_URL', 'https://www.zealousweb.com/blog/' );
+}
+
+/**
 * Check main function is exist or not.
 */
 if ( !function_exists( 'Cf7_Pdf_Generation' ) ) {
@@ -82,16 +91,14 @@ if ( !function_exists( 'Cf7_Pdf_Generation' ) ) {
 	* require include, filter and action files.
 	*/	
 	require_once( WP_CF7_PDF_DIR . '/inc/class.' . WP_CF7_PDF_PREFIX . '.php' );
-	if(is_admin())
-	{
-		require_once( WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.php' );
-		require_once( WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.action.php' );
-		require_once( WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.filter.php' );
-	}
-	else
-	{
-		require_once( WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.php' );
-		require_once( WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.action.php' );
-		require_once( WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.filter.php' );
+	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-cpt.php' );
+	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-submissions.php' );
+	require_once( WP_CF7_PDF_DIR . '/inc/class.cf7-pdf-pdf-builder.php' );
+	if ( is_admin() ) {
+		require_once WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.action.php';
+		require_once WP_CF7_PDF_DIR . '/inc/admin/class.' . WP_CF7_PDF_PREFIX . '.admin.filter.php';
+	} else {
+		require_once WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.action.php';
+		require_once WP_CF7_PDF_DIR . '/inc/front/class.' . WP_CF7_PDF_PREFIX . '.front.filter.php';
 	}
 }
