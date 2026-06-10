@@ -16,6 +16,8 @@
  * Plugin URI:      https://wordpress.org/plugins/generate-pdf-using-contact-form-7/
  * Description:     Generate PDF using Contact Form 7 Plugin provides an easier way to download document files, open the document file or send as an attachment after the successful form submit.
  * Version:         4.2.0
+ * Requires at least: 4.7
+ * Requires PHP:      5.6
  * Author:          ZealousWeb
  * Author URI:      https://www.zealousweb.com/
  * Developer: 		The ZealousWeb Team

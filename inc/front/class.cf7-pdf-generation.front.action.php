@@ -331,7 +331,12 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 							return $wpcf7;
 						}
 
-						if ( ! empty( $path_dir_cf7 ) && isset( $_SERVER['DOCUMENT_ROOT'] ) && file_exists( $_SERVER['DOCUMENT_ROOT'] . $pdf_file_path1 ) ) {
+						$cf7pdf_document_root = '';
+						if ( isset( $_SERVER['DOCUMENT_ROOT'] ) ) {
+							$cf7pdf_document_root = wp_normalize_path( sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) );
+						}
+
+						if ( ! empty( $path_dir_cf7 ) && '' !== $cf7pdf_document_root && file_exists( $cf7pdf_document_root . $pdf_file_path1 ) ) {
 							copy( $pdf_file_path, $pdf_file_path1 );
 						}
 

@@ -249,13 +249,13 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 				$msg_body = implode( "\n", $msgbody_array );
 			}
 
-			$html = $msg_body;
+			$html = Cf7_Pdf_Submissions::prepare_pdf_msg_body_for_mpdf( $msg_body );
 
 			if ( $wpcf7 && $submission ) {
 				$html = apply_filters( 'cf7_pdf_message_body', $html, $wpcf7, $submission );
 			}
 
-			if ( false === strpos( $html, '<table' ) ) {
+			if ( false === strpos( $html, '<' ) && false === strpos( $html, '<table' ) ) {
 				$html = nl2br( $html );
 			}
 
@@ -585,6 +585,30 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 		}
 
 		/**
+		 * Whether a directory exists and is writable (via WP_Filesystem).
+		 *
+		 * @param string $path Directory path.
+		 * @return bool
+		 */
+		private static function is_directory_writable( $path ) {
+			if ( ! wp_mkdir_p( $path ) ) {
+				return false;
+			}
+
+			if ( ! function_exists( 'WP_Filesystem' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+			}
+
+			global $wp_filesystem;
+
+			if ( ! WP_Filesystem() || ! is_object( $wp_filesystem ) ) {
+				return false;
+			}
+
+			return $wp_filesystem->is_writable( $path );
+		}
+
+		/**
 		 * Writable temp directory for mPDF (required on Windows).
 		 *
 		 * @return string
@@ -592,7 +616,7 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 		private static function get_mpdf_temp_dir() {
 			$dir = WP_CF7_PDF_DIR . 'attachments/mpdf-tmp';
 
-			if ( ! wp_mkdir_p( $dir ) || ! is_writable( $dir ) ) {
+			if ( ! self::is_directory_writable( $dir ) ) {
 				$upload = wp_upload_dir();
 				$dir    = $upload['basedir'] . '/cf7-pdf-tmp';
 				wp_mkdir_p( $dir );

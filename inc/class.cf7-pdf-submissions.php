@@ -414,6 +414,306 @@ if ( ! class_exists( 'Cf7_Pdf_Submissions' ) ) {
 		}
 
 		/**
+		 * Allowed HTML tags for the PDF message body (mPDF template).
+		 *
+		 * @return array
+		 */
+		public static function get_pdf_msg_body_allowed_html() {
+			$cf7pdf_allowed = wp_kses_allowed_html( 'post' );
+
+			$cf7pdf_layout_attrs = array(
+				'style' => true,
+				'class' => true,
+				'id'    => true,
+			);
+
+			$cf7pdf_allowed['html']  = $cf7pdf_layout_attrs;
+			$cf7pdf_allowed['head']  = array();
+			$cf7pdf_allowed['body']  = $cf7pdf_layout_attrs;
+			$cf7pdf_allowed['title'] = array();
+			$cf7pdf_allowed['meta']  = array(
+				'charset' => true,
+				'name'    => true,
+				'content' => true,
+			);
+			$cf7pdf_allowed['style'] = array(
+				'type' => true,
+			);
+			$cf7pdf_allowed['link']  = array(
+				'rel'  => true,
+				'href' => true,
+				'type' => true,
+			);
+			$cf7pdf_allowed['form']  = array_merge(
+				isset( $cf7pdf_allowed['form'] ) ? $cf7pdf_allowed['form'] : array(),
+				array(
+					'action' => true,
+					'method' => true,
+				),
+				$cf7pdf_layout_attrs
+			);
+			$cf7pdf_allowed['input'] = array_merge(
+				isset( $cf7pdf_allowed['input'] ) ? $cf7pdf_allowed['input'] : array(),
+				array(
+					'type'        => true,
+					'name'        => true,
+					'value'       => true,
+					'placeholder' => true,
+					'required'    => true,
+					'checked'     => true,
+				),
+				$cf7pdf_layout_attrs
+			);
+			$cf7pdf_allowed['label'] = array_merge(
+				isset( $cf7pdf_allowed['label'] ) ? $cf7pdf_allowed['label'] : array(),
+				array(
+					'for' => true,
+				),
+				$cf7pdf_layout_attrs
+			);
+
+			foreach ( array( 'div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th', 'thead', 'tbody', 'tfoot', 'ul', 'ol', 'li', 'a', 'img', 'hr', 'br', 'strong', 'em', 'b', 'i' ) as $cf7pdf_tag ) {
+				if ( ! isset( $cf7pdf_allowed[ $cf7pdf_tag ] ) || ! is_array( $cf7pdf_allowed[ $cf7pdf_tag ] ) ) {
+					$cf7pdf_allowed[ $cf7pdf_tag ] = array();
+				}
+				$cf7pdf_allowed[ $cf7pdf_tag ] = array_merge( $cf7pdf_allowed[ $cf7pdf_tag ], $cf7pdf_layout_attrs );
+			}
+
+			return $cf7pdf_allowed;
+		}
+
+		/**
+		 * Strip dangerous CSS while preserving mPDF layout rules.
+		 *
+		 * @param string $style_block Full <style>...</style> block.
+		 * @return string
+		 */
+		private static function sanitize_pdf_style_block( $style_block ) {
+			if ( ! preg_match( '/<style\b[^>]*>(.*?)<\/style>/is', $style_block, $cf7pdf_matches ) ) {
+				return '';
+			}
+
+			$cf7pdf_css = $cf7pdf_matches[1];
+			$cf7pdf_css = preg_replace( '/expression\s*\(/i', '', $cf7pdf_css );
+			$cf7pdf_css = preg_replace( '/javascript\s*:/i', '', $cf7pdf_css );
+			$cf7pdf_css = preg_replace( '/@import\b/i', '', $cf7pdf_css );
+
+			return '<style>' . $cf7pdf_css . '</style>';
+		}
+
+		/**
+		 * Extract <style> blocks from HTML and return [ styles, remainder ].
+		 *
+		 * @param string $html HTML source.
+		 * @return array{0:string,1:string}
+		 */
+		private static function extract_pdf_style_blocks( $html ) {
+			$cf7pdf_styles = '';
+
+			if ( preg_match_all( '/<style\b[^>]*>.*?<\/style>/is', $html, $cf7pdf_matches ) && ! empty( $cf7pdf_matches[0] ) ) {
+				$cf7pdf_safe_styles = array();
+
+				foreach ( $cf7pdf_matches[0] as $cf7pdf_style_block ) {
+					$cf7pdf_safe_style = self::sanitize_pdf_style_block( $cf7pdf_style_block );
+					if ( '' !== $cf7pdf_safe_style ) {
+						$cf7pdf_safe_styles[] = $cf7pdf_safe_style;
+					}
+				}
+
+				$cf7pdf_styles = implode( "\n", $cf7pdf_safe_styles );
+				$html            = preg_replace( '/<style\b[^>]*>.*?<\/style>/is', '', $html );
+			}
+
+			return array( $cf7pdf_styles, $html );
+		}
+
+		/**
+		 * Prepare stored PDF message HTML for mPDF (styles + body fragment).
+		 *
+		 * @param string $html Stored message body HTML.
+		 * @return string
+		 */
+		public static function prepare_pdf_msg_body_for_mpdf( $html ) {
+			$cf7pdf_html = trim( (string) $html );
+
+			if ( '' === $cf7pdf_html ) {
+				return '';
+			}
+
+			list( $cf7pdf_styles, $cf7pdf_html ) = self::extract_pdf_style_blocks( $cf7pdf_html );
+
+			$cf7pdf_html = preg_replace( '/^\s*<!DOCTYPE[^>]*>\s*/i', '', $cf7pdf_html );
+
+			$cf7pdf_body = '';
+			if ( preg_match( '/<body[^>]*>(.*)<\/body>/is', $cf7pdf_html, $cf7pdf_matches ) ) {
+				$cf7pdf_body = trim( $cf7pdf_matches[1] );
+			} else {
+				$cf7pdf_body = $cf7pdf_html;
+				$cf7pdf_body = preg_replace( '/<\/?html[^>]*>/i', '', $cf7pdf_body );
+				$cf7pdf_body = preg_replace( '/<head\b[^>]*>.*?<\/head>/is', '', $cf7pdf_body );
+				$cf7pdf_body = preg_replace( '/<\/?body[^>]*>/i', '', $cf7pdf_body );
+				$cf7pdf_body = trim( $cf7pdf_body );
+			}
+
+			if ( '' !== $cf7pdf_styles && '' !== $cf7pdf_body ) {
+				return $cf7pdf_styles . "\n" . $cf7pdf_body;
+			}
+
+			if ( '' !== $cf7pdf_styles ) {
+				return $cf7pdf_styles;
+			}
+
+			return $cf7pdf_body;
+		}
+
+		/**
+		 * Sanitize PDF message body HTML while preserving mPDF-safe markup.
+		 *
+		 * @param string $value Raw message body.
+		 * @return string
+		 */
+		public static function sanitize_pdf_msg_body( $value ) {
+			$cf7pdf_value = wp_unslash( (string) $value );
+			$cf7pdf_doctype = '';
+
+			if ( preg_match( '/^\s*<!DOCTYPE[^>]*>\s*/i', $cf7pdf_value, $cf7pdf_matches ) ) {
+				$cf7pdf_doctype = $cf7pdf_matches[0];
+				$cf7pdf_value   = substr( $cf7pdf_value, strlen( $cf7pdf_matches[0] ) );
+			}
+
+			list( $cf7pdf_styles, $cf7pdf_markup ) = self::extract_pdf_style_blocks( $cf7pdf_value );
+			$cf7pdf_sanitized = wp_kses( $cf7pdf_markup, self::get_pdf_msg_body_allowed_html() );
+
+			if ( '' !== $cf7pdf_styles && '' !== $cf7pdf_sanitized ) {
+				return $cf7pdf_doctype . $cf7pdf_styles . "\n" . $cf7pdf_sanitized;
+			}
+
+			if ( '' !== $cf7pdf_styles ) {
+				return $cf7pdf_doctype . $cf7pdf_styles;
+			}
+
+			return $cf7pdf_doctype . $cf7pdf_sanitized;
+		}
+
+		/**
+		 * Sanitize a single PDF settings field from admin POST data.
+		 *
+		 * @param string $key   Setting key.
+		 * @param mixed  $value Raw POST value.
+		 * @return string|array
+		 */
+		public static function sanitize_admin_setting_value( $key, $value ) {
+			if ( 'cf7_pdf_msg_body' === $key ) {
+				return self::sanitize_pdf_msg_body( $value );
+			}
+
+			if ( is_array( $value ) ) {
+				$sanitized = array();
+
+				foreach ( $value as $item_key => $item_value ) {
+					$sanitized[ sanitize_key( $item_key ) ] = sanitize_text_field( wp_unslash( $item_value ) );
+				}
+
+				return $sanitized;
+			}
+
+			return sanitize_text_field( wp_unslash( $value ) );
+		}
+
+		/**
+		 * Verify the admin PDF settings save nonce.
+		 *
+		 * @return bool
+		 */
+		public static function verify_settings_save_nonce() {
+			return isset( $_POST['security-cf7-send-pdf'] ) && wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_POST['security-cf7-send-pdf'] ) ),
+				'cf7_send_form'
+			);
+		}
+
+		/**
+		 * Sanitize wp_cf7_pdf_settings POST array (password fields excluded).
+		 *
+		 * @param array $settings_post Unslashed settings POST array.
+		 * @return array
+		 */
+		public static function sanitize_settings_post_array( array $settings_post ) {
+			$cf7pdf_settings_post = array();
+			$cf7pdf_skip_keys     = array( 'cf7_opt_password_pdf', 'cf7_opt_password_pdf_confirm' );
+
+			foreach ( $settings_post as $cf7pdf_setting_key => $cf7pdf_setting_value ) {
+				$cf7pdf_setting_key = sanitize_key( $cf7pdf_setting_key );
+
+				if ( '' === $cf7pdf_setting_key || in_array( $cf7pdf_setting_key, $cf7pdf_skip_keys, true ) ) {
+					continue;
+				}
+
+				$cf7pdf_settings_post[ $cf7pdf_setting_key ] = self::sanitize_admin_setting_value( $cf7pdf_setting_key, $cf7pdf_setting_value );
+			}
+
+			return self::apply_admin_settings_defaults( $cf7pdf_settings_post );
+		}
+
+		/**
+		 * Collect sanitized PDF settings from a verified admin save request.
+		 *
+		 * @return array
+		 */
+		public static function collect_sanitized_settings_from_post() {
+			if ( ! isset( $_POST['security-cf7-send-pdf'] ) || ! wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_POST['security-cf7-send-pdf'] ) ),
+				'cf7_send_form'
+			) ) {
+				return array();
+			}
+
+			$cf7pdf_settings_input = filter_input(
+				INPUT_POST,
+				'wp_cf7_pdf_settings',
+				FILTER_DEFAULT,
+				FILTER_REQUIRE_ARRAY
+			);
+
+			if ( ! is_array( $cf7pdf_settings_input ) ) {
+				return array();
+			}
+
+			return self::sanitize_settings_post_array( $cf7pdf_settings_input );
+		}
+
+		/**
+		 * Apply default PDF settings values when required fields are empty.
+		 *
+		 * @param array $settings Sanitized settings array.
+		 * @return array
+		 */
+		public static function apply_admin_settings_defaults( array $settings ) {
+			if ( empty( $settings['cf7_pdf_msg_body'] ) ) {
+				$settings['cf7_pdf_msg_body'] = __( 'Your Name : [your-name]
+Your Email : [your-email]
+Subject : [your-subject]
+Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
+			}
+
+			if ( empty( $settings['cf7_pdf_download_link_txt'] ) ) {
+				$settings['cf7_pdf_download_link_txt'] = __( 'Click here to download PDF', 'generate-pdf-using-contact-form-7' );
+			}
+
+			return $settings;
+		}
+
+		/**
+		 * Whether the admin settings form requested password removal.
+		 *
+		 * @param string $remove_password_sanitized Sanitized remove-password field value.
+		 * @return bool
+		 */
+		public static function is_remove_password_requested( $remove_password_sanitized ) {
+			return '1' === (string) $remove_password_sanitized;
+		}
+
+		/**
 		 * Validate and resolve password fields when saving form settings.
 		 *
 		 * @param string $enabled         'true' or 'false'.

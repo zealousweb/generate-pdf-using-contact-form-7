@@ -142,12 +142,11 @@ foreach ( $cf7pdf_faqs_raw as $cf7pdf_faq_index => $cf7pdf_faq ) {
 # Newsletter embed (cached HTML string)
 --------------------------------------------------------------*/
 
-$cf7pdf_newsletter_embed_html = get_transient( 'cf7-pdf-generation_help_newsletter_embed_html_v1' );
+$cf7pdf_newsletter_embed_html = get_transient( 'cf7-pdf-generation_help_newsletter_embed_html_v2' );
 
 if ( false === $cf7pdf_newsletter_embed_html || ! is_string( $cf7pdf_newsletter_embed_html ) || '' === $cf7pdf_newsletter_embed_html ) {
-	$cf7pdf_newsletter_embed_html  = '<iframe src="//api.zealousweb.com/gfembed/?f=55" width="100%" frameborder="0" scrolling="no" loading="lazy" class="gfiframe" style="display:block;border:0;overflow:hidden;min-height:170px;"></iframe>';
-	$cf7pdf_newsletter_embed_html .= '<script src="//api.zealousweb.com/wp-content/plugins/gravity-forms-iframe-develop/assets/scripts/gfembed.min.js" type="text/javascript"></script>';
-	set_transient( 'cf7-pdf-generation_help_newsletter_embed_html_v1', $cf7pdf_newsletter_embed_html, DAY_IN_SECONDS );
+	$cf7pdf_newsletter_embed_html = '<iframe src="//api.zealousweb.com/gfembed/?f=55" width="100%" frameborder="0" scrolling="no" loading="lazy" class="gfiframe" style="display:block;border:0;overflow:hidden;min-height:170px;"></iframe>';
+	set_transient( 'cf7-pdf-generation_help_newsletter_embed_html_v2', $cf7pdf_newsletter_embed_html, DAY_IN_SECONDS );
 }
 
 ?>
@@ -231,10 +230,6 @@ if ( false === $cf7pdf_newsletter_embed_html || ! is_string( $cf7pdf_newsletter_
 								'class'       => true,
 								'style'       => true,
 							),
-							'script' => array(
-								'src'  => true,
-								'type' => true,
-							),
 						)
 					);
 					?>
@@ -315,30 +310,3 @@ if ( false === $cf7pdf_newsletter_embed_html || ! is_string( $cf7pdf_newsletter_
 		</div>
 	</div>
 </div>
-<?php if ( ! empty( $cf7pdf_help_faqs ) ) : ?>
-<script>
-(function () {
-	document.addEventListener('DOMContentLoaded', function () {
-		document.querySelectorAll('.cf7-pdf-generation-help-faq-question').forEach(function (btn) {
-			btn.addEventListener('click', function () {
-				var item = btn.closest('.cf7-pdf-generation-help-faq-item');
-				if (!item) {
-					return;
-				}
-				item.classList.toggle('is-open');
-				var open = item.classList.contains('is-open');
-				btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-				var answer = document.getElementById(btn.getAttribute('aria-controls'));
-				if (answer) {
-					answer.setAttribute('aria-hidden', open ? 'false' : 'true');
-				}
-				var sym = btn.querySelector('span[aria-hidden="true"]');
-				if (sym) {
-					sym.textContent = open ? '\u2212' : '+';
-				}
-			});
-		});
-	});
-})();
-</script>
-<?php endif; ?>

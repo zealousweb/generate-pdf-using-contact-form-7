@@ -2,11 +2,11 @@
 Contributors: zealopensource
 Donate link: http://www.zealousweb.com/payment/
 Tags: contact form, contact, PDF, email
-Requires at least: 3.0.1
+Requires at least: 4.7
 Requires PHP: 5.6
 Tested up to: 7.0
-Stable tag: 4.1.7
-Version: 4.1.7
+Stable tag: 4.2.0
+Version: 4.2.0
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
@@ -116,6 +116,16 @@ https://prnt.sc/PsXaTarHTx4m
 S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
+
+= 4.2.0 =
+* PDF Submission List: Keep all your form submissions organized and accessible in PDF format for easy viewing and record-keeping.
+* Dedicated PDF Menu in Admin Panel: Quickly manage, view, and configure PDFs from a separate, easy-to-use menu in the WordPress admin dashboard.
+* Live PDF Preview: See exactly how your PDF will look before saving or sending, ensuring perfect formatting every time.
+* Password-Protected PDFs: Secure your generated PDFs with a password to control who can access sensitive information.
+* Access helpful resources including documentation, FAQs, and support options in one place.
+* Easily submit support tickets or explore guides to resolve issues quickly.
+* Stay updated with the latest insights through blogs and newsletter subscriptions.
+* Tested with the latest version of WordPress (7.0).
 
 = 4.1.7 =
 * Tested with the latest version of WordPress (7.0).

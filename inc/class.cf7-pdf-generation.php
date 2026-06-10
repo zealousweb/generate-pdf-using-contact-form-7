@@ -12,6 +12,10 @@
  * @subpackage Cf7_Pdf_Generation/inc
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 class Cf7_Pdf_Generation {
 	/**
 	 * Define the core functionality of the plugin.
@@ -61,25 +65,24 @@ class Cf7_Pdf_Generation {
 	* Action function plugin loaded.
 	*/
 	function action__plugins_loaded() {
-		global $wp_version;
 		$cf7pdf_lang_dir = dirname( WP_CF7_PDF_PLUGIN_BASENAME ) . '/languages/';
 		$cf7pdf_lang_dir = apply_filters( 'wp_cf7_pdf-operation_languages_directory', $cf7pdf_lang_dir );
 
-		$get_locale = get_locale();
-
-		if ( $wp_version >= 4.7 ) {
-			$get_locale = get_user_locale();
-		}
-
-		$locale = apply_filters( 'plugin_locale',  $get_locale, 'generate-pdf-using-contact-form-7' );
-		$mofile = sprintf( '%1$s-%2$s.mo', 'generate-pdf-using-contact-form-7', $locale );
+		$get_locale = function_exists( 'get_user_locale' ) ? get_user_locale() : get_locale();
+		$locale     = apply_filters( 'cf7pdf_plugin_locale', $get_locale, 'generate-pdf-using-contact-form-7' );
+		$mofile     = sprintf( '%1$s-%2$s.mo', 'generate-pdf-using-contact-form-7', $locale );
 
 		$mofile_global = WP_LANG_DIR . '/plugins/' . basename( WP_CF7_PDF_DIR ) . '/' . $mofile;
 
 		if ( file_exists( $mofile_global ) ) {
 			load_textdomain( 'generate-pdf-using-contact-form-7', $mofile_global );
-		} else {
-			load_plugin_textdomain( 'generate-pdf-using-contact-form-7', false, $cf7pdf_lang_dir );
+			return;
+		}
+
+		$mofile_local = WP_PLUGIN_DIR . '/' . trim( $cf7pdf_lang_dir, '/' ) . '/' . $mofile;
+
+		if ( file_exists( $mofile_local ) ) {
+			load_textdomain( 'generate-pdf-using-contact-form-7', $mofile_local );
 		}
 	}
 
