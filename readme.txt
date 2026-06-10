@@ -41,11 +41,69 @@ https://mpdf.github.io/html-support/html-tags.html
 * You can set file name from admin also use any form tag instead of file name.
 * Add Page number options in admin so you can add Text with PDF page number.
 * Ability to set font size of PDF content.
+* PDF Submission List: Keep all your form submissions organized and accessible in PDF format for easy viewing and record-keeping.
+* Dedicated PDF Menu in Admin Panel: Quickly manage, view, and configure PDFs from a separate, easy-to-use menu in the WordPress admin dashboard.
+* Live PDF Preview: See exactly how your PDF will look before saving or sending, ensuring perfect formatting every time.
+* Password-Protected PDFs: Secure your generated PDFs with a password to control who can access sensitive information.
+* Access helpful resources including documentation, FAQs, and support options in one place.
+* Easily submit support tickets or explore guides to resolve issues quickly.
+* Stay updated with the latest insights through blogs and newsletter subscriptions.
 * Compatibility of WordPress VIP.
 
 <strong>[Demo for Generate PDF using Contact Form 7](https://demo.zealousweb.com/wordpress-plugins/generate-pdf-using-contact-form-7/)</strong>
 
-== Release Generate PDF using Contact Form 7 Pro ==
+== Features of Generate PDF using Contact Form 7 Pro ==
+
+= PDF Analytics =
+* PDF Analytics Dashboard: View all PDF activity in one place.
+* Usage Tracking: Monitor total PDFs generated, downloads, and emails sent.
+* Error Monitoring: Identify failed PDF generations.
+* Visual Reports: Analyze PDF data with charts (daily, monthly, yearly, custom range).
+* Recent Activity: Track user email, actions, and timestamps.
+* Dashboard Widgets: Enable or disable dashboard widgets as needed.
+
+= Admin Experience =
+* Signature in PDF.
+* Added a new option to Show or Hide Label Field Tags.
+* User Interface: Enjoy a cleaner, more user-friendly admin panel for easy setup and management.
+* New Color Scheme & Branding: Fresh visuals and customizable colors to better match your brand style.
+* More Text Formatting & Fonts: Expanded options to style your PDF content with new fonts and formatting tools.
+* PDF Compression Option: Reduce PDF file size without losing quality to save space and improve speed.
+* Accessibility Enhancements: Improved design to meet accessibility standards and ensure ease of use for everyone.
+* Performance Boost: Faster PDF generation and optimized performance for smoother operation.
+* Insert the post title or current page title dynamically into PDF documents using the shortcode [_post_title] in PDF settings.
+* Add customizable watermark text to one or multiple PDF files.
+* Dynamically generate and send PDFs or use predefined PDF files for user and admin emails.
+* Enable or disable PDF attachments in emails as needed.
+* Display uploaded files from Contact Form 7 within the PDF.
+* Send dynamically generated or predefined PDFs as attachments for both "Mail 1" and "Mail 2" with flexible email address configuration in the Pro version.
+* Allow users to download PDFs via a link after form submission.
+
+= Design & Layout Customization =
+* Choose and apply different fonts for PDF content from a list of supported fonts.
+* Add signature fields for end-users, capturing and embedding signatures as PNG or image files in the PDF using shortcodes.
+* Enhance PDF appearance with custom design options, including background images, background colors, gradients, text colors, and more.
+* Utilize a built-in CSS Editor for adding custom styles to PDFs.
+* Add a page break tag to improve formatting and layout.
+* Introduce a setting to customize the position of the header image in PDF files.
+* Manage headers, footers, and page sizes (A4, A3, Letter, etc.) directly from settings.
+* Provide RTL support for languages requiring right-to-left content alignment.
+
+= Security & Access Control =
+* Implement a security update for improved data protection.
+* Add a tag for creating password-protected PDFs.
+
+= Preview & Formatting =
+* Enable PDF preview from the admin interface without form submission.
+* Display dates in various formats using the PHP Date function.
+* Support special mail tags recognized by Contact Form 7 for PDF content.
+
+= Template & File Management =
+* Utilize the PDF Template feature for selecting from different templates in settings.
+* Display and manage a complete list of created PDF forms and save submitted data to the database.
+* Provide import/export functionality for plugin settings to simplify configuration across multiple sites.
+* Enable CSV export for form data submissions.
+* Allow storing PDFs on servers or third-party storage like Amazon S3, Google Drive, and Dropbox.
 
 <strong>[Get more information of Pro version here](https://store.zealousweb.com/generate-pdf-using-contact-form-7-pro)</strong>
 <strong>[Demo for Generate PDF using Contact Form 7 Pro](https://demo.zealousweb.com/wordpress-plugins/generate-pdf-contact-form-7-pro/)</strong>
