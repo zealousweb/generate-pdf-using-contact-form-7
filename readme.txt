@@ -142,9 +142,13 @@ Thank you for choosing a Plugin developed by <strong>[ZealousWeb](https://www.ze
 5. Click ‘Activate Plugin’ to activate it.
 
 == Screenshots ==
-1. Screenshot 'screenshot-1.png' Shows PDF settings of upload PDF in the Contact form.
-2. Screenshot 'screenshot-2.png' PDF settings of Customize PDF in the Contact form.
-3. Screenshot 'screenshot-3.png' New options of Page number and file name settings.
+1. PDF with CF7 Settings — select a contact form and configure PDF operation, download link, email attachment, and header logo options.
+2. PDF with CF7 Settings — customize logo dimensions and PDF page margins (header, footer, top, bottom, left, right).
+3. PDF with CF7 Settings — set font size, show or hide label field tags, edit the PDF message body, file name prefix, and background image.
+4. PDF with CF7 Settings — live PDF preview and password-protected PDF options.
+5. PDF Submissions — view all generated PDFs in one list with form name, download, and view links.
+6. PDF Submissions — open a single submission to see form details, submission date, and PDF view or download links.
+7. Help & Support — access the plugin guide, submit a support ticket, subscribe to the newsletter, and browse FAQs.
 
 
 == Frequently Asked Questions ==
