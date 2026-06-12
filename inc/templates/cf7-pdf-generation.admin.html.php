@@ -63,62 +63,24 @@ if ( !defined( 'ABSPATH' ) ) exit;
 	<?php } 
 	if ( isset( $_POST['cf7_idform'] ) && '' !== sanitize_file_name( wp_unslash( $_POST['cf7_idform'] ) ) ) {
 		$cf7pdf_cf7_idform = absint( wp_unslash( $_POST['cf7_idform'] ) );
-		$cf7pdf_file = '';$cf7pdf_temp = 1;
+		$cf7pdf_upload_result = array(
+			'attempted' => false,
+			'ok'        => true,
+			'filename'  => '',
+			'url'       => '',
+			'path'      => '',
+			'error'     => '',
+		);
 
 		if ( isset( $_POST['action'] ) && '' !== sanitize_file_name( wp_unslash( $_POST['action'] ) ) && isset( $_POST['security-cf7-send-pdf'] ) && wp_verify_nonce( sanitize_file_name( wp_unslash( $_POST['security-cf7-send-pdf'] ) ), 'cf7_send_form' ) ) {
-			if ( isset( $_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image'] ) && '' !== sanitize_file_name( wp_unslash( $_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image'] ) ) ) {
-				$cf7pdf_target_dir = WP_CF7_PDF_DIR . 'attachments/';
-				$cf7pdf_file = sanitize_file_name( wp_unslash( $_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image'] ) );
-				$cf7pdf_file = preg_replace('/\s+/', '', $cf7pdf_file);
-				$cf7pdf_path = pathinfo($cf7pdf_file);
-				$cf7pdf_filename = $cf7pdf_path['filename'];
-				
-				// Check file type
-				$cf7pdf_file_type = wp_check_filetype($cf7pdf_file);
-			
-				// Check if the file is a PDF
-				if ($cf7pdf_file_type['ext'] !== 'pdf' && $cf7pdf_file_type['type'] !== 'application/pdf') {
-					$cf7pdf_temp = 0; // Set temp variable to indicate failure
-					wp_die(esc_html__("File type is not allowed.", "generate-pdf-using-contact-form-7"));
-				}
-				else {
-					// Load WordPress filesystem
-					require_once ABSPATH . '/wp-admin/includes/file.php';
-					WP_Filesystem();
-
-					global $wp_filesystem;
-					$cf7pdf_ext = $cf7pdf_path['extension'];
-					$cf7pdf_upload_tmp_name = '';
-					if ( isset( $_FILES['wp_cf7_pdf_settings']['tmp_name']['cf7_opt_attach_pdf_image'] ) ) {
-						$cf7pdf_upload_tmp_name = sanitize_text_field( wp_unslash( $_FILES['wp_cf7_pdf_settings']['tmp_name']['cf7_opt_attach_pdf_image'] ) );
-					}
-					$cf7pdf_path_filename_ext = $cf7pdf_target_dir . $cf7pdf_filename . "." . $cf7pdf_ext;
-					// Get uploaded file details
-					if ( '' !== $cf7pdf_upload_tmp_name && is_uploaded_file( $cf7pdf_upload_tmp_name ) && $wp_filesystem->move( $cf7pdf_upload_tmp_name, $cf7pdf_path_filename_ext, true ) ) {
-						// File successfully uploaded
-						$cf7pdf_temp = 1;
-						// Delete the old file if it exists
-						if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) ) {
-							$cf7pdf_old_file_path = $cf7pdf_target_dir . sanitize_file_name( wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) );
-							if (file_exists($cf7pdf_old_file_path)) {
-								wp_delete_file($cf7pdf_old_file_path);
-							}
-						}
-					} else {
-						$cf7pdf_temp = 0;
-					}
-					
-				}
-			} else {
-				if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) && sanitize_file_name( wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) ) ) {
-					$cf7pdf_file = sanitize_file_name( wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) );
-				}
-			}
+			$cf7pdf_existing_meta = get_post_meta( $cf7pdf_cf7_idform, 'cf7_pdf', true );
+			$cf7pdf_existing_meta = is_array( $cf7pdf_existing_meta ) ? $cf7pdf_existing_meta : array();
+			$cf7pdf_upload_result = Cf7_Pdf_Submissions::process_attach_pdf_upload( $cf7pdf_existing_meta );
 
 			$cf7pdf_before_post = Cf7_Pdf_Submissions::collect_sanitized_settings_from_post();
-		if(!empty($cf7pdf_file)){
-			$cf7pdf_before_post["cf7_opt_attach_pdf_image"] = $cf7pdf_file;
-		}
+			$cf7pdf_before_post['cf7_opt_attach_pdf_image'] = $cf7pdf_upload_result['filename'];
+			$cf7pdf_before_post['cf7_opt_attach_pdf_url']    = $cf7pdf_upload_result['url'];
+			$cf7pdf_before_post['cf7_opt_attach_pdf_path']   = $cf7pdf_upload_result['path'];
 
 		$cf7pdf_enable_raw = 'false';
 		if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_is_enable'] ) ) {
@@ -128,8 +90,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 		$cf7pdf_password_error   = '';
 		$cf7pdf_password_save_ok = true;
-		$cf7pdf_existing_meta    = get_post_meta( $cf7pdf_cf7_idform, 'cf7_pdf', true );
-		$cf7pdf_existing_meta    = is_array( $cf7pdf_existing_meta ) ? $cf7pdf_existing_meta : array();
 
 		if ( 'false' === $cf7pdf_before_post['cf7_opt_is_enable'] ) {
 			$cf7pdf_before_post['cf7_opt_is_password_enable'] = 'false';
@@ -169,6 +129,14 @@ if ( !defined( 'ABSPATH' ) ) exit;
 			}
 		}
 
+		if ( ! empty( $cf7pdf_upload_result['attempted'] ) && empty( $cf7pdf_upload_result['ok'] ) ) {
+			foreach ( array( 'cf7_opt_attach_pdf_image', 'cf7_opt_attach_pdf_url', 'cf7_opt_attach_pdf_path' ) as $cf7pdf_attach_key ) {
+				if ( isset( $cf7pdf_existing_meta[ $cf7pdf_attach_key ] ) ) {
+					$cf7pdf_before_post[ $cf7pdf_attach_key ] = $cf7pdf_existing_meta[ $cf7pdf_attach_key ];
+				}
+			}
+		}
+
 		if ( $cf7pdf_password_save_ok ) {
 			update_post_meta( $cf7pdf_cf7_idform, '_wp_cf7_pdf', $cf7pdf_before_post );
 			update_post_meta( $cf7pdf_cf7_idform, 'cf7_pdf', $cf7pdf_before_post );
@@ -184,10 +152,10 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 		if ( ! $cf7pdf_password_save_ok ) {
 			echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( Cf7_Pdf_Submissions::get_password_error_message( $cf7pdf_password_error ) ) . '</p></div>';
-		} elseif ( 1 === (int) $cf7pdf_temp ) {
+		} elseif ( ! empty( $cf7pdf_upload_result['attempted'] ) && empty( $cf7pdf_upload_result['ok'] ) ) {
+			echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( Cf7_Pdf_Submissions::get_attach_pdf_upload_error_message( $cf7pdf_upload_result['error'] ) ) . '</p></div>';
+		} elseif ( $cf7pdf_password_save_ok ) {
 			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Setting saved successfully!', 'generate-pdf-using-contact-form-7' ) . '</p></div>';
-		} elseif ( 0 === (int) $cf7pdf_temp ) {
-			echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'There has been an error with uploading PDF.', 'generate-pdf-using-contact-form-7' ) . '</p></div>';
 		}
 	}
 	$cf7pdf_meta_values = get_post_meta( $cf7pdf_cf7_idform, '_wp_cf7_pdf', true );
@@ -573,7 +541,13 @@ Your Message : [your-message]';
 										
 										<?php if( $cf7pdf_opt_attach_pdf_image ) { 
 										$cf7pdf_pdf_logo = WP_CF7_PDF_URL .'assets/images/pdf-logo.png';
-										$cf7pdf_attachments_pdf = WP_CF7_PDF_URL.'attachments/'.$cf7pdf_opt_attach_pdf_image;
+										$cf7pdf_attachments_pdf = Cf7_Pdf_Submissions::get_attach_pdf_url_from_settings(
+											array(
+												'cf7_opt_attach_pdf_image' => $cf7pdf_opt_attach_pdf_image,
+												'cf7_opt_attach_pdf_url'   => isset( $cf7pdf_meta_values['cf7_opt_attach_pdf_url'] ) ? $cf7pdf_meta_values['cf7_opt_attach_pdf_url'] : '',
+												'cf7_opt_attach_pdf_path'  => isset( $cf7pdf_meta_values['cf7_opt_attach_pdf_path'] ) ? $cf7pdf_meta_values['cf7_opt_attach_pdf_path'] : '',
+											)
+										);
 										$cf7pdf_icon_right_top = WP_CF7_PDF_URL.'assets/images/arrow-right-top.png';
 										?>
 										<div class="upload-pdf-file-block">
