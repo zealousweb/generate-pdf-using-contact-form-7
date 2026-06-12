@@ -559,9 +559,9 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 				return new WP_Error( 'no_attach', __( 'No PDF file is attached. Upload a PDF or switch to customized PDF.', 'generate-pdf-using-contact-form-7' ) );
 			}
 
-			$path = WP_CF7_PDF_DIR . 'attachments/' . basename( $filename );
+			$path = Cf7_Pdf_Submissions::get_attach_pdf_path_from_settings( $settings );
 
-			if ( ! file_exists( $path ) ) {
+			if ( '' === $path || ! file_exists( $path ) ) {
 				return new WP_Error( 'no_attach', __( 'Attached PDF file was not found on the server.', 'generate-pdf-using-contact-form-7' ) );
 			}
 

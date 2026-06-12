@@ -640,7 +640,14 @@ if ( ! class_exists( 'Cf7_Pdf_Submissions' ) ) {
 		 */
 		public static function sanitize_settings_post_array( array $settings_post ) {
 			$cf7pdf_settings_post = array();
-			$cf7pdf_skip_keys     = array( 'cf7_opt_password_pdf', 'cf7_opt_password_pdf_confirm' );
+			$cf7pdf_skip_keys     = array(
+				'cf7_opt_password_pdf',
+				'cf7_opt_password_pdf_confirm',
+				'cf7_opt_attach_pdf_image',
+				'cf7_opt_attach_pdf_url',
+				'cf7_opt_attach_pdf_path',
+				'cf7_opt_attach_pdf_old_url',
+			);
 
 			foreach ( $settings_post as $cf7pdf_setting_key => $cf7pdf_setting_value ) {
 				$cf7pdf_setting_key = sanitize_key( $cf7pdf_setting_key );
@@ -812,6 +819,417 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 					);
 				default:
 					return __( 'Could not save the PDF password. Please try again.', 'generate-pdf-using-contact-form-7' );
+			}
+		}
+
+		/**
+		 * Log debug details when WP_DEBUG_LOG is enabled.
+		 *
+		 * @param string $label  Log label.
+		 * @param mixed  $data   Optional context.
+		 */
+		public static function debug_log( $label, $data = null ) {
+			if ( ! defined( 'WP_DEBUG_LOG' ) || ! WP_DEBUG_LOG ) {
+				return;
+			}
+
+			$cf7pdf_message = '[CF7 PDF] ' . $label;
+
+			if ( null !== $data ) {
+				$cf7pdf_message .= ' ' . wp_json_encode( $data );
+			}
+
+			error_log( $cf7pdf_message );
+		}
+
+		/**
+		 * Plugin attachments directory (filesystem).
+		 *
+		 * @return string
+		 */
+		public static function get_attachments_dir() {
+			return wp_normalize_path( WP_CF7_PDF_DIR . 'attachments' );
+		}
+
+		/**
+		 * Plugin attachments directory (public URL).
+		 *
+		 * @return string
+		 */
+		public static function get_attachments_url() {
+			return trailingslashit( WP_CF7_PDF_URL ) . 'attachments';
+		}
+
+		/**
+		 * Create the attachments directory if needed.
+		 *
+		 * @return bool
+		 */
+		public static function ensure_attachments_dir() {
+			$cf7pdf_dir = self::get_attachments_dir();
+
+			if ( ! wp_mkdir_p( $cf7pdf_dir ) ) {
+				self::debug_log( 'ensure_attachments_dir failed', array( 'dir' => $cf7pdf_dir ) );
+				return false;
+			}
+
+			$cf7pdf_index = $cf7pdf_dir . '/index.php';
+
+			if ( ! file_exists( $cf7pdf_index ) ) {
+				file_put_contents( $cf7pdf_index, "<?php\n// Silence is golden.\n" );
+			}
+
+			return true;
+		}
+
+		/**
+		 * Redirect wp_handle_upload() to the plugin attachments folder.
+		 *
+		 * @param array $dirs Upload directory data.
+		 * @return array
+		 */
+		public static function filter_attach_pdf_upload_dir( $dirs ) {
+			$cf7pdf_attach_dir = self::get_attachments_dir();
+			$cf7pdf_attach_url = self::get_attachments_url();
+
+			$dirs['path']    = $cf7pdf_attach_dir;
+			$dirs['url']     = trailingslashit( $cf7pdf_attach_url );
+			$dirs['subdir']  = '';
+			$dirs['basedir'] = $cf7pdf_attach_dir;
+			$dirs['baseurl'] = trailingslashit( $cf7pdf_attach_url );
+
+			return $dirs;
+		}
+
+		/**
+		 * Whether the current request includes a newly uploaded PDF file.
+		 *
+		 * @param array|null $cf7pdf_file Flattened upload array.
+		 * @return bool
+		 */
+		private static function has_new_pdf_upload( $cf7pdf_file ) {
+			if ( null === $cf7pdf_file || ! is_array( $cf7pdf_file ) ) {
+				return false;
+			}
+
+			if ( UPLOAD_ERR_NO_FILE === (int) $cf7pdf_file['error'] ) {
+				return false;
+			}
+
+			if ( UPLOAD_ERR_OK !== (int) $cf7pdf_file['error'] ) {
+				return false;
+			}
+
+			if ( '' === (string) $cf7pdf_file['tmp_name'] ) {
+				return false;
+			}
+
+			return is_uploaded_file( $cf7pdf_file['tmp_name'] );
+		}
+
+		/**
+		 * Extract a nested settings file array from $_FILES.
+		 *
+		 * @return array|null
+		 */
+		private static function get_nested_settings_upload_file() {
+			if ( ! isset( $_FILES['wp_cf7_pdf_settings'] ) || ! is_array( $_FILES['wp_cf7_pdf_settings'] ) ) {
+				return null;
+			}
+
+			$cf7pdf_files = $_FILES['wp_cf7_pdf_settings'];
+
+			if (
+				! isset( $cf7pdf_files['name']['cf7_opt_attach_pdf_image'] )
+				|| ! isset( $cf7pdf_files['tmp_name']['cf7_opt_attach_pdf_image'] )
+				|| ! isset( $cf7pdf_files['error']['cf7_opt_attach_pdf_image'] )
+			) {
+				return null;
+			}
+
+			return array(
+				'name'     => (string) $cf7pdf_files['name']['cf7_opt_attach_pdf_image'],
+				'type'     => isset( $cf7pdf_files['type']['cf7_opt_attach_pdf_image'] ) ? (string) $cf7pdf_files['type']['cf7_opt_attach_pdf_image'] : '',
+				'tmp_name' => (string) $cf7pdf_files['tmp_name']['cf7_opt_attach_pdf_image'],
+				'error'    => (int) $cf7pdf_files['error']['cf7_opt_attach_pdf_image'],
+				'size'     => isset( $cf7pdf_files['size']['cf7_opt_attach_pdf_image'] ) ? (int) $cf7pdf_files['size']['cf7_opt_attach_pdf_image'] : 0,
+			);
+		}
+
+		/**
+		 * Resolve the stored attached PDF filesystem path.
+		 *
+		 * @param array $settings Form settings meta.
+		 * @return string
+		 */
+		public static function get_attach_pdf_path_from_settings( array $settings ) {
+			$cf7pdf_filename = isset( $settings['cf7_opt_attach_pdf_image'] ) ? sanitize_file_name( (string) $settings['cf7_opt_attach_pdf_image'] ) : '';
+			$cf7pdf_fallback   = ( '' !== $cf7pdf_filename ) ? self::get_attachments_dir() . '/' . $cf7pdf_filename : '';
+
+			if ( ! empty( $settings['cf7_opt_attach_pdf_path'] ) ) {
+				$cf7pdf_path = wp_normalize_path( (string) $settings['cf7_opt_attach_pdf_path'] );
+
+				if ( file_exists( $cf7pdf_path ) ) {
+					return $cf7pdf_path;
+				}
+
+				if ( '' !== $cf7pdf_fallback && file_exists( $cf7pdf_fallback ) ) {
+					return $cf7pdf_fallback;
+				}
+
+				return $cf7pdf_path;
+			}
+
+			if ( '' === $cf7pdf_filename ) {
+				return '';
+			}
+
+			return ( '' !== $cf7pdf_fallback && file_exists( $cf7pdf_fallback ) ) ? $cf7pdf_fallback : '';
+		}
+
+		/**
+		 * Resolve the stored attached PDF public URL.
+		 *
+		 * @param array $settings Form settings meta.
+		 * @return string
+		 */
+		public static function get_attach_pdf_url_from_settings( array $settings ) {
+			if ( ! empty( $settings['cf7_opt_attach_pdf_url'] ) ) {
+				return esc_url_raw( (string) $settings['cf7_opt_attach_pdf_url'] );
+			}
+
+			$cf7pdf_filename = isset( $settings['cf7_opt_attach_pdf_image'] ) ? sanitize_file_name( (string) $settings['cf7_opt_attach_pdf_image'] ) : '';
+
+			if ( '' === $cf7pdf_filename ) {
+				return '';
+			}
+
+			return trailingslashit( self::get_attachments_url() ) . $cf7pdf_filename;
+		}
+
+		/**
+		 * Delete a previously attached PDF file from the attachments directory.
+		 *
+		 * @param string $filename Stored filename.
+		 */
+		private static function delete_attached_pdf_file( $filename ) {
+			$cf7pdf_filename = sanitize_file_name( (string) $filename );
+
+			if ( '' === $cf7pdf_filename ) {
+				return;
+			}
+
+			$cf7pdf_path = self::get_attachments_dir() . '/' . $cf7pdf_filename;
+
+			if ( file_exists( $cf7pdf_path ) ) {
+				wp_delete_file( $cf7pdf_path );
+			}
+		}
+
+		/**
+		 * Process an attached PDF upload during admin settings save.
+		 *
+		 * @param array $existing_meta Existing cf7_pdf settings.
+		 * @return array{attempted:bool,ok:bool,filename:string,url:string,path:string,error:string}
+		 */
+		public static function process_attach_pdf_upload( $existing_meta = array() ) {
+			$cf7pdf_existing = is_array( $existing_meta ) ? $existing_meta : array();
+
+			$cf7pdf_result = array(
+				'attempted' => false,
+				'ok'        => true,
+				'filename'  => isset( $cf7pdf_existing['cf7_opt_attach_pdf_image'] ) ? sanitize_file_name( (string) $cf7pdf_existing['cf7_opt_attach_pdf_image'] ) : '',
+				'url'       => isset( $cf7pdf_existing['cf7_opt_attach_pdf_url'] ) ? esc_url_raw( (string) $cf7pdf_existing['cf7_opt_attach_pdf_url'] ) : '',
+				'path'      => isset( $cf7pdf_existing['cf7_opt_attach_pdf_path'] ) ? wp_normalize_path( (string) $cf7pdf_existing['cf7_opt_attach_pdf_path'] ) : '',
+				'error'     => '',
+			);
+
+			$cf7pdf_old_from_post = '';
+			if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) ) {
+				$cf7pdf_old_from_post = sanitize_file_name( wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) );
+			}
+
+			self::debug_log( '$_FILES[wp_cf7_pdf_settings]', isset( $_FILES['wp_cf7_pdf_settings'] ) ? $_FILES['wp_cf7_pdf_settings'] : 'missing' );
+
+			$cf7pdf_file           = self::get_nested_settings_upload_file();
+			$cf7pdf_has_new_upload = self::has_new_pdf_upload( $cf7pdf_file );
+
+			self::debug_log(
+				'has_new_pdf_upload',
+				array(
+					'has_new_upload' => $cf7pdf_has_new_upload,
+					'old_from_post'  => $cf7pdf_old_from_post,
+					'file'           => $cf7pdf_file,
+				)
+			);
+
+			if ( '' === $cf7pdf_old_from_post && ! $cf7pdf_has_new_upload ) {
+				$cf7pdf_result['filename'] = '';
+				$cf7pdf_result['url']        = '';
+				$cf7pdf_result['path']       = '';
+				return $cf7pdf_result;
+			}
+
+			if ( '' !== $cf7pdf_old_from_post ) {
+				$cf7pdf_result['filename'] = $cf7pdf_old_from_post;
+			}
+
+			if ( ! $cf7pdf_has_new_upload ) {
+				if ( '' !== $cf7pdf_result['filename'] ) {
+					$cf7pdf_resolved_path = self::get_attach_pdf_path_from_settings(
+						array(
+							'cf7_opt_attach_pdf_image' => $cf7pdf_result['filename'],
+							'cf7_opt_attach_pdf_url'   => $cf7pdf_result['url'],
+							'cf7_opt_attach_pdf_path'  => $cf7pdf_result['path'],
+						)
+					);
+					$cf7pdf_resolved_url  = self::get_attach_pdf_url_from_settings(
+						array(
+							'cf7_opt_attach_pdf_image' => $cf7pdf_result['filename'],
+							'cf7_opt_attach_pdf_url'   => $cf7pdf_result['url'],
+							'cf7_opt_attach_pdf_path'  => $cf7pdf_resolved_path,
+						)
+					);
+
+					if ( '' !== $cf7pdf_resolved_path ) {
+						$cf7pdf_result['path'] = $cf7pdf_resolved_path;
+					}
+
+					if ( '' !== $cf7pdf_resolved_url ) {
+						$cf7pdf_result['url'] = $cf7pdf_resolved_url;
+					}
+				}
+
+				self::debug_log( 'No new PDF upload in request; keeping existing attachment', $cf7pdf_result );
+				return $cf7pdf_result;
+			}
+
+			$cf7pdf_result['attempted'] = true;
+			$cf7pdf_result['ok']        = false;
+
+			self::debug_log( 'Flattened upload file', $cf7pdf_file );
+
+			if ( ! self::ensure_attachments_dir() ) {
+				$cf7pdf_result['error'] = 'dir_not_writable';
+				self::debug_log( 'Attachments directory is not writable', self::get_attachments_dir() );
+				return $cf7pdf_result;
+			}
+
+			$cf7pdf_file_name = sanitize_file_name( $cf7pdf_file['name'] );
+			$cf7pdf_file_name = preg_replace( '/\s+/', '', $cf7pdf_file_name );
+
+			$cf7pdf_checked = wp_check_filetype_and_ext(
+				$cf7pdf_file['tmp_name'],
+				$cf7pdf_file_name,
+				array(
+					'pdf' => 'application/pdf',
+				)
+			);
+
+			self::debug_log(
+				'wp_check_filetype_and_ext',
+				array(
+					'checked' => $cf7pdf_checked,
+					'mime'    => function_exists( 'mime_content_type' ) ? mime_content_type( $cf7pdf_file['tmp_name'] ) : 'n/a',
+				)
+			);
+
+			if ( empty( $cf7pdf_checked['ext'] ) || 'pdf' !== $cf7pdf_checked['ext'] ) {
+				$cf7pdf_result['error'] = 'invalid_type';
+				return $cf7pdf_result;
+			}
+
+			$cf7pdf_header = file_get_contents( $cf7pdf_file['tmp_name'], false, null, 0, 5 );
+			if ( false === $cf7pdf_header || 0 !== strpos( $cf7pdf_header, '%PDF-' ) ) {
+				$cf7pdf_result['error'] = 'invalid_pdf_header';
+				self::debug_log( 'Invalid PDF header', $cf7pdf_header );
+				return $cf7pdf_result;
+			}
+
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+
+			$cf7pdf_upload_key = 'cf7pdf_attach_upload';
+			$_FILES[ $cf7pdf_upload_key ] = $cf7pdf_file;
+
+			add_filter( 'upload_dir', array( __CLASS__, 'filter_attach_pdf_upload_dir' ) );
+
+			$cf7pdf_upload = wp_handle_upload(
+				$_FILES[ $cf7pdf_upload_key ],
+				array(
+					'test_form' => false,
+					'mimes'     => array(
+						'pdf' => 'application/pdf',
+					),
+				)
+			);
+
+			remove_filter( 'upload_dir', array( __CLASS__, 'filter_attach_pdf_upload_dir' ) );
+			unset( $_FILES[ $cf7pdf_upload_key ] );
+
+			self::debug_log( 'wp_handle_upload result', $cf7pdf_upload );
+
+			if ( isset( $cf7pdf_upload['error'] ) ) {
+				$cf7pdf_result['error'] = 'wp_handle_upload';
+				self::debug_log( 'wp_handle_upload error', $cf7pdf_upload['error'] );
+				return $cf7pdf_result;
+			}
+
+			$cf7pdf_saved_path = isset( $cf7pdf_upload['file'] ) ? wp_normalize_path( $cf7pdf_upload['file'] ) : '';
+			$cf7pdf_saved_url  = isset( $cf7pdf_upload['url'] ) ? esc_url_raw( $cf7pdf_upload['url'] ) : '';
+			$cf7pdf_saved_name = '' !== $cf7pdf_saved_path ? basename( $cf7pdf_saved_path ) : $cf7pdf_file_name;
+
+			self::debug_log(
+				'Saved attachment',
+				array(
+					'path'        => $cf7pdf_saved_path,
+					'url'         => $cf7pdf_saved_url,
+					'file_exists' => ( '' !== $cf7pdf_saved_path && file_exists( $cf7pdf_saved_path ) ),
+					'mime'        => ( '' !== $cf7pdf_saved_path && function_exists( 'mime_content_type' ) ) ? mime_content_type( $cf7pdf_saved_path ) : 'n/a',
+				)
+			);
+
+			if ( '' === $cf7pdf_saved_path || ! file_exists( $cf7pdf_saved_path ) ) {
+				$cf7pdf_result['error'] = 'save_failed';
+				return $cf7pdf_result;
+			}
+
+			if ( '' !== $cf7pdf_old_from_post && $cf7pdf_old_from_post !== $cf7pdf_saved_name ) {
+				self::delete_attached_pdf_file( $cf7pdf_old_from_post );
+			}
+
+			$cf7pdf_result['ok']       = true;
+			$cf7pdf_result['filename'] = $cf7pdf_saved_name;
+			$cf7pdf_result['url']      = $cf7pdf_saved_url;
+			$cf7pdf_result['path']     = $cf7pdf_saved_path;
+
+			return $cf7pdf_result;
+		}
+
+		/**
+		 * Admin notice text for attached PDF upload errors.
+		 *
+		 * @param string $code Error code from process_attach_pdf_upload().
+		 * @return string
+		 */
+		public static function get_attach_pdf_upload_error_message( $code ) {
+			switch ( $code ) {
+				case 'invalid_type':
+				case 'invalid_pdf_header':
+					return __( 'Only PDF files are allowed. Please upload a valid PDF.', 'generate-pdf-using-contact-form-7' );
+				case 'dir_not_writable':
+					return __( 'The PDF attachments folder could not be created or is not writable.', 'generate-pdf-using-contact-form-7' );
+				case 'save_failed':
+					return __( 'The uploaded PDF could not be saved. Please check folder permissions and try again.', 'generate-pdf-using-contact-form-7' );
+				case 'wp_handle_upload':
+					return __( 'There has been an error with uploading PDF.', 'generate-pdf-using-contact-form-7' );
+				default:
+					if ( 0 === strpos( (string) $code, 'upload_err_' ) ) {
+						$cf7pdf_err_code = (int) str_replace( 'upload_err_', '', $code );
+						if ( in_array( $cf7pdf_err_code, array( UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE ), true ) ) {
+							return __( 'The PDF file is too large. Increase upload limits or choose a smaller file.', 'generate-pdf-using-contact-form-7' );
+						}
+					}
+					return __( 'The uploaded PDF could not be read. Please try again.', 'generate-pdf-using-contact-form-7' );
 			}
 		}
 
