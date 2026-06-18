@@ -41,9 +41,32 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 		 */
 		private $cf7pdf_remove_after_mail = false;
 
+		/**
+		 * PDF download URL for the form success message.
+		 *
+		 * @var string
+		 */
+		private $cf7pdf_success_link_url = '';
+
+		/**
+		 * Link label for the form success message.
+		 *
+		 * @var string
+		 */
+		private $cf7pdf_success_link_text = '';
+
+		/**
+		 * Whether the success-message PDF link is enabled for this submission.
+		 *
+		 * @var bool
+		 */
+		private $cf7pdf_success_link_enabled = false;
+
 		function __construct()  {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ));
 			add_action( 'wpcf7_before_send_mail', array( $this, 'wpcf7_pdf_attachment_script' ), 10, 1 );
+			add_filter( 'wpcf7_feedback_response', array( $this, 'append_pdf_link_to_feedback_response' ), 10, 2 );
+			add_filter( 'wpcf7_ajax_json_echo', array( $this, 'append_pdf_link_to_feedback_response' ), 10, 2 );
 			add_filter( 'wpcf7_mail_components', array( $this, 'inject_pdf_mail_attachments' ), 99, 3 );
 			add_filter( 'wp_mail', array( $this, 'inject_wp_mail_attachments' ), 99, 1 );
 			add_action( 'wpcf7_mail_sent', array( $this, 'cleanup_after_mail_sent' ), 10, 1 );
@@ -297,15 +320,133 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 		}
 
 		/**
-		 * Clear frontend PDF download cookies when PDF operation is off.
+		 * Clear frontend PDF download cookies when the success link is disabled.
 		 */
 		private function clear_pdf_cookies() {
-			$expire = time() - 3600;
+			$this->reset_success_message_pdf_link();
+			$this->expire_pdf_cookie( 'wp-pdf_path' );
+			$this->expire_pdf_cookie( 'wp-enable_pdf_link' );
+			$this->expire_pdf_cookie( 'wp-pdf_download_link_txt' );
+			$this->expire_pdf_cookie( 'wp-unit_tag' );
+		}
 
-			setcookie( 'wp-pdf_path', '', $expire, '/' );
-			setcookie( 'wp-enable_pdf_link', '', $expire, '/' );
-			setcookie( 'wp-pdf_download_link_txt', '', $expire, '/' );
-			setcookie( 'wp-unit_tag', '', $expire, '/' );
+		/**
+		 * Reset stored success-message PDF link data for the current request.
+		 */
+		private function reset_success_message_pdf_link() {
+			$this->cf7pdf_success_link_url     = '';
+			$this->cf7pdf_success_link_text    = '';
+			$this->cf7pdf_success_link_enabled = false;
+		}
+
+		/**
+		 * Store PDF link data for the success message (REST response + cookie fallback).
+		 *
+		 * @param string $url      PDF URL.
+		 * @param string $text     Link label.
+		 * @param string $unit_tag CF7 unit tag for the submitted form.
+		 */
+		private function set_success_message_pdf_link( $url, $text, $unit_tag = '' ) {
+			$url  = esc_url_raw( (string) $url );
+			$text = sanitize_text_field( (string) $text );
+
+			if ( '' === $url ) {
+				return;
+			}
+
+			if ( '' === $text ) {
+				$text = __( 'Click here to download PDF', 'generate-pdf-using-contact-form-7' );
+			}
+
+			$this->cf7pdf_success_link_url     = $url;
+			$this->cf7pdf_success_link_text    = $text;
+			$this->cf7pdf_success_link_enabled = true;
+
+			$expire = time() + DAY_IN_SECONDS;
+
+			if ( PHP_VERSION_ID >= 70300 ) {
+				$cookie_options = array(
+					'expires'  => $expire,
+					'path'     => '/',
+					'secure'   => is_ssl(),
+					'httponly' => false,
+					'samesite' => 'Lax',
+				);
+
+				setcookie( 'wp-pdf_path', $url, $cookie_options );
+				setcookie( 'wp-enable_pdf_link', 'true', $cookie_options );
+				setcookie( 'wp-pdf_download_link_txt', $text, $cookie_options );
+
+				if ( '' !== $unit_tag ) {
+					setcookie( 'wp-unit_tag', sanitize_text_field( $unit_tag ), $cookie_options );
+				}
+
+				return;
+			}
+
+			setcookie( 'wp-pdf_path', $url, $expire, '/' );
+			setcookie( 'wp-enable_pdf_link', 'true', $expire, '/' );
+			setcookie( 'wp-pdf_download_link_txt', $text, $expire, '/' );
+
+			if ( '' !== $unit_tag ) {
+				setcookie( 'wp-unit_tag', sanitize_text_field( $unit_tag ), $expire, '/' );
+			}
+		}
+
+		/**
+		 * Expire a frontend PDF cookie.
+		 *
+		 * @param string $name Cookie name.
+		 */
+		private function expire_pdf_cookie( $name ) {
+			$expire = time() - DAY_IN_SECONDS;
+
+			if ( PHP_VERSION_ID >= 70300 ) {
+				setcookie(
+					$name,
+					'',
+					array(
+						'expires'  => $expire,
+						'path'     => '/',
+						'secure'   => is_ssl(),
+						'httponly' => false,
+						'samesite' => 'Lax',
+					)
+				);
+				return;
+			}
+
+			setcookie( $name, '', $expire, '/' );
+		}
+
+		/**
+		 * Pass PDF success-link state to the CF7 REST/AJAX response.
+		 *
+		 * @param array $response Feedback response.
+		 * @param array $result   Submission result.
+		 * @return array
+		 */
+		public function append_pdf_link_to_feedback_response( $response, $result ) {
+			if ( ! is_array( $response ) || ! is_array( $result ) ) {
+				return $response;
+			}
+
+			if ( empty( $result['status'] ) || 'mail_sent' !== $result['status'] ) {
+				return $response;
+			}
+
+			$response['cf7_pdf_download_link_enabled'] = $this->cf7pdf_success_link_enabled ? 'true' : 'false';
+
+			if ( ! $this->cf7pdf_success_link_enabled || '' === $this->cf7pdf_success_link_url ) {
+				return $response;
+			}
+
+			$response['cf7_pdf_download_link'] = array(
+				'url'  => $this->cf7pdf_success_link_url,
+				'text' => $this->cf7pdf_success_link_text,
+			);
+
+			return $response;
 		}
 
 		/**
@@ -409,6 +550,7 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			$this->cf7pdf_mail_attachment_path = '';
 			$this->cf7pdf_remove_attachment_id   = 0;
 			$this->cf7pdf_remove_after_mail     = false;
+			$this->reset_success_message_pdf_link();
 
 			if ( ! $wpcf7 || ! method_exists( $wpcf7, 'id' ) ) {
 				return $wpcf7;
@@ -469,6 +611,10 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 			$cf7_dettach_active = isset( $setting_data['cf7_dettach_pdf'] ) && 'true' === $setting_data['cf7_dettach_pdf'];
 			$cf7_link_active    = isset( $setting_data['cf7_pdf_link_is_enable'] ) && 'true' === $setting_data['cf7_pdf_link_is_enable'];
 
+			if ( ! $cf7_link_active ) {
+				$this->clear_pdf_cookies();
+			}
+
 			if ( $cf7_dettach_active || $cf7_link_active ) {
 					if ( isset($setting_data['cf7_opt_is_attach_enable']) && $setting_data['cf7_opt_is_attach_enable'] == 'true') {
 						
@@ -511,17 +657,8 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 								$attdataurl = $pdf_url_path;
 							}
 
-							if($setting_data['cf7_pdf_link_is_enable'] == 'true'){
-			 					$cookie_name = "wp-pdf_path";
-								$cookie_value = $attdataurl;
-								//86400 = 1 day
-								setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); 
-								//86400 = 1 day
-								setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/");
-								//86400 = 1 day
-								setcookie( 'wp-pdf_download_link_txt', $cf7_pdf_download_link_txt, time() + (86400 * 1), "/"); 
-								//86400 = 1 day
-								setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/");
+							if ( $cf7_link_active && ! empty( $attdataurl ) ) {
+								$this->set_success_message_pdf_link( $attdataurl, $cf7_pdf_download_link_txt, $unit_tag );
 							}
 							
 							if ( ! empty( $attdataurl ) ) {
@@ -608,18 +745,8 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Front_Action' ) ){
 							$this->log_pdf_submission( $contact_id, $attdataurl, $log_path );
 						}
 
-						if($setting_data['cf7_pdf_link_is_enable'] == 'true'){
-
-							$cookie_name = "wp-pdf_path";
-							$cookie_value = $attdataurl;
-							//86400 = 1 day
-							setcookie( $cookie_name, $cookie_value, time() + (86400 * 1), "/"); 
-							//86400 = 1 day
-							setcookie( 'wp-enable_pdf_link', $cf7_pdf_link_is_enable, time() + (86400 * 1), "/");
-							//86400 = 1 day
-							setcookie( 'wp-pdf_download_link_txt', $cf7_pdf_download_link_txt, time() + (86400 * 1), "/");
-							//86400 = 1 day
-							setcookie( 'wp-unit_tag', $unit_tag, time() + (86400 * 1), "/"); 
+						if ( $cf7_link_active && ! empty( $attdataurl ) ) {
+							$this->set_success_message_pdf_link( $attdataurl, $cf7_pdf_download_link_txt, $unit_tag );
 						}
 						
 						if ( isset( $setting_data['cf7_dettach_pdf'] ) && 'true' === $setting_data['cf7_dettach_pdf'] ) {
