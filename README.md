@@ -1,6 +1,6 @@
 # Generate PDF using Contact Form 7
 
-**Version:** 4.2.0  
+**Version:** 4.2.1  
 **Requires at least:** WordPress 4.7  
 **Requires PHP:** 5.6  
 **Tested up to:** WordPress 7.0  
@@ -244,6 +244,14 @@ wp-content/plugins/generate-pdf-using-contact-form-7/inc/lib/mpdf/vendor/mpdf/mp
 **How-to video:** https://www.awesomescreenshot.com/video/17025362?key=99cbec8974ee85fdad75e8cea60a97d6
 
 ## Changelog
+
+### 4.2.1
+
+- Fix: restored page break support using the user-friendly `[page-break]` tag (and legacy pagebreak markup).
+- Fix: PDF dynamic tags such as `[date]`, `[time]`, `[random-number]`, `[_site_title]`, `[_site_url]`, `[remote_ip]`, and `[_post_title]` now replace correctly in generated PDFs.
+- Improvement: redesigned Field tags and PDF tags panel in the admin with click-to-insert tags.
+- Fix: line breaks in plain-text PDF message bodies render correctly together with page breaks.
+- Tested with WordPress 7.0.
 
 ### 4.2.0
 

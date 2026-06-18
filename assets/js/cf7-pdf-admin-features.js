@@ -712,4 +712,55 @@
 	$( '#cf7-pdf-preview-frame' ).on( 'load', function () {
 		setPreviewLoading( false );
 	} );
+
+	function getMessageBodyEditor() {
+		var textarea = document.getElementById( 'code' );
+
+		if ( ! textarea ) {
+			return null;
+		}
+
+		var sibling = textarea.nextElementSibling;
+
+		if ( sibling && sibling.CodeMirror ) {
+			return sibling.CodeMirror;
+		}
+
+		return null;
+	}
+
+	function insertTagIntoMessageBody( tag ) {
+		var editor = getMessageBodyEditor();
+
+		if ( editor ) {
+			editor.replaceSelection( tag );
+			editor.focus();
+			return;
+		}
+
+		var textarea = document.getElementById( 'code' );
+
+		if ( ! textarea ) {
+			return;
+		}
+
+		var start = textarea.selectionStart || 0;
+		var end = textarea.selectionEnd || 0;
+		var value = textarea.value || '';
+
+		textarea.value = value.substring( 0, start ) + tag + value.substring( end );
+		textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+		textarea.focus();
+	}
+
+	$( document ).off( 'click', '.mail_tag' ).on( 'click', '.mail_tag', function ( e ) {
+		var tag = $( this ).data( 'tag' );
+
+		if ( ! tag ) {
+			return;
+		}
+
+		e.preventDefault();
+		insertTagIntoMessageBody( tag );
+	} );
 }( jQuery ) );

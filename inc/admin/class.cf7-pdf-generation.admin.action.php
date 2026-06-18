@@ -210,10 +210,10 @@ if ( !class_exists( 'Cf7_Pdf_Generation_Admin_Action' ) ){
 				wp_enqueue_style( 'codemirror-theme-3024-night', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-generation-3024-night-min.css', array(), Cf7_Pdf_Generation_VERSION, 'all' );
 				wp_enqueue_style( 'jquery-ui-resize', WP_CF7_PDF_URL . 'assets/css/cf7-pdf-jquery-ui-min.css', array(), Cf7_Pdf_Generation_VERSION, 'all' );
 				wp_enqueue_style( 'dashicons' );
-				$features_css = WP_CF7_PDF_DIR . 'assets/css/cf7-pdf-admin-features-min.css';
+				$features_css = WP_CF7_PDF_DIR . 'assets/css/cf7-pdf-admin-features.css';
 				wp_enqueue_style(
 					'cf7-pdf-admin-features',
-					WP_CF7_PDF_URL . 'assets/css/cf7-pdf-admin-features-min.css',
+					WP_CF7_PDF_URL . 'assets/css/cf7-pdf-admin-features.css',
 					array( 'dashicons' ),
 					is_readable( $features_css ) ? (string) filemtime( $features_css ) : Cf7_Pdf_Generation_VERSION,
 					'all'

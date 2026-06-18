@@ -175,47 +175,6 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 					$value = isset( $acceptance_value ) ? $acceptance_value : $value;
 				}
 
-				if ( false !== strpos( $msg_body, '[date]' ) ) {
-					$msg_body                  = str_replace( '[date]', $date, $msg_body );
-					$cf7_pdf_filename_prefix = str_replace( '[date]', $date, $cf7_pdf_filename_prefix );
-				}
-
-				if ( false !== strpos( $msg_body, '[time]' ) ) {
-					$msg_body                  = str_replace( '[time]', $time, $msg_body );
-					$cf7_pdf_filename_prefix = str_replace( '[time]', $time, $cf7_pdf_filename_prefix );
-				}
-
-				if ( false !== strpos( $msg_body, '[random-number]' ) ) {
-					$msg_body = str_replace( '[random-number]', $current_time, $msg_body );
-				}
-
-				if ( false !== strpos( $msg_body, '[_site_url]' ) ) {
-					$msg_body = str_replace( '[_site_url]', '<a href="' . esc_url( site_url() ) . '" target="_blank">' . esc_html( site_url() ) . '</a>', $msg_body );
-				}
-
-				if ( false !== strpos( $msg_body, '[_site_title]' ) ) {
-					$site_title               = get_bloginfo( 'name' );
-					$msg_body                 = str_replace( '[_site_title]', $site_title, $msg_body );
-					$cf7_pdf_filename_prefix = str_replace( '[_site_title]', $site_title, $cf7_pdf_filename_prefix );
-				}
-
-				if ( false !== strpos( $msg_body, '[_site_description]' ) ) {
-					$site_description = get_bloginfo( 'description' );
-					$msg_body         = str_replace( '[_site_description]', $site_description, $msg_body );
-				}
-
-				if ( false !== strpos( $msg_body, '[remote_ip]' ) ) {
-					$remote_ip                = self::get_submission_meta( $submission, 'remote_ip', '' );
-					$msg_body                 = str_replace( '[remote_ip]', $remote_ip, $msg_body );
-					$cf7_pdf_filename_prefix = str_replace( '[remote_ip]', $remote_ip, $cf7_pdf_filename_prefix );
-				}
-
-				if ( false !== strpos( $msg_body, '[_post_title]' ) ) {
-					$post_id    = self::get_submission_meta( $submission, 'container_post_id', 0 );
-					$post_title = $post_id ? get_the_title( $post_id ) : '';
-					$msg_body   = str_replace( '[_post_title]', $post_title, $msg_body );
-				}
-
 				if ( '' === $value ) {
 					if ( 'true' === $cf7_pdf_show_hide_label ) {
 						$msg_body = str_replace( '[' . $key . ']', '', $msg_body );
@@ -237,6 +196,17 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 				}
 			}
 
+			$cf7pdf_replaced = self::replace_pdf_dynamic_tags(
+				$msg_body,
+				$cf7_pdf_filename_prefix,
+				$submission,
+				$date,
+				$time,
+				$current_time
+			);
+			$msg_body                  = $cf7pdf_replaced['msg_body'];
+			$cf7_pdf_filename_prefix = $cf7pdf_replaced['filename_prefix'];
+
 			$msgbody_array = explode( "\n", $msg_body );
 			if ( $msgbody_array ) {
 				$i = 0;
@@ -253,10 +223,6 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 
 			if ( $wpcf7 && $submission ) {
 				$html = apply_filters( 'cf7_pdf_message_body', $html, $wpcf7, $submission );
-			}
-
-			if ( false === strpos( $html, '<' ) && false === strpos( $html, '<table' ) ) {
-				$html = nl2br( $html );
 			}
 
 			return array(
@@ -502,6 +468,70 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 			}
 
 			return $settings;
+		}
+
+		/**
+		 * Replace built-in PDF tags ([date], [time], etc.) in message body and filename.
+		 *
+		 * @param string      $msg_body          PDF message body.
+		 * @param string      $filename_prefix   PDF filename prefix.
+		 * @param object|null $submission        WPCF7_Submission.
+		 * @param string      $date              Formatted submission date.
+		 * @param string      $time              Formatted submission time.
+		 * @param string      $random_number     Unique random number string.
+		 * @return array{msg_body:string,filename_prefix:string}
+		 */
+		private static function replace_pdf_dynamic_tags( $msg_body, $filename_prefix, $submission, $date, $time, $random_number ) {
+			if ( false !== strpos( $msg_body, '[date]' ) || false !== strpos( $filename_prefix, '[date]' ) ) {
+				$msg_body        = str_replace( '[date]', $date, $msg_body );
+				$filename_prefix = str_replace( '[date]', $date, $filename_prefix );
+			}
+
+			if ( false !== strpos( $msg_body, '[time]' ) || false !== strpos( $filename_prefix, '[time]' ) ) {
+				$msg_body        = str_replace( '[time]', $time, $msg_body );
+				$filename_prefix = str_replace( '[time]', $time, $filename_prefix );
+			}
+
+			if ( false !== strpos( $msg_body, '[random-number]' ) || false !== strpos( $filename_prefix, '[random-number]' ) ) {
+				$msg_body        = str_replace( '[random-number]', $random_number, $msg_body );
+				$filename_prefix = str_replace( '[random-number]', $random_number, $filename_prefix );
+			}
+
+			if ( false !== strpos( $msg_body, '[_site_url]' ) || false !== strpos( $filename_prefix, '[_site_url]' ) ) {
+				$site_url_link = '<a href="' . esc_url( site_url() ) . '" target="_blank">' . esc_html( site_url() ) . '</a>';
+				$msg_body      = str_replace( '[_site_url]', $site_url_link, $msg_body );
+				$filename_prefix = str_replace( '[_site_url]', site_url(), $filename_prefix );
+			}
+
+			if ( false !== strpos( $msg_body, '[_site_title]' ) || false !== strpos( $filename_prefix, '[_site_title]' ) ) {
+				$site_title      = get_bloginfo( 'name' );
+				$msg_body        = str_replace( '[_site_title]', $site_title, $msg_body );
+				$filename_prefix = str_replace( '[_site_title]', $site_title, $filename_prefix );
+			}
+
+			if ( false !== strpos( $msg_body, '[_site_description]' ) || false !== strpos( $filename_prefix, '[_site_description]' ) ) {
+				$site_description = get_bloginfo( 'description' );
+				$msg_body         = str_replace( '[_site_description]', $site_description, $msg_body );
+				$filename_prefix  = str_replace( '[_site_description]', $site_description, $filename_prefix );
+			}
+
+			if ( false !== strpos( $msg_body, '[remote_ip]' ) || false !== strpos( $filename_prefix, '[remote_ip]' ) ) {
+				$remote_ip       = self::get_submission_meta( $submission, 'remote_ip', '' );
+				$msg_body        = str_replace( '[remote_ip]', $remote_ip, $msg_body );
+				$filename_prefix = str_replace( '[remote_ip]', $remote_ip, $filename_prefix );
+			}
+
+			if ( false !== strpos( $msg_body, '[_post_title]' ) || false !== strpos( $filename_prefix, '[_post_title]' ) ) {
+				$post_id    = self::get_submission_meta( $submission, 'container_post_id', 0 );
+				$post_title = $post_id ? get_the_title( $post_id ) : '';
+				$msg_body   = str_replace( '[_post_title]', $post_title, $msg_body );
+				$filename_prefix = str_replace( '[_post_title]', $post_title, $filename_prefix );
+			}
+
+			return array(
+				'msg_body'        => $msg_body,
+				'filename_prefix' => $filename_prefix,
+			);
 		}
 
 		/**
