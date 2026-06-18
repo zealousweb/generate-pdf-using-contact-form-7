@@ -963,6 +963,7 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 				$cf7pdf_message .= ' ' . wp_json_encode( $data );
 			}
 
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Used only when WP_DEBUG_LOG is enabled.
 			error_log( $cf7pdf_message );
 		}
 
@@ -1057,7 +1058,11 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 		 * @return array|null
 		 */
 		private static function get_nested_settings_upload_file() {
-			if ( ! isset( $_FILES['wp_cf7_pdf_settings'] ) || ! is_array( $_FILES['wp_cf7_pdf_settings'] ) ) {
+			if ( ! self::verify_settings_save_nonce() ) {
+				return null;
+			}
+
+			if ( ! isset( $_FILES['wp_cf7_pdf_settings'] ) || ! is_array( $_FILES['wp_cf7_pdf_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
 				return null;
 			}
 
@@ -1168,18 +1173,27 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 				'error'     => '',
 			);
 
-			$cf7pdf_old_from_post = '';
-			if ( isset( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) ) {
-				$cf7pdf_old_from_post = sanitize_file_name( wp_unslash( $_POST['wp_cf7_pdf_settings']['cf7_opt_attach_pdf_old_url'] ) );
+			if ( ! self::verify_settings_save_nonce() ) {
+				return $cf7pdf_result;
 			}
 
-			self::debug_log( '$_FILES[wp_cf7_pdf_settings]', isset( $_FILES['wp_cf7_pdf_settings'] ) ? $_FILES['wp_cf7_pdf_settings'] : 'missing' );
+			$cf7pdf_old_from_post = '';
+			$cf7pdf_settings_input = filter_input(
+				INPUT_POST,
+				'wp_cf7_pdf_settings',
+				FILTER_DEFAULT,
+				FILTER_REQUIRE_ARRAY
+			);
+
+			if ( is_array( $cf7pdf_settings_input ) && isset( $cf7pdf_settings_input['cf7_opt_attach_pdf_old_url'] ) ) {
+				$cf7pdf_old_from_post = sanitize_file_name( wp_unslash( $cf7pdf_settings_input['cf7_opt_attach_pdf_old_url'] ) );
+			}
 
 			$cf7pdf_file           = self::get_nested_settings_upload_file();
 			$cf7pdf_has_new_upload = self::has_new_pdf_upload( $cf7pdf_file );
 
 			self::debug_log(
-				'has_new_pdf_upload',
+				'PDF settings upload request',
 				array(
 					'has_new_upload' => $cf7pdf_has_new_upload,
 					'old_from_post'  => $cf7pdf_old_from_post,
@@ -1272,13 +1286,10 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 
-			$cf7pdf_upload_key = 'cf7pdf_attach_upload';
-			$_FILES[ $cf7pdf_upload_key ] = $cf7pdf_file;
-
 			add_filter( 'upload_dir', array( __CLASS__, 'filter_attach_pdf_upload_dir' ) );
 
 			$cf7pdf_upload = wp_handle_upload(
-				$_FILES[ $cf7pdf_upload_key ],
+				$cf7pdf_file,
 				array(
 					'test_form' => false,
 					'mimes'     => array(
@@ -1288,7 +1299,6 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 			);
 
 			remove_filter( 'upload_dir', array( __CLASS__, 'filter_attach_pdf_upload_dir' ) );
-			unset( $_FILES[ $cf7pdf_upload_key ] );
 
 			self::debug_log( 'wp_handle_upload result', $cf7pdf_upload );
 
