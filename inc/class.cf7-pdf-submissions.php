@@ -963,26 +963,8 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 				$cf7pdf_message .= ' ' . wp_json_encode( $data );
 			}
 
-			$cf7pdf_message .= PHP_EOL;
-
-			if ( ! function_exists( 'WP_Filesystem' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-
-			global $wp_filesystem;
-
-			if ( ! WP_Filesystem() || ! is_object( $wp_filesystem ) ) {
-				return;
-			}
-
-			$cf7pdf_log_file = trailingslashit( WP_CONTENT_DIR ) . 'debug.log';
-			$cf7pdf_existing = $wp_filesystem->exists( $cf7pdf_log_file ) ? $wp_filesystem->get_contents( $cf7pdf_log_file ) : '';
-
-			if ( false === $cf7pdf_existing ) {
-				$cf7pdf_existing = '';
-			}
-
-			$wp_filesystem->put_contents( $cf7pdf_log_file, $cf7pdf_existing . $cf7pdf_message, FS_CHMOD_FILE );
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Used only when WP_DEBUG_LOG is enabled.
+			error_log( $cf7pdf_message );
 		}
 
 		/**
@@ -1076,36 +1058,30 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 		 * @return array|null
 		 */
 		private static function get_nested_settings_upload_file() {
-			if (
-				! isset( $_POST['security-cf7-send-pdf'] )
-				|| ! wp_verify_nonce(
-					sanitize_text_field( wp_unslash( $_POST['security-cf7-send-pdf'] ) ),
-					'cf7_send_form'
-				)
-			) {
+			if ( ! self::verify_settings_save_nonce() ) {
 				return null;
 			}
 
+			if ( ! isset( $_FILES['wp_cf7_pdf_settings'] ) || ! is_array( $_FILES['wp_cf7_pdf_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+				return null;
+			}
+
+			$cf7pdf_files = $_FILES['wp_cf7_pdf_settings'];
+
 			if (
-				! isset( $_FILES['wp_cf7_pdf_settings'] )
-				|| ! is_array( $_FILES['wp_cf7_pdf_settings'] )
-				|| ! isset( $_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image'] )
-				|| ! isset( $_FILES['wp_cf7_pdf_settings']['tmp_name']['cf7_opt_attach_pdf_image'] )
-				|| ! isset( $_FILES['wp_cf7_pdf_settings']['error']['cf7_opt_attach_pdf_image'] )
+				! isset( $cf7pdf_files['name']['cf7_opt_attach_pdf_image'] )
+				|| ! isset( $cf7pdf_files['tmp_name']['cf7_opt_attach_pdf_image'] )
+				|| ! isset( $cf7pdf_files['error']['cf7_opt_attach_pdf_image'] )
 			) {
 				return null;
 			}
 
 			return array(
-				'name'     => sanitize_file_name( wp_unslash( (string) $_FILES['wp_cf7_pdf_settings']['name']['cf7_opt_attach_pdf_image'] ) ),
-				'type'     => isset( $_FILES['wp_cf7_pdf_settings']['type']['cf7_opt_attach_pdf_image'] )
-					? sanitize_text_field( wp_unslash( (string) $_FILES['wp_cf7_pdf_settings']['type']['cf7_opt_attach_pdf_image'] ) )
-					: '',
-				'tmp_name' => wp_normalize_path( wp_unslash( (string) $_FILES['wp_cf7_pdf_settings']['tmp_name']['cf7_opt_attach_pdf_image'] ) ),
-				'error'    => (int) wp_unslash( $_FILES['wp_cf7_pdf_settings']['error']['cf7_opt_attach_pdf_image'] ),
-				'size'     => isset( $_FILES['wp_cf7_pdf_settings']['size']['cf7_opt_attach_pdf_image'] )
-					? (int) wp_unslash( $_FILES['wp_cf7_pdf_settings']['size']['cf7_opt_attach_pdf_image'] )
-					: 0,
+				'name'     => (string) $cf7pdf_files['name']['cf7_opt_attach_pdf_image'],
+				'type'     => isset( $cf7pdf_files['type']['cf7_opt_attach_pdf_image'] ) ? (string) $cf7pdf_files['type']['cf7_opt_attach_pdf_image'] : '',
+				'tmp_name' => (string) $cf7pdf_files['tmp_name']['cf7_opt_attach_pdf_image'],
+				'error'    => (int) $cf7pdf_files['error']['cf7_opt_attach_pdf_image'],
+				'size'     => isset( $cf7pdf_files['size']['cf7_opt_attach_pdf_image'] ) ? (int) $cf7pdf_files['size']['cf7_opt_attach_pdf_image'] : 0,
 			);
 		}
 
@@ -1392,87 +1368,6 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 		}
 
 		/**
-		 * Encode a string using RFC 4648 base64 without discouraged PHP helpers.
-		 *
-		 * @param string $data Raw string.
-		 * @return string
-		 */
-		private static function encode_base64_string( $data ) {
-			if ( function_exists( 'sodium_bin2base64' ) ) {
-				return sodium_bin2base64( $data, SODIUM_BASE64_VARIANT_ORIGINAL );
-			}
-
-			$cf7pdf_alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-			$cf7pdf_encoded  = '';
-			$cf7pdf_bytes    = unpack( 'C*', $data );
-			$cf7pdf_count    = is_array( $cf7pdf_bytes ) ? count( $cf7pdf_bytes ) : 0;
-			$cf7pdf_index    = 1;
-
-			while ( $cf7pdf_index <= $cf7pdf_count ) {
-				$cf7pdf_byte1  = $cf7pdf_bytes[ $cf7pdf_index ];
-				$cf7pdf_byte2  = ( $cf7pdf_index + 1 <= $cf7pdf_count ) ? $cf7pdf_bytes[ $cf7pdf_index + 1 ] : 0;
-				$cf7pdf_byte3  = ( $cf7pdf_index + 2 <= $cf7pdf_count ) ? $cf7pdf_bytes[ $cf7pdf_index + 2 ] : 0;
-				$cf7pdf_triplet = ( $cf7pdf_byte1 << 16 ) | ( $cf7pdf_byte2 << 8 ) | $cf7pdf_byte3;
-
-				$cf7pdf_encoded .= $cf7pdf_alphabet[ ( $cf7pdf_triplet >> 18 ) & 63 ];
-				$cf7pdf_encoded .= $cf7pdf_alphabet[ ( $cf7pdf_triplet >> 12 ) & 63 ];
-				$cf7pdf_encoded .= ( $cf7pdf_index + 1 <= $cf7pdf_count ) ? $cf7pdf_alphabet[ ( $cf7pdf_triplet >> 6 ) & 63 ] : '=';
-				$cf7pdf_encoded .= ( $cf7pdf_index + 2 <= $cf7pdf_count ) ? $cf7pdf_alphabet[ $cf7pdf_triplet & 63 ] : '=';
-
-				$cf7pdf_index += 3;
-			}
-
-			return $cf7pdf_encoded;
-		}
-
-		/**
-		 * Decode an RFC 4648 base64 string without discouraged PHP helpers.
-		 *
-		 * @param string $data Encoded string.
-		 * @return string|false
-		 */
-		private static function decode_base64_string( $data ) {
-			if ( function_exists( 'sodium_base642bin' ) ) {
-				return sodium_base642bin( $data, SODIUM_BASE64_VARIANT_ORIGINAL, true );
-			}
-
-			$cf7pdf_data = preg_replace( '/[^A-Za-z0-9+\/=]/', '', (string) $data );
-
-			if ( '' === $cf7pdf_data || 0 !== ( strlen( $cf7pdf_data ) % 4 ) ) {
-				return false;
-			}
-
-			$cf7pdf_alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-			$cf7pdf_decoded  = '';
-			$cf7pdf_length   = strlen( $cf7pdf_data );
-
-			for ( $cf7pdf_index = 0; $cf7pdf_index < $cf7pdf_length; $cf7pdf_index += 4 ) {
-				$cf7pdf_char1 = strpos( $cf7pdf_alphabet, $cf7pdf_data[ $cf7pdf_index ] );
-				$cf7pdf_char2 = strpos( $cf7pdf_alphabet, $cf7pdf_data[ $cf7pdf_index + 1 ] );
-				$cf7pdf_char3 = '=' === $cf7pdf_data[ $cf7pdf_index + 2 ] ? 0 : strpos( $cf7pdf_alphabet, $cf7pdf_data[ $cf7pdf_index + 2 ] );
-				$cf7pdf_char4 = '=' === $cf7pdf_data[ $cf7pdf_index + 3 ] ? 0 : strpos( $cf7pdf_alphabet, $cf7pdf_data[ $cf7pdf_index + 3 ] );
-
-				if ( false === $cf7pdf_char1 || false === $cf7pdf_char2 || false === $cf7pdf_char3 || false === $cf7pdf_char4 ) {
-					return false;
-				}
-
-				$cf7pdf_triplet = ( $cf7pdf_char1 << 18 ) | ( $cf7pdf_char2 << 12 ) | ( $cf7pdf_char3 << 6 ) | $cf7pdf_char4;
-
-				$cf7pdf_decoded .= chr( ( $cf7pdf_triplet >> 16 ) & 255 );
-
-				if ( '=' !== $cf7pdf_data[ $cf7pdf_index + 2 ] ) {
-					$cf7pdf_decoded .= chr( ( $cf7pdf_triplet >> 8 ) & 255 );
-				}
-
-				if ( '=' !== $cf7pdf_data[ $cf7pdf_index + 3 ] ) {
-					$cf7pdf_decoded .= chr( $cf7pdf_triplet & 255 );
-				}
-			}
-
-			return $cf7pdf_decoded;
-		}
-
-		/**
 		 * @param string $password Plain password.
 		 * @return string
 		 */
@@ -1482,7 +1377,7 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 			}
 
 			if ( ! function_exists( 'openssl_encrypt' ) ) {
-				return self::encode_base64_string( $password );
+				return base64_encode( $password ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 			}
 
 			$key = substr( hash( 'sha256', wp_salt( 'auth' ) ), 0, 32 );
@@ -1494,7 +1389,7 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 				return '';
 			}
 
-			return 'enc:' . self::encode_base64_string( $encrypted );
+			return 'enc:' . base64_encode( $encrypted ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
 
 		/**
@@ -1507,7 +1402,7 @@ Your Message : [your-message]', 'generate-pdf-using-contact-form-7' );
 			}
 
 			if ( 0 === strpos( $stored, 'enc:' ) ) {
-				$payload = self::decode_base64_string( substr( $stored, 4 ) );
+				$payload = base64_decode( substr( $stored, 4 ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 
 				if ( false === $payload || ! function_exists( 'openssl_decrypt' ) ) {
 					return '';
