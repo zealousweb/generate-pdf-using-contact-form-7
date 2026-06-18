@@ -428,16 +428,85 @@ if ( !defined( 'ABSPATH' ) ) exit;
 								<tr valign="top">
 									<th scope="row"><?php echo esc_html(__( 'Field tags', 'generate-pdf-using-contact-form-7')); ?></th>
 									<td>
-										<?php
-										$cf7pdf_contact_form = WPCF7_ContactForm::get_instance($cf7pdf_cf7_idform);
-										$cf7pdf_i = 0;
-										foreach ( (array) $cf7pdf_contact_form->collect_mail_tags() as $cf7pdf_mail_tag ) {
-											$cf7pdf_pattern = sprintf( '/\[(_[a-z]+_)?%s([ \t]+[^]]+)?\]/',preg_quote( $cf7pdf_mail_tag, '/' ) );
-											echo '<span class="mail_tag" id="mail_tag_'.esc_html($cf7pdf_i).'" style="cursor: pointer;"><strong> ['.esc_html($cf7pdf_mail_tag).'] </strong></span>&nbsp;';
-											
-											$cf7pdf_i++;
-										}
-										?>
+										<div class="cf7pdf-field-tags-panel">
+											<p class="description cf7pdf-field-tags-panel__intro"><?php esc_html_e( 'Click a tag to insert it into the PDF message body.', 'generate-pdf-using-contact-form-7' ); ?></p>
+
+											<div class="cf7pdf-field-tags-section">
+												<div class="cf7pdf-field-tags-section__head">
+													<span class="cf7pdf-field-tags-section__title"><?php esc_html_e( 'Form fields', 'generate-pdf-using-contact-form-7' ); ?></span>
+												</div>
+												<div class="cf7pdf-field-tags-list">
+												<?php
+												$cf7pdf_contact_form = WPCF7_ContactForm::get_instance( $cf7pdf_cf7_idform );
+												$cf7pdf_i              = 0;
+												foreach ( (array) $cf7pdf_contact_form->collect_mail_tags() as $cf7pdf_mail_tag ) {
+													$cf7pdf_tag_token = '[' . $cf7pdf_mail_tag . ']';
+													printf(
+														'<button type="button" class="mail_tag cf7pdf-mail-tag" id="mail_tag_%1$s" data-tag="%2$s" title="%3$s"><span class="cf7pdf-tag-code">%2$s</span></button>',
+														esc_attr( (string) $cf7pdf_i ),
+														esc_attr( $cf7pdf_tag_token ),
+														esc_attr(
+															sprintf(
+																/* translators: %s: form field name */
+																__( 'Form field: %s', 'generate-pdf-using-contact-form-7' ),
+																$cf7pdf_mail_tag
+															)
+														)
+													);
+													++$cf7pdf_i;
+												}
+												?>
+												</div>
+											</div>
+
+											<?php
+											$cf7pdf_special_tags = Cf7_Pdf_Submissions::get_pdf_special_tags();
+											$cf7pdf_quick_tags   = array_slice( $cf7pdf_special_tags, 0, 3, true );
+											?>
+											<div class="cf7pdf-field-tags-section cf7pdf-field-tags-section--pdf">
+												<div class="cf7pdf-field-tags-section__head">
+													<span class="cf7pdf-field-tags-section__title"><?php esc_html_e( 'PDF tags', 'generate-pdf-using-contact-form-7' ); ?></span>
+												</div>
+												<div class="cf7pdf-field-tags-list cf7pdf-field-tags-list--quick">
+												<?php
+												foreach ( $cf7pdf_quick_tags as $cf7pdf_special_tag => $cf7pdf_special_meta ) {
+													printf(
+														'<button type="button" class="mail_tag cf7pdf-pdf-tag cf7pdf-pdf-tag--quick" data-tag="%1$s" title="%2$s"><span class="cf7pdf-tag-code">%1$s</span></button>',
+														esc_attr( $cf7pdf_special_tag ),
+														esc_attr( $cf7pdf_special_meta['label'] )
+													);
+												}
+												?>
+												</div>
+
+												<details class="cf7pdf-pdf-tags-readmore">
+													<summary class="cf7pdf-pdf-tags-readmore__summary">
+														<span class="cf7pdf-pdf-tags-readmore__chevron dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+														<span class="cf7pdf-pdf-tags-readmore__title"><?php esc_html_e( 'Read more PDF tags', 'generate-pdf-using-contact-form-7' ); ?></span>
+														<span class="cf7pdf-pdf-tags-readmore__count"><?php echo esc_html( (string) count( $cf7pdf_special_tags ) ); ?></span>
+													</summary>
+													<div class="cf7pdf-pdf-tags-readmore__body">
+														<p class="description"><?php esc_html_e( 'Built-in tags for page layout, dates, and site information.', 'generate-pdf-using-contact-form-7' ); ?></p>
+														<div class="cf7pdf-pdf-tags-grid">
+														<?php
+														foreach ( $cf7pdf_special_tags as $cf7pdf_special_tag => $cf7pdf_special_meta ) {
+															printf(
+																'<button type="button" class="mail_tag cf7pdf-pdf-tag-card" data-tag="%1$s" title="%3$s">' .
+																'<span class="cf7pdf-pdf-tag-card__content">' .
+																'<span class="cf7pdf-pdf-tag-card__code">%1$s</span>' .
+																'<span class="cf7pdf-pdf-tag-card__label">%2$s</span>' .
+																'</span></button>',
+																esc_attr( $cf7pdf_special_tag ),
+																esc_html( $cf7pdf_special_meta['label'] ),
+																esc_attr( $cf7pdf_special_meta['description'] )
+															);
+														}
+														?>
+														</div>
+													</div>
+												</details>
+											</div>
+										</div>
 									</td>
 						        </tr>
 
@@ -895,7 +964,7 @@ add_action('admin_print_footer_scripts', function() {
 					pointerClass: 'wp-pointer cf7pap-pointer',
 					content: '<?php
 					echo '<h3>'. esc_html__('Message body','generate-pdf-using-contact-form-7').'</h3>'.
-						'<p>'. esc_html__('You can manage body content of the message which will automatically reflect in the PDF attachement. For the new page you can use tag For acceptance checkbox cf7 tag prefix should be like [acceptance-123]','generate-pdf-using-contact-form-7') .'</p>';?>',
+						'<p>'. esc_html__('You can manage body content of the message which will automatically reflect in the PDF attachment. Use form field tags such as [your-name], or PDF tags such as [page-break] to start a new page. For acceptance fields, use a tag like [acceptance-terms-condition].','generate-pdf-using-contact-form-7') .'</p>';?>',
 					position: 'left center',
 				} ).pointer('open');
 			} );
