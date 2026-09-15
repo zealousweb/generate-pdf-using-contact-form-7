@@ -4,9 +4,9 @@ Donate link: http://www.zealousweb.com/payment/
 Tags: contact form, contact, PDF, email
 Requires at least: 4.7
 Requires PHP: 5.6
-Tested up to: 7.0
-Stable tag: 4.2.1
-Version: 4.2.1
+Tested up to: 7.1
+Stable tag: 4.2.2
+Version: 4.2.2
 License: GPLv3 or later
 License URI: https://spdx.org/licenses/GPL-3.0-or-later.html
 
@@ -251,6 +251,9 @@ S.S https://prnt.sc/-TLx40Qup76r
 
 == Changelog ==
 
+= 4.2.2 =
+* Security - Escape array-valued Contact Form 7 fields before inserting them into the PDF body (SSRF via HTML injection). Reported by Artus KG.
+
 = 4.2.1 =
 * Fix - Restored page break support using the user-friendly [page-break] tag (and legacy pagebreak markup).
 * Fix - PDF dynamic tags such as [date], [time], [random-number], [_site_title], [_site_url], [remote_ip], and [_post_title] now replace correctly in generated PDFs.
@@ -455,6 +458,9 @@ S.S https://prnt.sc/-TLx40Qup76r
 * Release version.
 
 == Upgrade Notice ==
+
+= 4.2.2 =
+* Security - Escape array-valued Contact Form 7 fields before inserting them into the PDF body (SSRF via HTML injection). Reported by Artus KG.
 
 = 4.2.1 =
 * Page breaks, PDF dynamic tags, field tag UI, image rendering, and textarea line break options are improved. Re-save your PDF message body if page breaks stopped working after 4.2.0.
