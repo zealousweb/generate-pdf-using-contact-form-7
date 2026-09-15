@@ -4,7 +4,7 @@ Donate link: http://www.zealousweb.com/payment/
 Tags: contact form, contact, PDF, email
 Requires at least: 4.7
 Requires PHP: 5.6
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: 4.2.2
 Version: 4.2.2
 License: GPLv3 or later
@@ -458,6 +458,9 @@ S.S https://prnt.sc/-TLx40Qup76r
 * Release version.
 
 == Upgrade Notice ==
+
+= 4.2.2 =
+* Security - Escape array-valued Contact Form 7 fields before inserting them into the PDF body (SSRF via HTML injection). Reported by Artus KG.
 
 = 4.2.1 =
 * Page breaks, PDF dynamic tags, field tag UI, image rendering, and textarea line break options are improved. Re-save your PDF message body if page breaks stopped working after 4.2.0.
