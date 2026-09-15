@@ -160,7 +160,15 @@ if ( ! class_exists( 'Cf7_Pdf_Pdf_Builder' ) ) {
 				}
 
 				if ( is_array( $value ) ) {
-					$value = implode( '<br/>', $value );
+					$value = implode(
+						'<br/>',
+						array_map(
+							static function ( $item ) {
+								return htmlspecialchars( (string) $item, ENT_QUOTES, 'UTF-8' );
+							},
+							$value
+						)
+					);
 				} else {
 					$value = htmlspecialchars( (string) $value, ENT_QUOTES, 'UTF-8' );
 				}
